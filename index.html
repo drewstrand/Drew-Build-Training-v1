@@ -3,34 +3,40 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-/* Layout: a race-bib header over a single column of training cards, tabs pinned under the header like lane markers. */
+/* Layout: a deep forest-to-ocean header with a treeline and tide line, then a single column of quiet cards.
+   Phases run moss → pine → lagoon → open ocean as the build gets closer to race day. */
 :root{
-  --bg:#EEF1F4; --surface:#FFFFFF; --surface2:#F5F7F9; --line:#D8DEE5;
-  --ink:#16202B; --ink2:#4A5866; --ink3:#7C8896;
-  --lane:#1F5BD8; --lane-soft:#E3EBFB;
-  --bib:#F2C230; --bib-ink:#1A1608;
-  --found:#A88B5C; --h1:#7A8FA3; --h2:#4F8A8B; --h3:#3E6C8A; --base:#5E9C7A; --thr:#D98A2B; --spec:#1F5BD8; --taper:#8A6CC9;
-  --good:#2E8A57; --warn:#C27A12; --bad:#C2412F;
-  --track:#E1E6EC;
+  --bg:#EAF1EF; --surface:#FFFFFF; --surface2:#F1F6F4; --line:#D7E4E0;
+  --ink:#0D2A2C; --ink2:#3E5D5E; --ink3:#6C8987;
+  --lane:#16708F; --lane-soft:#DCEEF1;
+  --hero1:#0E3B33; --hero2:#0A3350; --hero-ink:#EAF6F2; --hero-dim:#A9CFC6; --foam:#8FE0C4;
+  --found:#9CC6B5; --h1:#6FA58A; --h2:#3F8A70; --h3:#2E7270; --base:#3C9D97; --thr:#2A86B5; --spec:#1C5C93; --taper:#7FA8D8;
+  --zi:#0F3E66; --z-bike:#2E7270; --z-swim:#3A8FC8; --z-lift:#3C5873; --z-mob:#7F9A95;
+  --good:#2B8A5E; --warn:#B47C22; --bad:#B6533F;
+  --track:#DDE8E5; --shadow:0 1px 2px rgba(13,42,44,.05),0 4px 14px rgba(13,42,44,.05);
   --f-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
   --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
-  --r:14px;
+  --r:16px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E141B; --surface:#161E27; --surface2:#1C2631; --line:#2A3642;
-  --ink:#E8EDF2; --ink2:#AAB6C2; --ink3:#7A8794;
-  --lane:#6E9BFF; --lane-soft:#1D2B47;
-  --bib:#F2C230; --bib-ink:#1A1608;
-  --found:#C4A676; --h1:#8FA3B8; --h2:#6FB0B1; --h3:#6E9CC0; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
-  --good:#5CC48A; --warn:#E8A04A; --bad:#EF7666; --track:#26313C; color-scheme:dark}}
+  --bg:#061619; --surface:#0C2226; --surface2:#112D33; --line:#1B3B42;
+  --ink:#E2F1EE; --ink2:#A2C3BE; --ink3:#6E918C;
+  --lane:#5DBAD8; --lane-soft:#10343F;
+  --hero1:#0B2E29; --hero2:#082641; --hero-ink:#EAF6F2; --hero-dim:#9CC4BB; --foam:#8FE0C4;
+  --found:#A9D1C2; --h1:#84BFA2; --h2:#5FAE90; --h3:#4D9C9A; --base:#5FC0BB; --thr:#5BAEDB; --spec:#4F8FD0; --taper:#9DBEE8;
+  --zi:#2B6CA8; --z-bike:#3E8F8C; --z-swim:#3A8FC8; --z-lift:#5A7896; --z-mob:#6E8C88;
+  --good:#5CC992; --warn:#D9A54A; --bad:#E0806B;
+  --track:#17363C; --shadow:none; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E141B; --surface:#161E27; --surface2:#1C2631; --line:#2A3642;
-  --ink:#E8EDF2; --ink2:#AAB6C2; --ink3:#7A8794;
-  --lane:#6E9BFF; --lane-soft:#1D2B47;
-  --bib:#F2C230; --bib-ink:#1A1608;
-  --found:#C4A676; --h1:#8FA3B8; --h2:#6FB0B1; --h3:#6E9CC0; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
-  --good:#5CC48A; --warn:#E8A04A; --bad:#EF7666; --track:#26313C; color-scheme:dark}
+  --bg:#061619; --surface:#0C2226; --surface2:#112D33; --line:#1B3B42;
+  --ink:#E2F1EE; --ink2:#A2C3BE; --ink3:#6E918C;
+  --lane:#5DBAD8; --lane-soft:#10343F;
+  --hero1:#0B2E29; --hero2:#082641; --hero-ink:#EAF6F2; --hero-dim:#9CC4BB; --foam:#8FE0C4;
+  --found:#A9D1C2; --h1:#84BFA2; --h2:#5FAE90; --h3:#4D9C9A; --base:#5FC0BB; --thr:#5BAEDB; --spec:#4F8FD0; --taper:#9DBEE8;
+  --zi:#2B6CA8; --z-bike:#3E8F8C; --z-swim:#3A8FC8; --z-lift:#5A7896; --z-mob:#6E8C88;
+  --good:#5CC992; --warn:#D9A54A; --bad:#E0806B;
+  --track:#17363C; --shadow:none; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 48px}
@@ -46,29 +52,34 @@ h3{font-size:1.1rem;font-weight:700}
 .muted{color:var(--ink2)} .faint{color:var(--ink3);font-size:.8rem}
 p{margin:0}
 
-/* Bib header */
-.bib{margin-top:16px;background:var(--bib);color:var(--bib-ink);border-radius:18px;padding:16px 18px 18px;position:relative}
-.bib-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.bib::before,.bib::after{content:"";position:absolute;top:12px;width:9px;height:9px;border-radius:50%;background:var(--bg)}
-.bib::before{left:12px}.bib::after{right:12px}
-.bib .race{font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding-left:14px;min-width:0}
-.bib .count{font-family:var(--f-display);font-weight:800;font-size:clamp(3.2rem,13vw,5rem);line-height:.9;margin-top:6px;font-variant-numeric:tabular-nums}
-.bib .count small{font-size:.32em;font-weight:700;letter-spacing:.06em;margin-left:6px;text-transform:uppercase;white-space:nowrap}
-.bib .sub{font-size:.88rem;margin-top:6px;font-weight:500}
-.sync{flex:none;margin-right:10px;display:inline-flex;align-items:center;gap:7px;border:1.5px solid rgba(26,22,8,.35);background:transparent;border-radius:999px;padding:5px 12px;font-size:.8rem;font-weight:600;color:var(--bib-ink);white-space:nowrap}
-.sync .dot{width:8px;height:8px;border-radius:50%;background:rgba(26,22,8,.35)}
-.sync[data-s="ok"] .dot{background:#2E8A57}.sync[data-s="err"] .dot{background:#C2412F}
-.sync[data-s="loading"] .dot{background:#1F5BD8;animation:pulse 1s infinite}
+/* Header: forest to ocean */
+.bib{margin-top:16px;background:linear-gradient(135deg,var(--hero1),var(--hero2));color:var(--hero-ink);border-radius:22px;padding:18px 20px 0;position:relative;overflow:hidden}
+.bib-top{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative}
+.bib .race{font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--hero-dim);min-width:0}
+.bib .count{font-family:var(--f-display);font-weight:800;font-size:clamp(3.4rem,14vw,5.2rem);line-height:.9;margin-top:10px;font-variant-numeric:tabular-nums;position:relative}
+.bib .count small{font-size:.3em;font-weight:700;letter-spacing:.08em;margin-left:8px;text-transform:uppercase;white-space:nowrap;color:var(--foam)}
+.bib .sub{font-size:.88rem;margin-top:8px;font-weight:500;color:var(--hero-dim);position:relative}
+.scene{display:block;width:calc(100% + 40px);height:58px;margin:4px -20px 0}
+.scene .trees{fill:var(--foam);opacity:.16}
+.scene .w1{fill:#5DBAD8;opacity:.2}
+.scene .w2{fill:#0A2234;opacity:.45}
+.trail{position:absolute;left:0;right:0;bottom:0;height:5px;display:flex}
+.trail i{display:block;height:100%}
+.trail b{position:absolute;bottom:-1px;width:3px;height:9px;border-radius:2px;background:var(--hero-ink);transform:translateX(-1px)}
+.sync{flex:none;display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(234,246,242,.28);background:rgba(234,246,242,.08);border-radius:999px;padding:5px 12px;font-size:.78rem;font-weight:600;color:var(--hero-ink);white-space:nowrap}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:var(--hero-dim)}
+.sync[data-s="ok"] .dot{background:var(--foam)}.sync[data-s="err"] .dot{background:#F0A08E}
+.sync[data-s="loading"] .dot{background:#5DBAD8;animation:pulse 1s infinite}
 @keyframes pulse{50%{opacity:.3}}
 
 /* Tabs */
 .tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;margin-top:4px}
-.tabbar{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:2px}
+.tabbar{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;gap:2px;box-shadow:var(--shadow)}
 .tabbar button{border:0;background:transparent;border-radius:9px;padding:8px 2px;font-size:.82rem;font-weight:600;color:var(--ink2)}
-.tabbar button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.tabbar button[aria-selected="true"]{background:var(--lane);color:#fff}
 
 /* Cards */
-.card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
 .stack{display:grid;gap:12px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .spread{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
@@ -80,7 +91,7 @@ p{margin:0}
 .note{background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:.88rem;color:var(--ink2)}
 .note b{color:var(--ink);display:block;font-size:.8rem;margin-bottom:2px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
-.stat{background:var(--surface2);border-radius:10px;padding:10px 12px}
+.stat{background:var(--surface2);border-radius:12px;padding:10px 12px}
 .stat .l{font-size:.72rem;color:var(--ink3);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
 .stat .v{font-family:var(--f-display);font-weight:700;font-size:1.6rem;font-variant-numeric:tabular-nums;line-height:1.1}
 .stat .v small{font-size:.55em;color:var(--ink3);font-weight:600;margin-left:3px}
@@ -101,7 +112,7 @@ p{margin:0}
 .days{display:grid;gap:0;margin-top:8px}
 .day{display:grid;grid-template-columns:52px 1fr auto;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
 .day:first-child{border-top:0}
-.day.is-today{background:var(--lane-soft);margin-inline:-16px;padding-inline:16px;border-radius:10px;border-top-color:transparent}
+.day.is-today{background:var(--lane-soft);margin-inline:-18px;padding-inline:18px;border-radius:10px;border-top-color:transparent}
 .day.is-today + .day{border-top-color:transparent}
 .dname{font-family:var(--f-display);font-weight:700;font-size:1.1rem;line-height:1}
 .dname small{display:block;font-family:var(--f-body);font-weight:500;font-size:.72rem;color:var(--ink3);margin-top:3px}
@@ -115,7 +126,8 @@ p{margin:0}
 .done.miss{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
 .done.other{background:var(--surface2);color:var(--ink2)}
 .zone{display:inline-block;font-family:var(--f-mono);font-size:.68rem;padding:1px 6px;border-radius:5px;margin-right:6px;vertical-align:1px;color:#fff}
-.z-E,.z-L{background:var(--base)}.z-T{background:var(--thr)}.z-I{background:var(--bad)}.z-MP{background:var(--spec)}.z-R{background:var(--bib);color:var(--bib-ink)}.z-X{background:var(--ink3)}.z-TT{background:var(--bib);color:var(--bib-ink)}.z-BIKE{background:#B5562A}.z-SWIM{background:#1D86A8}.z-LIFT{background:#5B4A8B}.z-MOB{background:var(--ink3)}
+.zone{border-radius:6px}
+.z-E,.z-L{background:var(--h2)}.z-T{background:var(--thr)}.z-I{background:var(--zi)}.z-MP{background:var(--spec)}.z-R,.z-TT{background:var(--foam);color:#0B2E29}.z-X{background:var(--ink3)}.z-BIKE{background:var(--z-bike)}.z-SWIM{background:var(--z-swim)}.z-LIFT{background:var(--z-lift)}.z-MOB{background:var(--z-mob)}
 .sess+.sess{margin-top:7px}
 .amt{white-space:nowrap}
 .gbtn{border:1px solid var(--line);background:var(--surface2);border-radius:7px;padding:1px 8px;font-size:.72rem;font-weight:600;color:var(--lane);margin-left:4px;vertical-align:1px}
@@ -140,8 +152,17 @@ textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-famil
 .tbl td{padding:9px 8px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
 .tbl tr:last-child td{border-bottom:0}
 .tbl td.num,.tbl th.num{text-align:right;padding-right:0;white-space:nowrap}
-.tbl td.num+td.num,.tbl th.num+th.num{padding-left:10px}
+.tbl td.num,.tbl th.num{padding-left:12px}
 .scroll{overflow-x:auto}
+
+/* Training load */
+.load{position:relative;display:flex;align-items:flex-end;gap:6px;height:112px;margin:12px 0 22px}
+.lb{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative;z-index:1}
+.lb i{display:block;background:var(--h3);opacity:.55;border-radius:4px 4px 2px 2px;min-height:2px}
+.lb.now i{background:var(--lane);opacity:1}
+.lb span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-family:var(--f-mono);font-size:.62rem;color:var(--ink3)}
+.lband{position:absolute;left:0;right:0;background:var(--good);opacity:.12;border-radius:4px}
+.lavg{position:absolute;left:0;right:0;border-top:1px dashed var(--ink3)}
 
 /* Runs */
 .runs{display:grid}
@@ -167,13 +188,13 @@ textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-famil
 .field input,.field select{width:100%;border:1px solid var(--line);background:var(--surface2);border-radius:9px;padding:8px 10px}
 .field .hint{font-size:.72rem;color:var(--ink3)}
 
-.connect{border:2px solid var(--lane);background:var(--lane-soft)}
+.connect{border:1px solid var(--lane);background:var(--lane-soft)}
 .connect ol{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:.9rem}
 .connect a{color:var(--lane);font-weight:600}
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
 .seg{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px}
 .seg button{border:0;background:transparent;border-radius:8px;padding:5px 12px;font-size:.82rem;font-weight:600;color:var(--ink2)}
-.seg button.on{background:var(--ink);color:var(--bg)}
+.seg button.on{background:var(--lane);color:#fff}
 .foot{text-align:center;margin-top:24px;font-size:.75rem;color:var(--ink3)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:420px){.tabbar button{font-size:.74rem}.day{grid-template-columns:44px 1fr auto;gap:10px}}
@@ -187,6 +208,8 @@ textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-famil
     </div>
     <div class="count" id="count">--<small>days</small></div>
     <div class="sub" id="bibSub">Loading your plan</div>
+    <svg class="scene" viewBox="0 0 400 70" preserveAspectRatio="none" aria-hidden="true"><path class="trees" d="M0 70 L0 52 L0.0 53.3 L5.6 34.5 L11.3 53.3 L6.5 50.3 L12.9 27.7 L19.2 50.3 L15.8 50.3 L20.4 26.5 L25.0 50.3 L21.1 50.6 L27.1 19.7 L33.1 50.6 L28.7 52.9 L35.4 19.8 L42.1 52.9 L37.9 54.3 L45.8 37.5 L53.7 54.3 L48.2 51.5 L53.2 33.4 L58.2 51.5 L56.6 53.2 L61.7 26.7 L66.8 53.2 L63.6 50.3 L70.0 33.2 L76.4 50.3 L71.5 51.6 L78.4 27.9 L85.3 51.6 L81.9 54.0 L88.0 32.6 L94.1 54.0 L91.6 52.6 L97.0 26.3 L102.3 52.6 L100.8 54.9 L107.8 33.7 L114.9 54.9 L109.1 50.8 L115.1 21.1 L121.0 50.8 L117.7 53.8 L122.4 25.8 L127.0 53.8 L124.7 53.5 L132.2 31.8 L139.8 53.5 L136.1 54.2 L142.7 30.0 L149.2 54.2 L147.6 50.3 L153.8 22.3 L160.0 50.3 L157.4 54.1 L164.2 20.2 L171.0 54.1 L166.2 50.1 L172.1 22.1 L177.9 50.1 L174.6 50.3 L179.6 32.2 L184.7 50.3 L182.9 52.0 L187.8 31.5 L192.8 52.0 L191.4 52.7 L196.1 28.7 L200.9 52.7 L199.6 51.4 L206.9 19.8 L214.3 51.4 L209.8 54.8 L215.6 22.9 L221.3 54.8 L216.8 51.2 L221.9 31.0 L227.0 51.2 L224.1 50.0 L230.7 29.3 L237.3 50.0 L233.3 54.8 L239.1 28.6 L244.9 54.8 L242.4 53.4 L248.7 26.3 L255.1 53.4 L249.6 54.4 L257.3 24.3 L264.9 54.4 L262.3 50.5 L268.2 27.3 L274.0 50.5 L271.4 51.0 L276.1 33.8 L280.8 51.0 L277.1 50.0 L282.8 33.1 L288.5 50.0 L284.0 50.1 L288.8 27.6 L293.7 50.1 L292.3 51.3 L298.9 32.6 L305.6 51.3 L301.2 54.2 L307.0 36.0 L312.7 54.2 L311.6 50.4 L317.7 25.7 L323.8 50.4 L318.7 54.1 L324.4 33.4 L330.1 54.1 L325.7 52.6 L330.2 19.5 L334.8 52.6 L331.2 52.6 L337.6 36.2 L344.0 52.6 L342.6 51.3 L350.1 22.8 L357.6 51.3 L352.8 52.7 L357.9 22.8 L363.0 52.7 L361.2 54.1 L366.8 34.0 L372.5 54.1 L371.3 54.1 L378.8 23.6 L386.3 54.1 L383.4 51.8 L388.7 26.5 L394.0 51.8 L389.3 51.3 L393.9 30.3 L398.5 51.3 L396.6 54.7 L404.5 30.6 L412.3 54.7 L400 52 L400 70 Z"/><path class="w1" d="M0 58 L0 58.0 L8 58.9 L16 59.7 L24 60.3 L32 60.6 L40 60.5 L48 60.1 L56 59.5 L64 58.6 L72 57.7 L80 56.8 L88 56.0 L96 55.6 L104 55.4 L112 55.6 L120 56.1 L128 56.8 L136 57.7 L144 58.7 L152 59.5 L160 60.2 L168 60.5 L176 60.6 L184 60.3 L192 59.7 L200 58.9 L208 57.9 L216 57.0 L224 56.2 L232 55.7 L240 55.4 L248 55.5 L256 55.9 L264 56.6 L272 57.5 L280 58.4 L288 59.3 L296 60.0 L304 60.5 L312 60.6 L320 60.4 L328 59.9 L336 59.1 L344 58.2 L352 57.3 L360 56.4 L368 55.8 L376 55.4 L384 55.4 L392 55.8 L400 56.4 L400 70 L0 70 Z"/><path class="w2" d="M0 63 L0 65.1 L8 65.2 L16 64.7 L24 63.9 L32 62.9 L40 61.9 L48 61.2 L56 60.8 L64 60.9 L72 61.5 L80 62.4 L88 63.4 L96 64.4 L104 65.0 L112 65.2 L120 64.9 L128 64.2 L136 63.3 L144 62.3 L152 61.4 L160 60.9 L168 60.8 L176 61.3 L184 62.1 L192 63.1 L200 64.1 L208 64.8 L216 65.2 L224 65.1 L232 64.5 L240 63.6 L248 62.6 L256 61.7 L264 61.0 L272 60.8 L280 61.1 L288 61.7 L296 62.7 L304 63.7 L312 64.6 L320 65.1 L328 65.2 L336 64.8 L344 64.0 L352 63.0 L360 62.0 L368 61.2 L376 60.8 L384 60.9 L392 61.5 L400 62.3 L400 70 L0 70 Z"/></svg>
+    <div class="trail" id="trail" aria-hidden="true"></div>
   </header>
 
   <nav class="tabs" aria-label="Sections">
@@ -688,7 +711,7 @@ async function sync(refresh){
       after=p.has_next_page?p.end_cursor:null; pages++;
     }while(after&&pages<15);
     ACTS=all.map(a=>({id:String(a.id||""),name:a.name||"Activity",type:a.sport_type||a.type||"",date:String(a.start_local||a.start_date_local||"").slice(0,10),
-      m:Number(a.summary&&a.summary.distance)||0,s:Number(a.summary&&a.summary.moving_time)||0,elev:Number(a.summary&&a.summary.elevation_gain)||0})).filter(a=>a.date);
+      m:Number(a.summary&&a.summary.distance)||0,s:Number(a.summary&&a.summary.moving_time)||0,elev:Number(a.summary&&a.summary.elevation_gain)||0,re:Number(a.summary&&a.summary.relative_effort)||0})).filter(a=>a.date);
     SYNC={state:"ok",at:stored||Date.now()};
     if(S.startVol==null){ // freeze the hybrid block's starting run volume from the 4 weeks before the plan
       const end=[planStart(),monday(TODAY)].sort()[0], from=add(end,-28);
@@ -824,6 +847,8 @@ function renderBar(){
   document.getElementById("count").innerHTML=days>0?`${days}<small>days to go</small>`:days===0?`Race day`:`Done`;
   const w=weekOf(TODAY), n=NW();
   document.getElementById("bibSub").textContent=w<0?`Plan starts ${fmtD(planStart())}. Goal ${S.goal}.`:w>=n?`Recovery time. Goal was ${S.goal}.`:`Week ${w+1} of ${n} · ${phaseOf(w).name} · Goal ${S.goal}`;
+  const tr=document.getElementById("trail");
+  if(tr){ tr.innerHTML=phases().map(p=>`<i style="width:${(p.to-p.from+1)/n*100}%;background:var(${p.col})"></i>`).join("")+(w>=0&&w<n?`<b style="left:${Math.min(99.5,(w+(dow(TODAY)+1)/7)/n*100)}%"></b>`:""); }
   const b=document.getElementById("sync"); b.dataset.s=SYNC.state==="ok"||SYNC.state==="loading"||SYNC.state==="err"?SYNC.state:"idle";
   document.getElementById("syncTxt").textContent=SYNC.state==="loading"?"Syncing":SYNC.state==="ok"?(ENRICH.status==="loading"?`Reading runs ${ENRICH.done}/${ENRICH.total}`:`Synced ${new Date(SYNC.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`):SYNC.state==="err"?"Sync issue":SYNC.state==="need"||SYNC.state==="denied"?"Connect Strava":"Strava";
 }
@@ -950,6 +975,27 @@ function renderWeek(){
   document.getElementById("dl4").onclick=e=>downloadWeeks(i,4,e.currentTarget,document.getElementById("dlMsg"));
 }
 
+function loadCard(){
+  const mon=monday(TODAY), W=[];
+  for(let k=8;k>=0;k--){ const a=add(mon,-7*k), b=add(a,6); W.push({a,re:ACTS.filter(x=>x.date>=a&&x.date<=b).reduce((t,x)=>t+x.re,0)}); }
+  if(!W.some(w=>w.re>0)) return "";
+  const cur=W[W.length-1], prev=W.slice(-5,-1), avg=prev.reduce((t,w)=>t+w.re,0)/4, ratio=avg?cur.re/avg:0;
+  const daysIn=dow(TODAY)+1, pace=cur.re/daysIn*7;
+  const max=Math.max(...W.map(w=>w.re),avg*1.3,10), pc=v=>Math.min(100,v/max*100);
+  const bars=W.map((w,k)=>`<div class="lb${k===W.length-1?" now":""}" title="Week of ${fmtD(w.a)}: ${Math.round(w.re)}"><i style="height:${pc(w.re)}%"></i><span>${fmtD(w.a,{month:"numeric",day:"numeric"})}</span></div>`).join("");
+  const band=avg?`<div class="lband" style="bottom:${pc(avg*.8)}%;height:${pc(avg*1.3)-pc(avg*.8)}%"></div><div class="lavg" style="bottom:${pc(avg)}%"></div>`:"";
+  const verdict=!avg?"Not enough history yet."
+    :pace>avg*1.5?`<b style="color:var(--bad)">Big jump.</b> On pace for ${Math.round(pace)}, about ${Math.round(pace/avg*100-100)}% over your 4-week average. Keep the rest of the week easy.`
+    :pace>avg*1.3?`<b style="color:var(--warn)">Building fast.</b> On pace for ${Math.round(pace)}, ${Math.round(pace/avg*100-100)}% over your 4-week average. Fine for a week, not three in a row.`
+    :pace<avg*.6&&blk(weekOf(TODAY))>=0?`<b>Light week.</b> On pace for ${Math.round(pace)}, well under your usual ${Math.round(avg)}.`
+    :`<b style="color:var(--good)">Steady.</b> On pace for ${Math.round(pace)} against a 4-week average of ${Math.round(avg)}.`;
+  return `<section class="card">
+    <div class="eyebrow">Training load · Strava Relative Effort</div><h2 style="margin-top:3px">How hard the weeks have been</h2>
+    <p class="muted" style="font-size:.88rem;margin-top:6px">${verdict}</p>
+    <div class="load" role="img" aria-label="Weekly Relative Effort, last 9 weeks">${band}${bars}</div>
+    <p class="faint" style="margin-top:6px">Every run, ride, swim and lift counts, weighted by heart rate. The shaded band is 80 to 130% of your last 4 weeks; staying inside it most weeks keeps the build steady.</p>
+  </section>`;
+}
 function renderProgress(){
   const n=NW(), cw=weekOf(TODAY), pre=8;
   const plans=Array.from({length:n},(_,i)=>weekMi(i));
@@ -990,6 +1036,7 @@ function renderProgress(){
       <div class="stat"><div class="l">Longest, 90 days</div><div class="v">${longest.toFixed(1)}<small>mi</small></div></div>
       <div class="stat"><div class="l">Starting volume</div><div class="v">${S.startVol!=null?Number(S.startVol).toFixed(0):"--"}<small>mi/wk</small></div></div>
     </div></section>
+  ${loadCard()}
   <section class="card"><div class="eyebrow">Recent activity</div><div class="runs" style="margin-top:6px">${list||`<p class="muted">No activities on Strava in the last few months.</p>`}</div></section>`
   :`<section class="card"><div class="eyebrow">Strava</div><p class="muted" style="margin-top:6px">${SYNC.state==="loading"?"Reading your runs from Strava.":"Connect Strava to see your actual miles, pace and heart rate here."}</p></section>`}`;
 }
@@ -1003,7 +1050,7 @@ function renderPaces(){
     ["MP",z.MP>z.goalMP+1/60?"Marathon pace (training)":"Marathon pace (goal)",fmtP(z.MP),km(z.MP),z.MP>z.goalMP+1/60?`Goal pace is ${fmtP(z.goalMP)}/mi, faster than your current fitness supports. Train at ${fmtP(z.MP)} and it moves toward goal pace as your time trials improve.`:`Goal ${S.goal}. Long-run segments and race day.`],
     ["T","Threshold",fmtP(z.T),km(z.T),"Comfortably hard, about one-hour race effort."],
     ["I","Interval",fmtP(z.I),km(z.I),"About 5K race effort, 3 to 5 minute reps."]
-  ].map(r=>`<tr><td>${zoneTag(r[0])}${r[1]}<div class="faint">${r[4]}${hrTarget(r[0])?` · ${hrTarget(r[0])}`:""}</div></td><td class="num mono">${r[2]}</td><td class="num mono">${r[3]}</td></tr>`).join("");
+  ].map(r=>`<tr><td>${zoneTag(r[0])}${r[1]}<div class="faint">${r[4]}${hrTarget(r[0])?` · ${hrTarget(r[0])}`:""}</div></td><td class="num"><span class="mono" style="font-size:.95rem;color:var(--ink)">${r[2]}</span><div class="faint mono">${r[3]} /km</div></td></tr>`).join("");
   const tiles=BD.map(x=>{const e=b.best[x.m];return `<div class="stat"><div class="l">${x.k}</div><div class="v">${e?fmtH(e.s/60):"--"}</div><div class="faint">${e?`${fmtD(e.date)} · VDOT ${e.V.toFixed(1)}`:"None in 90 days"}</div></div>`;}).join("");
   const status=ENRICH.status==="loading"?`Reading best efforts from your runs (${ENRICH.done} of ${ENRICH.total}).`:!haveData()?"Connect Strava to use your recent best efforts.":b.V?"":"No 5K, 10K or half marathon best efforts in the last 90 days. Your next time trial will fill this in.";
   view.innerHTML=`
@@ -1014,7 +1061,7 @@ function renderPaces(){
   </section>
   <section class="card">
     <div class="eyebrow">Training paces${HRZ?" and Strava heart rate zones":""}</div>
-    <div class="scroll" style="margin-top:8px"><table class="tbl"><thead><tr><th>Zone</th><th class="num">/mi</th><th class="num">/km</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="scroll" style="margin-top:8px"><table class="tbl"><thead><tr><th>Zone</th><th class="num">Pace /mi</th></tr></thead><tbody>${rows}</tbody></table></div>
   </section>
   <section class="card">
     <div class="spread"><div><div class="eyebrow">Pace source</div><h3 style="margin-top:3px">${strava?"Strava best efforts, last 90 days":"Manual benchmark"}</h3></div>
@@ -1026,6 +1073,7 @@ function renderPaces(){
       <div class="field" style="align-self:end"><button class="btn primary" type="submit">Update paces</button></div>
     </form>`}
   </section>
+  ${raceDayCard(z)}
   <section class="card">
     <div class="eyebrow">Equivalent race times</div>
     <div class="stats" style="margin-top:10px">${races.map(([nm,m])=>{const t=raceT(m,z.V);return `<div class="stat"><div class="l">${nm}</div><div class="v">${fmtH(t)}</div><div class="faint">${fmtP(t/(m/MI))}/mi</div></div>`;}).join("")}</div>
@@ -1036,6 +1084,25 @@ function renderPaces(){
   if(f) f.onsubmit=async e=>{e.preventDefault();
     const t=document.getElementById("pbTime").value.trim(); if(!(parseT(t)>0)) return;
     S.benchDist=document.getElementById("pbDist").value; S.benchTime=t; await saveSettings(); renderAll();};
+}
+function raceDayCard(z){
+  const mp=z.goalMP, segs=[
+    ["Miles 1–3","Settle in",mp+10/60,"Two Harbors start. Crowded and downhill-ish; let the first miles feel too easy."],
+    ["Miles 4–13","Lock in",mp,"Flat along Lake Superior. Find a group and hold goal pace by effort, not by the watch."],
+    ["Miles 14–20","Stay patient",mp,"This is where Portland slipped. Eat on schedule even if you don't want to."],
+    ["Miles 21–23","Lemon Drop Hill",mp+8/60,"The one real climb, around mile 22. Hold effort up it and let the pace give."],
+    ["Mile 23 to finish","Bring it home",mp-3/60,"Downtown Duluth into Canal Park. Whatever's left goes here."]];
+  const rows=segs.map(([m,n,p,t])=>`<tr><td><b>${m}</b> · ${n}<div class="faint">${t}</div></td><td class="num mono">${fmtP(p)}</td></tr>`).join("");
+  return `<section class="card">
+    <div class="eyebrow">Race day · ${esc(S.raceName)}</div><h2 style="margin-top:3px">Pacing and fueling plan</h2>
+    <p class="muted" style="font-size:.88rem;margin-top:6px">Built around your ${esc(S.goal)} goal (${fmtP(mp)}/mi). Even effort beats even splits; bank nothing early.</p>
+    <div class="scroll" style="margin-top:8px"><table class="tbl"><thead><tr><th>Segment</th><th class="num">/mi</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <ul class="cite" style="margin-top:12px">
+      <li><b>Fuel: 75 g carbs and about 1.3 g sodium per hour.</b> That's what you rehearsed on your Sept 5 long run, so it's already trained. About a gel every 25 to 30 minutes, starting at mile 3.</li>
+      <li><b>Drink to thirst</b> at most aid stations, more if it's warm. Grandma's starts cool by the lake but can heat up by Duluth.</li>
+      <li><b>Rehearse it.</b> Every long run with marathon-pace miles in May is a dress rehearsal: same breakfast, same gels, same shoes.</li>
+    </ul>
+  </section>`;
 }
 function fmtBench(){return ({"5000":"5K","10000":"10K","21097.5":"half marathon","42195":"marathon"}[S.benchDist]||"benchmark")+" in "+S.benchTime;}
 
