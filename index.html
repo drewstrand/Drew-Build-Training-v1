@@ -1181,7 +1181,8 @@ let DL=null;
 const getDl=async()=>{ if(DL!==null) return DL; try{ DL=window.claude&&window.claude.use?await window.claude.use("downloads"):null; }catch(e){DL=null;} return DL; };
 async function downloadWeeks(from,count,btn,status){
   const dl=await getDl(), say=t=>{ if(status) status.textContent=t; };
-  if(!dl){ say("Downloads aren't available in this view. Open the dashboard in claude.ai or the Claude app."); return; }
+  if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){ say("Workout files can only go onto a Garmin from a computer. Open this dashboard at claude.ai on a laptop to download them, or use Copy for Garmin with intervals.icu on your phone."); return; }
+  if(!dl){ say("Downloads aren't available here. Open the dashboard at claude.ai in a computer browser."); return; }
   if(!window.JSZip){ say("The zip tool didn't load. Reload the page and try again."); return; }
   btn.disabled=true; say("Building workout files");
   try{
