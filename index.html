@@ -114,6 +114,8 @@ p{margin:0}
 .zone{display:inline-block;font-family:var(--f-mono);font-size:.68rem;padding:1px 6px;border-radius:5px;margin-right:6px;vertical-align:1px;color:#fff}
 .z-E,.z-L{background:var(--base)}.z-T{background:var(--thr)}.z-I{background:var(--bad)}.z-MP{background:var(--spec)}.z-R{background:var(--bib);color:var(--bib-ink)}.z-X{background:var(--ink3)}.z-TT{background:var(--bib);color:var(--bib-ink)}.z-BIKE{background:#B5562A}.z-SWIM{background:#1D86A8}.z-LIFT{background:#5B4A8B}.z-MOB{background:var(--ink3)}
 .sess+.sess{margin-top:7px}
+.ex{margin:3px 0 0;padding-left:18px;font-size:.84rem;color:var(--ink2)}
+.ex li{margin:1px 0}
 .cite{display:grid;gap:10px;margin:10px 0 0;padding:0;list-style:none}
 .cite li{font-size:.88rem;color:var(--ink2)}
 .cite b{color:var(--ink)}
@@ -290,9 +292,9 @@ const weekStart=i=>add(planStart(),i*7);
 const weekOf=s=>Math.floor((toT(s)-toT(planStart()))/(7*DAY));
 const blk=i=>i-(NW()-BLOCK);
 const HYB_PH=[
-  {name:"Hybrid: Rebuild",col:"--h1",blurb:"Easy aerobic work across all four sports. Lifting uses moderate weights and slow lowering to get tendons and joints ready for heavy work."},
-  {name:"Hybrid: Strength",col:"--h2",blurb:"Heavy lifting at 4 to 6 reps, sweet spot rides, hill reps and threshold swims. Heavy strength is the lifting most linked to better running economy."},
-  {name:"Hybrid: Power",col:"--h3",blurb:"Heavy triples plus jumps, 4 x 4 VO2 rides, run tempos and brick runs off the bike. This sets up the marathon build."}
+  {name:"Hybrid: Rebuild",col:"--h1",blurb:"Three runs, four lifts, two rides and a swim, all mostly easy. Lifting uses moderate weights, slow lowering and light Olympic-lift technique work to get tendons and joints ready."},
+  {name:"Hybrid: Strength",col:"--h2",blurb:"Heavy lifting at 4 to 6 reps with power cleans and snatches, sweet spot rides, hill reps and threshold swims. Heavy strength is the lifting most linked to better running economy."},
+  {name:"Hybrid: Power",col:"--h3",blurb:"Heavy triples, full Olympic lifts and jumps, 4 x 4 VO2 rides and run tempos. This sets up the marathon build."}
 ];
 function phases(){
   const off=NW()-BLOCK, P=[];
@@ -318,43 +320,55 @@ function layout(total,q,l,med){
   return out;
 }
 
-/* Hybrid weeks: hard days hard (run or bike quality AM, lifting PM), easy days easy, nothing heavy for the legs the day before the long run. */
+/* Hybrid weeks: 3 runs, 4 lifts, 2 rides, 1 swim. Lower-body lifts go in the evening of the hard run or ride days,
+   upper-body lifts go on the easier days, and nothing heavy for the legs the day before the long run. */
+const LIFTS={
+  lowerA:[
+    "Lower A · Mobility warm-up (90/90 hips, ankle rocks) · Olympic technique: hang muscle clean 4 x 3, light · Goblet squat 3 x 10 · Romanian deadlift 3 x 10 · Split squat 3 x 8 · Calf raises 3 x 15",
+    "Lower A · Hang power clean 5 x 3 · Back squat 4 x 5, heavy · Bulgarian split squat 3 x 6 · Heavy calf raises 3 x 10 · Hip mobility cool-down",
+    "Lower A · Power clean 5 x 2 · Back squat 3 x 3, heavy · Box jumps 4 x 3 · Pogo hops 3 x 20 · Hip mobility cool-down"],
+  lowerB:[
+    "Lower B · Kettlebell swings 4 x 12 · Step-ups 3 x 10 · Single-leg RDL 3 x 8 · Copenhagen plank and side plank · Hip mobility flow",
+    "Lower B · Trap-bar deadlift 4 x 5 · Hang power snatch, technique 4 x 3 · Walking lunges 3 x 8 · Nordic curls 3 x 4 · Mobility cool-down",
+    "Lower B · Hang power snatch 5 x 2 · Trap-bar jumps 4 x 3 · Romanian deadlift 3 x 4 · Single-leg bounds 3 x 6 each side · Mobility cool-down"],
+  upperA:[
+    "Upper A · Push-ups 3 x 12 · Dumbbell bench 3 x 10 · Half-kneeling press 3 x 10 · Rows 3 x 12 · Thoracic and shoulder mobility",
+    "Upper A · Bench press 4 x 5 · Push press 4 x 4 · Dips or weighted push-ups 3 x 8 · Rows 3 x 8 · Core: ab wheel, Pallof press",
+    "Upper A · Push jerk 5 x 2 · Bench press 3 x 3 · Med-ball chest pass 4 x 5 · Rows 3 x 8 · Shoulder mobility"],
+  upperB:[
+    "Upper B · Pull-ups (assisted if needed) 3 x 6–8 · One-arm row 3 x 10 · Face pulls 3 x 15 · Farmer carries 4 x 40 m · 15 min full-body mobility flow",
+    "Upper B · Weighted pull-ups 4 x 5 · Barbell row 4 x 6 · Overhead press 3 x 6 · Suitcase carries 4 x 30 m each side · Mobility flow",
+    "Upper B · Weighted pull-ups 4 x 3 · Med-ball slams 4 x 5 · Rows 3 x 6 · Turkish get-ups 3 x 2 each side · Mobility flow"]
+};
 function hybridWeek(i){
   const F=NW()-BLOCK, n=Math.ceil(F/3), ph=Math.min(2,Math.floor(i/n)), w=i-ph*n, frac=F>1?i/(F-1):1;
   const deload=(i+1)%4===0, k=peak()/50, dl=deload?.7:1;
-  const vol=(startVol()+(peak()*.58-startVol())*frac)*(deload?.8:1);
+  const vol=(startVol()+(peak()*.5-startVol())*frac)*(deload?.8:1);
   const min=x=>`${Math.round(x*dl/5)*5} min`, yd=x=>`${(Math.round(x*dl/100)*100).toLocaleString()} yd`;
   const long=r5(Math.min(vol*.42,12*Math.sqrt(k)));
-  const out=Array.from({length:7},()=>({...REST,x:[]}));
-  const tueQ=[
+  const lift=(key,pm)=>X("lift",deload?"40 min":key.startsWith("lower")?"60 min":"50 min",
+    (pm?"PM, 6+ hours after the morning session. ":"")+(deload?LIFTS[key][ph].split(" · ")[0]+", light week: 2 sets of each lift, technique work on the Olympic lifts, longer mobility.":LIFTS[key][ph]));
+  const runQ=[
     w%2?"Easy + 8 x 10s hill sprints, walk back":"Easy + 6 x 20s strides",
     w%2?"Hills: 8 x 60s up at hard effort, jog down":"Fartlek: 8 x 1 min quick, 1 min easy",
     w<2?"Tempo: 20 min at threshold":"Tempo: 3 x 10 min at threshold, 2 min jog"][ph];
-  const tueZ=ph===0?"E":ph===1?"E":"T";
-  const liftA=deload?"Strength, light: 2 sets of each lift, nothing close to failure. Mobility after."
-    :["Strength A, lower: goblet squat, Romanian deadlift, split squat, calf raises. 3 x 10, 3 seconds down. Core: dead bug, side plank.",
-      "Strength A, heavy lower: back squat or trap-bar deadlift 4 x 4–6, Bulgarian split squat 3 x 6, heavy calf raises 3 x 10. Core: Pallof press.",
-      "Strength A, heavy + power: squat or trap-bar deadlift 3 x 3, then box jumps 4 x 3 and pogo hops 3 x 20. Calf raises 3 x 10."][ph];
-  const liftB=deload?"Strength, light: full body, 2 sets. Focus on clean form."
-    :["Strength B, full body: step-ups, single-leg RDL, push-ups, rows, pull-ups. 3 x 10. Farmer carries.",
-      "Strength B: Romanian deadlift 4 x 5, step-ups 3 x 6, bench or push-ups, rows and pull-ups 4 x 6. Suitcase carries.",
-      "Strength B: Romanian deadlift 3 x 4, single-leg bounds 3 x 6 each side, split squat 3 x 5, push and pull 3 x 6."][ph];
   const bikeQ=deload?"Bike, easy: zone 2, high cadence"
-    :[`Bike: zone 2 with 6 x 30s high-cadence spin-ups`,
+    :["Bike: zone 2 with 6 x 30s high-cadence spin-ups",
       w<3?"Bike sweet spot: 3 x 12 min at 88–93% FTP, 4 min easy":"Bike threshold: 2 x 20 min at 95% FTP, 5 min easy",
       "Bike VO2: 4 x 4 min hard (90–95% max HR), 3 min easy"][ph];
-  const swimMon=["Swim technique: catch-up, fingertip drag and 6-kick switch drills, easy aerobic between","Swim technique + 8 x 50 yd fast, full recovery","Swim technique + pull buoy aerobic set"][ph];
-  const swimWed=deload?"Swim aerobic, relaxed":["Swim aerobic: 10 x 100 yd steady, 20s rest","Swim threshold: 10 x 100 yd at CSS pace, 15s rest","Swim endurance: 3 x 500 yd steady, 30s rest"][ph];
-
-  out[0]={mi:0,t:"Rest from running",z:"X",x:[X("swim",yd(1500+ph*250),swimMon),X("mob","15 min","Mobility: hips, ankles, thoracic spine")]};
-  out[1]=deload?{mi:r5(6*Math.min(k,1.2)),t:"5K time trial: 2 mi warm-up, 5K hard and even, 1 mi cool-down",z:"TT",key:1,x:[X("lift","40 min",liftA)]}
-    :{mi:r5(vol*.27),t:tueQ,z:tueZ,key:1,x:[X("lift",ph?"60 min":"50 min","PM, 6+ hours after the run. "+liftA)]};
-  out[2]={mi:r5(vol*.25),t:"Easy run",z:"E",x:[X("swim",yd(2000+ph*400),swimWed)]};
-  out[3]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(60+ph*10),bikeQ),X("lift",deload?"40 min":"50 min","PM. "+liftB)]};
-  out[4]={mi:0,t:"Rest from running",z:"X",x:[X("mob","20 min","Mobility and an easy 20 min spin or swim. Nothing heavy for the legs before the long run.")]};
+  const swim=deload?"Swim aerobic, relaxed, drills between sets"
+    :["Swim: technique drills (catch-up, fingertip drag, 6-kick switch), then 8 x 100 yd steady",
+      "Swim: drills, then 10 x 100 yd at CSS pace, 15s rest",
+      "Swim: drills, then 3 x 500 yd steady, 30s rest"][ph];
+  const out=Array.from({length:7},()=>({...REST,x:[]}));
+  out[0]=deload?{mi:r5(6*Math.min(k,1.2)),t:"5K time trial: 2 mi warm-up, 5K hard and even, 1 mi cool-down",z:"TT",key:1,x:[lift("lowerA",true)]}
+    :{mi:r5(vol*.3),t:runQ,z:ph===2?"T":"E",key:1,x:[lift("lowerA",true)]};
+  out[1]={mi:0,t:"Rest from running",z:"X",x:[X("swim",yd(2000+ph*400),swim),lift("upperA",false)]};
+  out[2]={mi:r5(vol*.28),t:"Easy run, zone 2",z:"E",x:[X("mob","30 min","Mobility: hips, ankles, thoracic spine. Lightest day of the week.")]};
+  out[3]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(60+ph*10),bikeQ),lift("lowerB",true)]};
+  out[4]={mi:0,t:"Rest from running",z:"X",x:[lift("upperB",false)]};
   out[5]={mi:long,t:"Easy long run",z:"L",key:1,x:[]};
-  out[6]=ph===2&&!deload?{mi:2,t:"Brick run straight off the bike, easy",z:"E",x:[X("bike",min(120+w*10),"Long ride, zone 2. Practice fueling: 60–90 g carbs per hour.")]}
-    :{mi:0,t:"Rest from running",z:"X",x:[X("bike",min(90+ph*15+w*5),"Long ride, zone 2, conversational")]};
+  out[6]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(90+ph*15+w*5),ph===2?"Long ride, zone 2. Practice fueling: 60–90 g carbs per hour.":"Long ride, zone 2, conversational")]};
   return out;
 }
 
@@ -586,7 +600,7 @@ const targetLine=(d,z)=>{const hr=hrTarget(d.z), p=zoneTarget(d.z,z);return [p,h
 function sessions(d,z){
   const L=[];
   if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${esc(d.t)} <span class="faint">${d.mi} mi</span></div><div class="p">${targetLine(d,z)}</div></div>`);
-  d.x.forEach(s=>L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${esc(s.t)} <span class="faint">${esc(s.amt)}</span></div></div>`));
+  d.x.forEach(s=>{const parts=s.t.split(" · "); L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${esc(parts[0])} <span class="faint">${esc(s.amt)}</span></div>${parts.length>1?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>`);});
   if(!L.length) L.push(`<div class="sess"><div class="t">${zoneTag("X")}${esc(d.t)}</div></div>`);
   return L.join("");
 }
@@ -741,9 +755,9 @@ function fmtBench(){return ({"5000":"5K","10000":"10K","21097.5":"half marathon"
 const RESEARCH=`<section class="card">
   <div class="eyebrow">Why it's built this way</div><h2 style="margin-top:3px">The research behind the plan</h2>
   <ul class="cite">
-    <li><b>About 80% easy, 20% hard.</b> Elite endurance athletes in every sport spend most of their time at low intensity and keep a few sessions truly hard. Each week has two or three hard sessions; everything else is zone 2.<span class="src">Seiler 2010, Int J Sports Physiol Perform; Stöggl &amp; Sperlich 2014, Front Physiol</span></li>
-    <li><b>Lift heavy, then add jumps.</b> Heavy strength work (about 3 to 6 reps) and plyometrics improve running economy and late-race durability without adding bulk. The hybrid block moves from higher reps to heavy work to heavy plus jumps.<span class="src">Rønnestad &amp; Mujika 2014, Scand J Med Sci Sports; Blagrove et al. 2018, Sports Med; Barnes &amp; Kilding 2015, Sports Med</span></li>
-    <li><b>Hard days hard, easy days easy.</b> Lifting and endurance work can blunt each other, and running interferes more than cycling. Lifts sit on the same days as the run or bike workouts, at least 6 hours later, so easy days stay easy and nothing heavy hits the legs before the long run.<span class="src">Wilson et al. 2012, J Strength Cond Res; Robineau et al. 2016, J Strength Cond Res</span></li>
+    <li><b>About 80% easy, 20% hard.</b> Elite endurance athletes in every sport spend most of their time at low intensity and keep a few sessions truly hard. Each hybrid week has two hard endurance sessions (Monday run, Thursday ride); everything else is zone 2.<span class="src">Seiler 2010, Int J Sports Physiol Perform; Stöggl &amp; Sperlich 2014, Front Physiol</span></li>
+    <li><b>Lift heavy, then add jumps.</b> Heavy strength work (about 3 to 6 reps) and plyometrics improve running economy and late-race durability without adding bulk. The hybrid block moves from higher reps to heavy work to heavy plus jumps, with Olympic-lift variations for power at every stage.<span class="src">Rønnestad &amp; Mujika 2014, Scand J Med Sci Sports; Blagrove et al. 2018, Sports Med; Barnes &amp; Kilding 2015, Sports Med</span></li>
+    <li><b>Hard days hard, easy days easy.</b> Lifting and endurance work can blunt each other, and running interferes more than cycling. Lower-body lifts go in the evening of the hard run or ride days, at least 6 hours after them. Upper-body days fall on the easier days, so nothing heavy hits the legs before the long run. Three runs a week leaves room for four lifts.<span class="src">Wilson et al. 2012, J Strength Cond Res; Robineau et al. 2016, J Strength Cond Res</span></li>
     <li><b>The bike builds the engine while sparing your legs.</b> Cycling adds aerobic volume with far less impact than more running. 4 x 4 min intervals at 90 to 95% of max heart rate are among the best-supported ways to raise VO2max.<span class="src">Helgerud et al. 2007, Med Sci Sports Exerc</span></li>
     <li><b>One lift a week holds your strength.</b> During the marathon-specific phase, one heavy session a week kept strength and endurance gains in trained cyclists. That's why lifting drops to one session a week once marathon workouts get big.<span class="src">Rønnestad et al. 2010, Eur J Appl Physiol</span></li>
     <li><b>Three weeks on, one lighter.</b> Every fourth hybrid week cuts volume by about 30%. It ends with a 5K time trial, which Strava turns into a new best effort, so your paces stay current.<span class="src">Standard periodization practice in triathlon and running coaching</span></li>

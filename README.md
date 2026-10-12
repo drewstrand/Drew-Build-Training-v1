@@ -9,8 +9,9 @@ A single-page marathon training dashboard (`index.html`), published as a claude.
 
 Set up for Grandma's Marathon (June 19, 2027), a sub-3:30 goal and a 50-mile peak week:
 
-- **Weeks 1–18, hybrid training**: swim, bike, lifting and running in three 6-week phases (Rebuild, Strength, Power),
-  with a lighter week and a 5K time trial every fourth week.
+- **Weeks 1–18, hybrid training**: 3 runs (Mon workout, Wed easy, Sat long), 4 lifts (2 lower on the hard run/ride days,
+  2 upper on easier days, mixing strength, Olympic lifts and mobility), 2 rides and 1 swim a week, in three 6-week phases
+  (Rebuild, Strength, Power), with a lighter week and a 5K time trial every fourth week.
 - **Weeks 19–36, marathon build**: base, threshold, marathon specific and taper, with lifting dropping from twice a
   week to one maintenance session, plus easy swims and spins for recovery.
 
