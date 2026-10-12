@@ -40,8 +40,9 @@ Settings and per-run details are saved in the artifact's database.
 workout to Garmin Connect and on to the watch. Runs and rides go up as the same Garmin workout files the
 dashboard downloads; lifts and swims go up as notes. Re-running it updates events in place (stable `external_id`s).
 
-Needs network access to `intervals.icu` and an `INTERVALS_API_KEY` environment variable (intervals.icu
-Settings > Developer). Export the dashboard settings first so the plan matches what the page shows:
+Needs the intervals.icu API key (Settings > Developer), either as a network secret on the cloud environment
+(credential type Basic, username `API_KEY`, allowed website `intervals.icu`; this also opens network access to it)
+or as an `INTERVALS_API_KEY` environment variable with `intervals.icu` in Allowed domains. Export the dashboard settings first so the plan matches what the page shows:
 
 ```
 # settings.json = the "settings/plan" document from the artifact's database

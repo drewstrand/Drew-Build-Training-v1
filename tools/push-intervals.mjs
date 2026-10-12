@@ -1,6 +1,6 @@
 // Push the Marathon Build plan to an intervals.icu calendar, which then sends each workout to Garmin.
 //
-//   INTERVALS_API_KEY=...  [INTERVALS_ATHLETE_ID=0] node tools/push-intervals.mjs [--from YYYY-MM-DD] [--weeks N] [--settings settings.json] [--dry-run]
+//   [INTERVALS_API_KEY=...] [INTERVALS_ATHLETE_ID=0] node tools/push-intervals.mjs [--from YYYY-MM-DD] [--weeks N] [--settings settings.json] [--dry-run]
 //
 // Runs and rides go up as Garmin workout files (.FIT) built by the dashboard's own encoder, so the steps and
 // targets match the Download week button exactly. Lifts and swims go up as notes on the right day.
@@ -77,14 +77,16 @@ if (DRY) {
   process.exit(0);
 }
 
+// The key comes from INTERVALS_API_KEY, or from a network secret on the cloud environment
+// (Basic auth, username API_KEY, host intervals.icu), which the agent proxy attaches to each request.
 const key = process.env.INTERVALS_API_KEY;
-if (!key) { console.error("Set INTERVALS_API_KEY (intervals.icu Settings > Developer)."); process.exit(1); }
 const athlete = process.env.INTERVALS_ATHLETE_ID || "0";
-const auth = "Basic " + Buffer.from(`API_KEY:${key}`).toString("base64");
+const headers = { "Content-Type": "application/json" };
+if (key) headers.Authorization = "Basic " + Buffer.from(`API_KEY:${key}`).toString("base64");
 for (let k = 0; k < events.length; k += 50) {
   const batch = events.slice(k, k + 50);
   const r = await fetch(`https://intervals.icu/api/v1/athlete/${athlete}/events/bulk?upsert=true`, {
-    method: "POST", headers: { Authorization: auth, "Content-Type": "application/json" }, body: JSON.stringify(batch) });
+    method: "POST", headers, body: JSON.stringify(batch) });
   const body = await r.text();
   if (!r.ok) { console.error(`intervals.icu refused batch ${k / 50 + 1}: ${r.status} ${body.slice(0, 400)}`); process.exit(1); }
   console.log(`batch ${k / 50 + 1}: ${batch.length} events ok`);
