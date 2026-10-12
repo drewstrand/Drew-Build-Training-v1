@@ -114,6 +114,8 @@ p{margin:0}
 .zone{display:inline-block;font-family:var(--f-mono);font-size:.68rem;padding:1px 6px;border-radius:5px;margin-right:6px;vertical-align:1px;color:#fff}
 .z-E,.z-L{background:var(--base)}.z-T{background:var(--thr)}.z-I{background:var(--bad)}.z-MP{background:var(--spec)}.z-R{background:var(--bib);color:var(--bib-ink)}.z-X{background:var(--ink3)}.z-TT{background:var(--bib);color:var(--bib-ink)}.z-BIKE{background:#B5562A}.z-SWIM{background:#1D86A8}.z-LIFT{background:#5B4A8B}.z-MOB{background:var(--ink3)}
 .sess+.sess{margin-top:7px}
+.gbtn{border:1px solid var(--line);background:var(--surface2);border-radius:7px;padding:1px 8px;font-size:.72rem;font-weight:600;color:var(--lane);margin-left:4px;vertical-align:1px}
+textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-family:var(--f-mono);font-size:.78rem;border:1px solid var(--line);border-radius:8px;background:var(--surface2);padding:8px}
 .ex{margin:3px 0 0;padding-left:18px;font-size:.84rem;color:var(--ink2)}
 .ex li{margin:1px 0}
 .cite{display:grid;gap:10px;margin:10px 0 0;padding:0;list-style:none}
@@ -210,7 +212,7 @@ const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 
 /* ===================== Settings ===================== */
 const DEF={raceName:"Grandma's Marathon",race:"2027-06-19",start:"2026-10-12",goal:"3:29:00",peak:"50",
-  src:"strava",winter:"boston",poolFrom:"2026-10-19",ftp:"",benchDist:"10000",benchTime:"46:00",startVol:null};
+  src:"strava",winter:"boston",poolFrom:"2026-10-19",ftp:"",trips:[{from:"2026-11-25",to:"2026-11-29",where:"Minnesota"},{from:"2026-12-23",to:"2027-01-01",where:"Minnesota"}],benchDist:"10000",benchTime:"46:00",startVol:null};
 let S={...DEF};
 try{const s=JSON.parse(localStorage.getItem("mbuild3")||"null"); if(s) S={...DEF,...s};}catch(e){}
 
@@ -233,7 +235,8 @@ function fitness(){
 function Z(){
   const f=fitness(), V=f.V, pv=v=>MI/v;
   const mar=raceT(42195,V), hm=raceT(21097.5,V), g=parseT(S.goal), goalMar=g>0?g:mar;
-  return {V,f,mar,hm,goalMar,MP:goalMar/(42195/MI),HM:hm/(21097.5/MI),
+  const goalMP=goalMar/(42195/MI), Tp=pv(velAt(.86,V));
+  return {V,f,mar,hm,goalMar,goalMP,MP:Math.max(goalMP,Tp*1.05),HM:hm/(21097.5/MI),
     E:[pv(velAt(.66,V)),pv(velAt(.59,V))],T:pv(velAt(.86,V)),I:pv(velAt(.975,V))};
 }
 const ZONES={E:"Easy",L:"Long",MP:"Marathon pace",T:"Threshold",I:"Interval",TT:"Time trial",R:"Race",X:"Rest"};
@@ -449,7 +452,7 @@ function blockExtras(b,days,i){
   return days;
 }
 
-function buildWeek(i){
+function buildWeekBase(i){
   const k=peak()/50, b=blk(i);
   if(b<0) return hybridWeek(i);
   if(b===BLOCK-1){
@@ -468,6 +471,25 @@ function buildWeek(i){
   const wl=winterWeek(i)?" Winter: treadmill, or split it into a morning and afternoon run if wind chill is below -15°F.":"";
   return blockExtras(b,layout(peak()*VOL[b],{mi:r5(q[0]*k),t:q[1],z:q[2]},{mi:Math.min(22,r5(l[0]*Math.sqrt(k))),t:l[1]+"."+wl,z:l[2]},b>=6),i);
 }
+/* Trips home to Minnesota: travel days become rest days, no pool, the gym stands in for the trainer, colder rules. */
+const tripOn=ds=>(S.trips||[]).find(t=>t&&t.from&&t.to&&ds>=t.from&&ds<=t.to);
+const tripWeek=i=>[0,1,2,3,4,5,6].some(d=>tripOn(add(weekStart(i),d)));
+function buildWeek(i){
+  const base=buildWeekBase(i), lost=[];
+  const out=base.map((d,k)=>{
+    const ds=add(weekStart(i),k), t=tripOn(ds), h=holidayOn(ds);
+    if(!t) return d;
+    if(ds===t.from||ds===t.to){ if(d.mi>0&&d.z==="E") lost.push({k,d});
+      return {mi:0,t:`${h?h+": t":"T"}ravel day ${ds===t.from?"to":"home from"} ${t.where}. Walk the airport, drink extra water, 10 min of mobility at the gate.`,z:"X",x:[],trip:1,travel:1}; }
+    if(h) return d;
+    const x=d.x.filter(s=>s.sp!=="swim").map(s=>s.sp==="bike"?{...s,t:"At the gym: spin bike, or elliptical if there's no bike. "+s.t.replace(/^Indoor (long ride on the )?trainer\.? ?|^Outdoor if[^.]*\. /i,"")}:s.sp==="lift"?{...s,t:"At the gym. "+s.t}:s);
+    return {...d,t:d.mi>0?d.t.replace(/ Treadmill if[^.]*\.| It's dark after work[^.]*\.|, start into the wind off the water so it's at your back coming home/g,"")+` In ${t.where}: gym treadmill if the wind chill is below 0°F or it's icy.`:d.t,x,trip:1};
+  });
+  // an easy run lost to a travel day moves to the next free day of the trip
+  lost.forEach(({k,d})=>{ for(let j=k+1;j<7;j++){ const ds=add(weekStart(i),j), o=out[j];
+    if(o.mi===0&&!o.travel&&!holidayOn(ds)&&tripOn(ds)&&!(out[j+1]&&out[j+1].z==="TT")){ out[j]={...o,mi:d.mi,t:`Easy run, moved from the travel day. Gym treadmill if the wind chill is below 0°F or it's icy.`,z:"E",x:o.x}; break; } } });
+  return out;
+}
 const weekMi=i=>buildWeek(i).reduce((a,d)=>a+d.mi,0);
 const parseMin=a=>{const m=String(a).match(/(\d+)(?:–(\d+))?\s*min/);return m?(Number(m[2]||m[1])):0;};
 
@@ -477,9 +499,50 @@ function weekLoad(i){
   return t;
 }
 
+/* ===================== Garmin via intervals.icu workout text ===================== */
+// Run targets are % of threshold pace (set threshold pace in intervals.icu to your Threshold pace from the Paces tab).
+// Ride targets are % of FTP. intervals.icu turns these into structured workouts and sends them to Garmin.
+function icuPct(){
+  const z=Z(), p=x=>Math.round(z.T/x*100);
+  return {E:`${p(z.E[1])}-${p(z.E[0])}%`,MP:`${p(z.MP)-1}-${p(z.MP)+1}%`,T:"98-102%",I:`${p(z.I)-1}-${p(z.I)+2}%`,R:`${p(z.I)+2}-${p(z.I)+8}%`,J:`${Math.max(55,p(z.E[1])-8)}%`};
+}
+function icuRun(d){
+  const P=icuPct(), t=d.t, E=`${P.E} Pace`, jog=`${P.J} Pace`;
+  const wu="Warmup\n- 15m "+E, cd="Cooldown\n- 10m "+E;
+  let m;
+  const block=(n,body)=>`Main Set ${n}x\n${body}`;
+  if(d.z==="TT") return `Warmup\n- 2mi ${E}\n\nStrides 4x\n- 20s ${P.R} Pace\n- 40s ${jog}\n\nTime trial\n- 5km ${P.I} Pace\n\nCooldown\n- 1mi ${E}`;
+  if((m=t.match(/(\d+) x (\d+)s (?:up|hill sprints)/))) return `${wu}\n\n${block(m[1],`- ${m[2]}s ${P.R} Pace\n- 2m ${jog}`)}\n\n${cd}`;
+  if((m=t.match(/Hills: (\d+) x (\d+)s up/))) return `${wu}\n\n${block(m[1],`- ${m[2]}s ${P.I} Pace\n- 2m ${jog}`)}\n\n${cd}`;
+  if((m=t.match(/Fartlek: (\d+) x (\d+) min quick, (\d+) min easy/))) return `${wu}\n\n${block(m[1],`- ${m[2]}m ${P.I} Pace\n- ${m[3]}m ${E}`)}\n\n${cd}`;
+  if((m=t.match(/Tempo: (\d+) min at threshold/))) return `${wu}\n\nTempo\n- ${m[1]}m ${P.T} Pace\n\n${cd}`;
+  if((m=t.match(/(\d+) x (\d+) min at threshold, (\d+) min jog/))) return `${wu}\n\n${block(m[1],`- ${m[2]}m ${P.T} Pace\n- ${m[3]}m ${jog}`)}\n\n${cd}`;
+  if((m=t.match(/(\d+) x (\d+) mi at (threshold|marathon pace), (\d+) min jog/))) return `${wu}\n\n${block(m[1],`- ${m[2]}mi ${m[3]==="threshold"?P.T:P.MP} Pace\n- ${m[4]}m ${jog}`)}\n\n${cd}`;
+  if((m=t.match(/(\d+) x 1 km at interval pace, ([\d.]+) min jog/))) return `${wu}\n\n${block(m[1],`- 1km ${P.I} Pace\n- ${m[2]}m ${jog}`)}\n\n${cd}`;
+  if((m=t.match(/(\d+) x 800 m at interval pace, (\d+) min jog/))) return `${wu}\n\n${block(m[1],`- 800mtr ${P.I} Pace\n- ${m[2]}m ${jog}`)}\n\n${cd}`;
+  if((m=t.match(/(\d+) x 1 mi at marathon pace, (\d+) min jog/))) return `${wu}\n\n${block(m[1],`- 1mi ${P.MP} Pace\n- ${m[2]}m ${jog}`)}\n\n${cd}`;
+  if((m=t.match(/last (\d+) mi at marathon pace/))) return `Easy\n- ${Math.max(1,d.mi-m[1])}mi ${E}\n\nFinish at marathon pace\n- ${m[1]}mi ${P.MP} Pace`;
+  if((m=t.match(/last (\d+) mi steady/))) return `Easy\n- ${Math.max(1,d.mi-m[1])}mi ${E}\n\nSteady finish\n- ${m[1]}mi ${P.MP} Pace`;
+  if((m=t.match(/2 x (\d+) mi at marathon pace, 1 mi easy between/))){const e=Math.max(1,(d.mi-2*m[1]-1)/2);return `Easy\n- ${e}mi ${E}\n\n${block(2,`- ${m[1]}mi ${P.MP} Pace\n- 1mi ${E}`)}\n\nEasy\n- ${e}mi ${E}`;}
+  if((m=t.match(/with (\d+) mi at marathon pace/))){const e=Math.max(1,(d.mi-m[1])/2);return `Easy\n- ${e}mi ${E}\n\nMarathon pace\n- ${m[1]}mi ${P.MP} Pace\n\nEasy\n- ${e}mi ${E}`;}
+  if(/strides/.test(t)){const n=(t.match(/(\d+) x 20s/)||[0,6])[1];return `Easy\n- ${Math.max(1,d.mi-0.5)}mi ${E}\n\nStrides ${n}x\n- 20s ${P.R} Pace\n- 60s ${jog}`;}
+  if(d.z==="R") return `Race\n- 26.2mi ${P.MP} Pace`;
+  return `Easy\n- ${d.mi}mi ${E}`;
+}
+function icuBike(s){
+  const t=s.t, mins=parseMin(s.amt)||60; let m;
+  const wu="Warmup\n- 10m 50-65%", cd="Cooldown\n- 10m 50-60%";
+  if(/FTP test/.test(t)) return `Warmup\n- 15m 50-65%\n\nOpeners 3x\n- 1m 100%\n- 1m 50%\n\nTest\n- 20m 100-105%\n\nCooldown\n- 10m 50%`;
+  if((m=t.match(/(\d+) x (\d+) min at (\d+)–(\d+)% FTP, (\d+) min easy/))) return `${wu}\n\nMain Set ${m[1]}x\n- ${m[2]}m ${m[3]}-${m[4]}%\n- ${m[5]}m 55%\n\n${cd}`;
+  if((m=t.match(/(\d+) x (\d+) min at (\d+)% FTP, (\d+) min easy/))) return `${wu}\n\nMain Set ${m[1]}x\n- ${m[2]}m ${m[3]}%\n- ${m[4]}m 55%\n\n${cd}`;
+  if((m=t.match(/(\d+) x (\d+) min hard/))) return `Warmup\n- 15m 50-65%\n\nMain Set ${m[1]}x\n- ${m[2]}m 106-120%\n- 3m 50%\n\n${cd}`;
+  if(/spin-ups/.test(t)) return `Endurance\n- ${Math.max(10,mins-30)}m 56-75%\n\nSpin-ups 6x\n- 30s 65% 110rpm\n- 2m30s 60%\n\nEndurance\n- 15m 56-75%`;
+  return `Endurance\n- ${mins}m 56-75%`;
+}
+
 /* ===================== Strava ===================== */
 const RUNS=new Set(["Run","TrailRun","VirtualRun"]);
-let ACTS=[], SYNC={state:"idle",msg:"",at:null}, HRZ=null, FTP=null;
+let ACTS=[], SYNC={state:"idle",msg:"",at:null}, HRZ=null, FTP=null; const STR={};
 const PERF={}; let ENRICH={status:"idle",done:0,total:0};
 let MCP=null, PERMS=null, DB=null;
 const getMcp=async()=>{ if(MCP) return MCP; try{ MCP=window.claude&&window.claude.use?await window.claude.use("mcp"):null; }catch(e){MCP=null;} return MCP; };
@@ -518,13 +581,27 @@ async function sync(refresh){
       S.startVol=Math.round(mi/4*10)/10; saveSettings();
     }
     renderAll();
-    fetchZones(); enrich();
+    fetchZones(); enrich(); fetchStrength();
   }catch(e){
     const code=(e&&e.code)||"upstream_error";
     if(AUTHZ.includes(code)) ACTS=[];
     SYNC={state:"err",code,msg:code==="tool_error"?`Strava reported an error: ${e.message||"unknown"}`:"",at:SYNC.at};
     renderAll();
   }
+}
+async function fetchStrength(){
+  const ids=ACTS.filter(a=>sportOf(a.type)==="lift"&&a.date>=add(TODAY,-42)&&!STR[a.id]).map(a=>a.id).slice(0,30);
+  if(!ids.length) return;
+  try{ const p=payload(await callT("get_strength_workout_details",{activity_ids:ids},{cache:{staleTime:300000}}));
+    (Array.isArray(p)?p:(p.workouts||[])).forEach(w=>{ if(w&&w.activity_id) STR[String(w.activity_id)]=(w.exercise_sets||[]).filter(x=>x.exercise_name&&x.exercise_name!=="Unknown"); });
+    ids.forEach(id=>{ if(!STR[id]) STR[id]=[]; });
+    renderAll();
+  }catch(e){}
+}
+function strSummary(id){
+  const sets=STR[id]; if(!sets||!sets.length) return "";
+  const g={}; sets.forEach(x=>{const n=x.exercise_name; (g[n]=g[n]||{n:0,w:[],r:[]}).n++; if(x.weight&&x.weight.value) g[n].w.push(x.weight.value+" "+(x.weight.unit||"")); if(x.reps&&x.reps.value) g[n].r.push(x.reps.value);});
+  return Object.entries(g).map(([n,v])=>`${n.replace(/_/g," ").toLowerCase()} ${v.n}×${v.r[0]||"?"}${v.w.length?" @ "+v.w[v.w.length-1].trim():""}`).join(" · ");
 }
 async function fetchZones(){
   try{ const p=payload(await callT("get_athlete_zones",{},{cache:{staleTime:300000}}));
@@ -647,7 +724,7 @@ function doneChip(ds,d){
     h+=`<span class="done">Ran ${mi.toFixed(1)} mi · ${fmtP(s/60/mi)}/mi${hrs.length?` · ${Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length)} bpm`:""}</span> `;}
   actsOn(ds,"bike").forEach(a=>{h+=`<span class="done">Rode ${Math.round(a.s/60)} min · ${(a.m/MI).toFixed(0)} mi</span> `;});
   actsOn(ds,"swim").forEach(a=>{h+=`<span class="done">Swam ${Math.round(a.m*1.0936).toLocaleString()} yd</span> `;});
-  actsOn(ds,"lift").forEach(a=>{h+=`<span class="done">Lifted ${Math.round(a.s/60)} min</span> `;});
+  actsOn(ds,"lift").forEach(a=>{const sm=strSummary(a.id); h+=`<span class="done">Lifted ${Math.round(a.s/60)} min${sm?"":STR[a.id]?" · no sets logged":""}</span> `+(sm?`<div class="faint" style="margin-top:3px">${esc(sm)}</div>`:"");});
   ACTS.filter(a=>a.date===ds&&["mob","other"].includes(sportOf(a.type))).forEach(a=>{h+=`<span class="done other">${esc(a.type.replace(/([a-z])([A-Z])/g,"$1 $2"))} ${Math.round(a.s/60)} min</span> `;});
   if(haveData()&&ds<TODAY){
     if(d.mi>0&&!runs.length) h+=`<span class="done miss">Run missed</span> `;
@@ -662,10 +739,12 @@ function withWatts(t){
   const f=ftpW(); if(!f) return t;
   return t.replace(/(\d+)–(\d+)% FTP/g,(m,a,b)=>`${m} (${Math.round(f*a/100)}–${Math.round(f*b/100)} W)`).replace(/(^|[^–\d])(\d+)% FTP/g,(m,pre,a)=>`${m} (${Math.round(f*a/100)} W)`);
 }
+let ICU=[];
 function sessions(d,z){
   const L=[];
-  if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${esc(d.t)} <span class="faint">${d.mi} mi</span></div><div class="p">${targetLine(d,z)}</div></div>`);
-  d.x.forEach(s=>{const parts=(s.sp==="bike"?withWatts(s.t):s.t).split(" · "); L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${esc(parts[0])} <span class="faint">${esc(s.amt)}</span></div>${parts.length>1?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>`);});
+  const gb=txt=>{ICU.push(txt);return ` <button type="button" class="gbtn" data-icu="${ICU.length-1}" aria-label="Copy this workout for Garmin">Copy for Garmin</button>`;};
+  if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${esc(d.t)} <span class="faint">${d.mi} mi</span>${gb(icuRun(d))}</div><div class="p">${targetLine(d,z)}</div></div>`);
+  d.x.forEach(s=>{const parts=(s.sp==="bike"?withWatts(s.t):s.t).split(" · "); L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${esc(parts[0])} <span class="faint">${esc(s.amt)}</span>${s.sp==="bike"?gb(icuBike(s)):""}</div>${parts.length>1?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>`);});
   if(!L.length) L.push(`<div class="sess"><div class="t">${zoneTag("X")}${esc(d.t)}</div></div>`);
   return L.join("");
 }
@@ -708,6 +787,13 @@ const WINTER_CARD=`<section class="card">
     <li><b>Every cold run:</b> go in daylight, start into the wind off the water so it's at your back coming home, get out of wet layers right away, and keep drinking even when you're not thirsty.<span class="src">Castellani et al. 2021, ACSM expert consensus on cold-weather exercise</span></li>
   </ul>
 </section>`;
+const MN_CARD=`<section class="card"><div class="eyebrow">Home in Minnesota</div><h3 style="margin-top:3px">Training on the trip</h3>
+  <ul class="cite">
+    <li><b>Colder than Boston.</b> Late-December Twin Cities highs are often in the 20s°F, and below-zero wind chills are common. Use the gym treadmill whenever the wind chill is below 0°F or the roads are icy.</li>
+    <li><b>Travel days are rest days.</b> Walk the airport, drink extra water, and do 10 minutes of mobility at the gate.</li>
+    <li><b>The gym covers everything.</b> Spin bike or elliptical for rides, the same lifts on gym equipment, and no swims until you're back.</li>
+    <li><b>Pack:</b> running shoes, a warm hat and gloves, and your Garmin charger.</li>
+  </ul></section>`;
 const DARK_CARD=`<section class="card"><div class="eyebrow">Short days</div><h3 style="margin-top:3px">Running around work in the dark</h3>
   <p class="muted" style="margin-top:6px;font-size:.9rem">After clocks change on Nov 1, Boston is dark by about 4:30 pm. Run before work or at lunch when you can. After dark, wear a headlamp and a reflective vest and stick to well-lit routes. Rides after work go on the trainer.</p></section>`;
 function renderWeek(){
@@ -735,10 +821,11 @@ function renderWeek(){
     </div>
     <div class="days">${rows}</div>
   </section>
-  ${winterWeek(i)?WINTER_CARD:darkWeek(i)&&blk(i)<0?DARK_CARD:""}`;
-  document.getElementById("wkPrev").onclick=()=>{WK=Math.max(0,WK-1);renderWeek();};
-  document.getElementById("wkNext").onclick=()=>{WK=Math.min(NW()-1,WK+1);renderWeek();};
-  document.getElementById("wkNow").onclick=()=>{WK=curWeek();renderWeek();};
+  ${tripWeek(i)?MN_CARD:""}${winterWeek(i)?WINTER_CARD:darkWeek(i)&&blk(i)<0?DARK_CARD:""}`;
+  const go=n=>{WK=n;ICU=[];renderWeek();bindGarmin();};
+  document.getElementById("wkPrev").onclick=()=>go(Math.max(0,WK-1));
+  document.getElementById("wkNext").onclick=()=>go(Math.min(NW()-1,WK+1));
+  document.getElementById("wkNow").onclick=()=>go(curWeek());
 }
 
 function renderProgress(){
@@ -791,7 +878,7 @@ function renderPaces(){
   const src=z.f.strava?`your Strava ${BD.find(x=>x.m===z.f.from).k} best of ${fmtH(b.best[z.f.from].s/60)} (${fmtD(b.best[z.f.from].date)})`:`your ${fmtBench()}`;
   const rows=[
     ["E","Easy and long runs",`${fmtP(z.E[0])}–${fmtP(z.E[1])}`,`${km(z.E[0])}–${km(z.E[1])}`,"Conversational. Most of your miles."],
-    ["MP","Marathon pace (goal)",fmtP(z.MP),km(z.MP),`Goal ${S.goal}. Long-run segments and race day.`],
+    ["MP",z.MP>z.goalMP+1/60?"Marathon pace (training)":"Marathon pace (goal)",fmtP(z.MP),km(z.MP),z.MP>z.goalMP+1/60?`Goal pace is ${fmtP(z.goalMP)}/mi, faster than your current fitness supports. Train at ${fmtP(z.MP)} and it moves toward goal pace as your time trials improve.`:`Goal ${S.goal}. Long-run segments and race day.`],
     ["T","Threshold",fmtP(z.T),km(z.T),"Comfortably hard, about one-hour race effort."],
     ["I","Interval",fmtP(z.I),km(z.I),"About 5K race effort, 3 to 5 minute reps."]
   ].map(r=>`<tr><td>${zoneTag(r[0])}${r[1]}<div class="faint">${r[4]}${hrTarget(r[0])?` · ${hrTarget(r[0])}`:""}</div></td><td class="num mono">${r[2]}</td><td class="num mono">${r[3]}</td></tr>`).join("");
@@ -845,6 +932,19 @@ const RESEARCH=`<section class="card">
     <li><b>Fuel the long sessions.</b> Long rides practice taking in 60 to 90 g of carbs an hour, the range endurance guidelines recommend for efforts over 2 hours. On race day that's what keeps you off the wall.<span class="src">Thomas, Erdman &amp; Burke 2016, ACSM/AND/DC position stand</span></li>
   </ul>
 </section>`;
+function garminCard(){
+  const z=Z();
+  return `<section class="card">
+  <div class="eyebrow">Garmin</div><h2 style="margin-top:3px">Get workouts on your watch</h2>
+  <ol class="cite" style="list-style:decimal;padding-left:20px">
+    <li><b>Set up intervals.icu once.</b> Make a free account at intervals.icu and connect Garmin and Strava. In the Garmin connection, turn on uploading planned workouts.</li>
+    <li><b>Set your targets there.</b> Run threshold pace <span class="mono">${fmtP(z.T)}/mi</span> (your Threshold pace on the Paces tab). Bike FTP <span class="mono">${ftpW()||"from your week 4 test"}${ftpW()?" W":""}</span>. Run workouts here use % of threshold pace, and rides use % of FTP.</li>
+    <li><b>Add each workout.</b> Tap <b>Copy for Garmin</b> next to a run or ride, open that day in the intervals.icu calendar, add a workout and paste the text into the description. intervals.icu builds the steps and sends the workout to your watch.</li>
+    <li><b>Log lifts as Strength.</b> On your Forerunner, start a Strength activity. It counts reps and sets. Afterward, fix the exercise names and add weights in the Garmin Connect app. Those sets sync to Strava, and they show under each lift here.</li>
+  </ol>
+  <p class="faint" style="margin-top:10px">Lifts and swims don't need the copy step: log them with the right activity type on the watch.</p>
+</section>`;
+}
 function renderPlan(){
   const cw=weekOf(TODAY), n=NW(), maxMi=Math.max(...Array.from({length:n},(_,i)=>weekMi(i)));
   const ph=phases().map(p=>{
@@ -862,12 +962,15 @@ function renderPlan(){
       <div class="field"><label for="sStart">Plan start</label><input id="sStart" type="date" value="${esc(S.start)}"><span class="hint">${n} weeks to race day.</span></div>
       <div class="field"><label for="sVol">Starting weekly miles</label><input id="sVol" type="number" min="0" max="110" step="1" value="${S.startVol!=null?esc(Math.round(S.startVol)):""}" placeholder="From Strava"><span class="hint">Set from your last 4 weeks on Strava.</span></div>
       <div class="field"><label for="sWinter">Winter adjustments</label><select id="sWinter">${[["boston","Boston: mid-Dec – mid-Feb"],["dec-feb","December – February"],["nov-mar","Mid-Nov – mid-Mar"],["off","Off"]].map(([v,n])=>`<option value="${v}" ${S.winter===v?"selected":""}>${n}</option>`).join("")}</select><span class="hint">Shorter long runs, indoor rides.</span></div>
+      <div class="field"><label for="sT1">Trip 1 to Minnesota</label><div class="row" style="flex-wrap:nowrap"><input id="sT1" type="date" value="${esc((S.trips[0]||{}).from||"")}" aria-label="Trip 1 start"><input id="sT1b" type="date" value="${esc((S.trips[0]||{}).to||"")}" aria-label="Trip 1 end"></div><span class="hint">Thanksgiving. Leave blank if you're not going.</span></div>
+      <div class="field"><label for="sT2">Trip 2 to Minnesota</label><div class="row" style="flex-wrap:nowrap"><input id="sT2" type="date" value="${esc((S.trips[1]||{}).from||"")}" aria-label="Trip 2 start"><input id="sT2b" type="date" value="${esc((S.trips[1]||{}).to||"")}" aria-label="Trip 2 end"></div><span class="hint">Christmas and New Year's.</span></div>
       <div class="field"><label for="sPool">Pool access from</label><input id="sPool" type="date" value="${esc(S.poolFrom||"")}"><span class="hint">Swims show from this date. Clear it if you don't have a pool yet.</span></div>
       <div class="field"><label for="sFtp">Bike FTP (watts)</label><input id="sFtp" type="number" min="50" max="500" value="${esc(S.ftp||"")}" placeholder="${FTP?FTP.w+" from Strava"+(FTP.est?" (estimate)":""):"From Strava"}"><span class="hint">Sets the watts on bike workouts. Test it in week 4.</span></div>
       <div class="field" style="align-self:end"><button class="btn primary" type="submit">Save plan</button> <span class="faint" id="saved" aria-live="polite"></span></div>
     </form>
   </section>
   ${ph}
+  ${garminCard()}
   ${RESEARCH}`;
   view.querySelectorAll(".wkrow").forEach(b=>b.onclick=()=>{WK=Number(b.dataset.w);setTab("week");});
   document.getElementById("setForm").onsubmit=async e=>{e.preventDefault();
@@ -875,7 +978,7 @@ function renderPlan(){
     const date=v("sDate"), start=v("sStart"); if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{4}-\d{2}-\d{2}$/.test(start)) return;
     const vol=v("sVol");
     S={...S,raceName:v("sName")||"Marathon",race:date,start,goal:parseT(v("sGoal"))>0?v("sGoal"):S.goal,
-      peak:String(clamp(Number(v("sPeak"))||50,25,110)),winter:document.getElementById("sWinter").value,poolFrom:document.getElementById("sPool").value,ftp:document.getElementById("sFtp").value.trim(),startVol:vol===""?S.startVol:clamp(Number(vol)||0,0,110)};
+      peak:String(clamp(Number(v("sPeak"))||50,25,110)),winter:document.getElementById("sWinter").value,poolFrom:document.getElementById("sPool").value,ftp:document.getElementById("sFtp").value.trim(),trips:[[v("sT1"),v("sT1b")],[v("sT2"),v("sT2b")]].filter(([a,b])=>a&&b&&a<=b).map(([from,to])=>({from,to,where:"Minnesota"})),startVol:vol===""?S.startVol:clamp(Number(vol)||0,0,110)};
     const r=await saveSettings(); WK=null;
     renderAll(); const s=document.getElementById("saved"); if(s) s.textContent=r==="saved"?"Saved":"Saved on this device";
   };
@@ -884,12 +987,19 @@ function renderPlan(){
 const RENDER={week:renderWeek,progress:renderProgress,paces:renderPaces,plan:renderPlan};
 function setTab(t){TAB=RENDER[t]?t:"week"; try{localStorage.setItem("mbuild-tab",TAB);}catch(e){}
   document.querySelectorAll("#tabbar button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===TAB?"true":"false"));
-  RENDER[TAB](); }
+  ICU=[]; RENDER[TAB](); bindGarmin(); }
+function bindGarmin(){
+  view.querySelectorAll(".gbtn").forEach(b=>b.onclick=async()=>{
+    const txt=ICU[Number(b.dataset.icu)]||"";
+    try{ await navigator.clipboard.writeText(txt); b.textContent="Copied"; setTimeout(()=>{b.textContent="Copy for Garmin";},1600); }
+    catch(e){ let box=b.parentElement.querySelector("textarea.icu"); if(!box){box=document.createElement("textarea");box.className="icu";box.readOnly=true;box.value=txt;b.parentElement.appendChild(box);} box.focus(); box.select(); }
+  });
+}
 function renderAll(){
   renderBar(); renderConnect();
   // keep form edits on the Plan tab from being wiped by background syncs
   if(TAB==="plan"&&view.contains(document.activeElement)&&document.activeElement.tagName==="INPUT") return;
-  RENDER[TAB]&&RENDER[TAB]();
+  ICU=[]; RENDER[TAB]&&RENDER[TAB](); bindGarmin();
 }
 document.querySelectorAll("#tabbar button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 document.getElementById("sync").onclick=()=>{ if(SYNC.state==="need"){const g=document.getElementById("cnGo"); if(g) g.click(); return;} SYNC={...SYNC,state:SYNC.state==="loading"?"loading":"idle"}; sync(true); };
