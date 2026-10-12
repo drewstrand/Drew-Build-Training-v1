@@ -130,8 +130,6 @@ p{margin:0}
 .z-E,.z-L{background:var(--h2)}.z-T{background:var(--thr)}.z-I{background:var(--zi)}.z-MP{background:var(--spec)}.z-R,.z-TT{background:var(--foam);color:#0B2E29}.z-X{background:var(--ink3)}.z-BIKE{background:var(--z-bike)}.z-SWIM{background:var(--z-swim)}.z-LIFT{background:var(--z-lift)}.z-MOB{background:var(--z-mob)}
 .sess+.sess{margin-top:7px}
 .amt{white-space:nowrap}
-.gbtn{border:1px solid var(--line);background:var(--surface2);border-radius:7px;padding:1px 8px;font-size:.72rem;font-weight:600;color:var(--lane);margin-left:4px;vertical-align:1px}
-textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-family:var(--f-mono);font-size:.78rem;border:1px solid var(--line);border-radius:8px;background:var(--surface2);padding:8px}
 .ex{margin:3px 0 0;padding-left:18px;font-size:.84rem;color:var(--ink2)}
 .ex li{margin:1px 0}
 .cite{display:grid;gap:10px;margin:10px 0 0;padding:0;list-style:none}
@@ -226,7 +224,6 @@ textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-famil
   <div class="foot">Runs, best efforts and heart rate zones from your connected Strava account.</div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 /* ===================== Dates ===================== */
 const DAY=864e5, MI=1609.344, BLOCK=18;
@@ -879,13 +876,11 @@ function withWatts(t){
   const f=ftpW(); if(!f) return t;
   return t.replace(/(\d+)–(\d+)% FTP/g,(m,a,b)=>`${m} (${Math.round(f*a/100)}–${Math.round(f*b/100)} W)`).replace(/(^|[^–\d])(\d+)% FTP/g,(m,pre,a)=>`${m} (${Math.round(f*a/100)} W)`);
 }
-let ICU=[];
 const lead=t=>{const m=String(t).match(/^(.+?[.:])(\s.*)?$/);return m?`<b>${esc(m[1])}</b>${esc(m[2]||"")}`:`<b>${esc(t)}</b>`;};
 function sessions(d,z){
   const L=[];
-  const gb=txt=>{ICU.push(txt);return ` <button type="button" class="gbtn" data-icu="${ICU.length-1}" aria-label="Copy this workout for Garmin">Copy for Garmin</button>`;};
-  if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${lead(d.t)}${gb(icuRun(d))}</div><div class="p">${targetLine(d,z)}</div></div>`);
-  d.x.forEach(s=>{const parts=(s.sp==="bike"?withWatts(s.t):s.t).split(" · "); L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${lead(parts[0])} <span class="faint amt">${esc(s.amt)}</span>${s.sp==="bike"?gb(icuBike(s)):""}</div>${parts.length>1?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>`);});
+  if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${lead(d.t)}</div><div class="p">${targetLine(d,z)}</div></div>`);
+  d.x.forEach(s=>{const parts=(s.sp==="bike"?withWatts(s.t):s.t).split(" · "); L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${lead(parts[0])} <span class="faint amt">${esc(s.amt)}</span></div>${parts.length>1?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>`);});
   if(!L.length) L.push(`<div class="sess"><div class="t">${zoneTag("X")}${lead(d.t)}</div></div>`);
   return L.join("");
 }
@@ -961,18 +956,13 @@ function renderWeek(){
       ${ld.lift?tile("Lifts",`${ld.lift}`,`${dn.lift}`):""}
     </div>
     <div class="days">${rows}</div>
-    <div class="spread" style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
-      <div style="min-width:0"><b style="font-size:.9rem">Put this week on your Garmin</b><div class="faint" id="dlMsg" aria-live="polite">Needs a computer to copy files onto the watch. On your phone, use Copy for Garmin with intervals.icu.</div></div>
-      <div class="row"><button class="btn primary" id="dlWeek" type="button">Download week</button><button class="btn" id="dl4" type="button">Next 4 weeks</button></div>
-    </div>
   </section>
   ${tripWeek(i)?MN_CARD:""}${winterWeek(i)?WINTER_CARD:darkWeek(i)&&blk(i)<0?DARK_CARD:""}`;
-  const go=n=>{WK=n;ICU=[];renderWeek();bindGarmin();};
+  const go=n=>{WK=n;renderWeek();};
   document.getElementById("wkPrev").onclick=()=>go(Math.max(0,WK-1));
   document.getElementById("wkNext").onclick=()=>go(Math.min(NW()-1,WK+1));
   document.getElementById("wkNow").onclick=()=>go(curWeek());
-  document.getElementById("dlWeek").onclick=e=>downloadWeeks(i,1,e.currentTarget,document.getElementById("dlMsg"));
-  document.getElementById("dl4").onclick=e=>downloadWeeks(i,4,e.currentTarget,document.getElementById("dlMsg"));
+
 }
 
 function loadCard(){
@@ -1124,14 +1114,13 @@ const RESEARCH=`<section class="card">
 function garminCard(){
   const z=Z();
   return `<section class="card">
-  <div class="eyebrow">Garmin</div><h2 style="margin-top:3px">Get workouts on your watch</h2>
-  <ol class="cite" style="list-style:decimal;padding-left:20px">
-    <li><b>Download a week.</b> On the Week tab, tap <b>Download week</b> (or <b>Next 4 weeks</b>) and unzip the file. Each run, ride and lift is its own workout file.</li>
-    <li><b>Copy them to the watch.</b> Plug your Forerunner into a computer and copy the .fit files into the <span class="mono">GARMIN/NewFiles</span> folder. On a Mac, the watch shows up through OpenMTP or Android File Transfer, not Finder. Unplug, and the workouts appear under Training › Workouts.</li>
-    <li><b>Start the workout.</b> Runs guide you with pace ranges (threshold ${fmtP(z.T)}/mi), rides with watts (FTP ${ftpW()||"not set yet"}${ftpW()?" W":""}), and lifts step through each set with rest timers.</li>
-    <li><b>Lifts log themselves.</b> Lift files use Garmin's own exercise names, so a Strength activity started from the workout records real sets. Add the weights in the Garmin Connect app afterward, and they sync to Strava and show up here.</li>
-  </ol>
-  <p class="faint" style="margin-top:10px">Download again after a time trial or an FTP test, since targets come from your current paces and FTP. Copy for Garmin still works if you use intervals.icu.</p>
+  <div class="eyebrow">Garmin</div><h2 style="margin-top:3px">Workouts reach your watch on their own</h2>
+  <ul class="cite">
+    <li><b>Every Sunday evening</b> the next 4 weeks of this plan are refreshed in intervals.icu with your latest paces and FTP. intervals.icu sends the coming 7 days to Garmin Connect, a day at a time, and your watch picks them up when it syncs.</li>
+    <li><b>Targets:</b> runs use your threshold pace (${fmtP(z.T)}/mi now) and rides use your FTP (${ftpW()||133} W). They update after time trials and FTP tests.</li>
+    <li><b>Moving a workout?</b> Drag it in the intervals.icu calendar and it moves on your watch too. Changes here (race, trips, goal) flow through on the next Sunday sync, or ask Claude to re-push right away.</li>
+    <li><b>Lifts:</b> start a Strength activity on the watch. Add weights in the Garmin Connect app afterward and your sets show up under each lift here.</li>
+  </ul>
 </section>`;
 }
 function renderPlan(){
@@ -1176,40 +1165,12 @@ function renderPlan(){
 const RENDER={week:renderWeek,progress:renderProgress,paces:renderPaces,plan:renderPlan};
 function setTab(t){TAB=RENDER[t]?t:"week"; try{localStorage.setItem("mbuild-tab",TAB);}catch(e){}
   document.querySelectorAll("#tabbar button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===TAB?"true":"false"));
-  ICU=[]; RENDER[TAB](); bindGarmin(); }
-let DL=null;
-const getDl=async()=>{ if(DL!==null) return DL; try{ DL=window.claude&&window.claude.use?await window.claude.use("downloads"):null; }catch(e){DL=null;} return DL; };
-async function downloadWeeks(from,count,btn,status){
-  const dl=await getDl(), say=t=>{ if(status) status.textContent=t; };
-  if(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)){ say("Workout files can only go onto a Garmin from a computer. Open this dashboard at claude.ai on a laptop to download them, or use Copy for Garmin with intervals.icu on your phone."); return; }
-  if(!dl){ say("Downloads aren't available here. Open the dashboard at claude.ai in a computer browser."); return; }
-  if(!window.JSZip){ say("The zip tool didn't load. Reload the page and try again."); return; }
-  btn.disabled=true; say("Building workout files");
-  try{
-    const zip=new JSZip(); let n=0;
-    for(let i=from;i<Math.min(NW(),from+count);i++) weekFitFiles(i).forEach(f=>{zip.file(f.name,f.bytes);n++;});
-    if(!n){ say("No runs, rides or lifts in those weeks."); return; }
-    const data=await zip.generateAsync({type:"uint8array"});
-    const last=Math.min(NW(),from+count)-1;
-    const r=await dl.save({filename:`Garmin workouts ${count>1?`weeks ${from+1}-${last+1}`:`week ${from+1}`}.zip`,data,request:`${n} Garmin workout files for ${count>1?`weeks ${from+1} to ${last+1}`:`week ${from+1}`}`});
-    say(`Saved ${n} workouts. Unzip and copy the .fit files to GARMIN/NewFiles on your watch.`);
-  }catch(e){
-    const c=e&&e.code;
-    say(c==="declined"?"Download canceled.":c==="rejected_extension"||c==="extension_not_enabled"?"This view doesn't allow .zip downloads.":c==="too_large"?"That's too many workouts at once. Try one week.":c==="rate_limited"?"Too many downloads in a row. Try again in a minute.":"The download didn't work. Try again.");
-  }finally{ btn.disabled=false; }
-}
-function bindGarmin(){
-  view.querySelectorAll(".gbtn").forEach(b=>b.onclick=async()=>{
-    const txt=ICU[Number(b.dataset.icu)]||"";
-    try{ await navigator.clipboard.writeText(txt); b.textContent="Copied"; setTimeout(()=>{b.textContent="Copy for Garmin";},1600); }
-    catch(e){ let box=b.parentElement.querySelector("textarea.icu"); if(!box){box=document.createElement("textarea");box.className="icu";box.readOnly=true;box.value=txt;b.parentElement.appendChild(box);} box.focus(); box.select(); }
-  });
-}
+  RENDER[TAB](); }
 function renderAll(){
   renderBar(); renderConnect();
   // keep form edits on the Plan tab from being wiped by background syncs
   if(TAB==="plan"&&view.contains(document.activeElement)&&document.activeElement.tagName==="INPUT") return;
-  ICU=[]; RENDER[TAB]&&RENDER[TAB](); bindGarmin();
+  RENDER[TAB]&&RENDER[TAB]();
 }
 document.querySelectorAll("#tabbar button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 document.getElementById("sync").onclick=()=>{ if(SYNC.state==="need"){const g=document.getElementById("cnGo"); if(g) g.click(); return;} SYNC={...SYNC,state:SYNC.state==="loading"?"loading":"idle"}; sync(true); };
