@@ -49,3 +49,12 @@ or as an `INTERVALS_API_KEY` environment variable with `intervals.icu` in Allowe
 node tools/push-intervals.mjs --settings settings.json --dry-run   # check what will be sent
 node tools/push-intervals.mjs --settings settings.json             # push from today to race day
 ```
+
+Notes from the first push (Oct 12, 2026):
+- In a Claude cloud session, run Node through the agent proxy:
+  `NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt node tools/push-intervals.mjs ...`
+- intervals.icu stores targets as % of its own thresholds, so its Ride FTP and Run threshold pace must match the
+  dashboard (Paces tab threshold pace, FTP). They were set to 133 W and 8:17/mi. Update them after a time trial or
+  FTP test, then push again; events update in place.
+- Until the dashboard reads Strava best efforts in Node, pass fitness as a manual benchmark in settings.json
+  (`"src":"manual","benchDist":"21097.5","benchTime":"1:50:01"` matched the page on Oct 12).
