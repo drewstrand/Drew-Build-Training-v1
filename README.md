@@ -33,3 +33,18 @@ concurrent-training spacing, VO2max intervals, strength maintenance, fueling).
 Bike watts come from your FTP (Strava's estimate or one you enter). All run data comes from the Strava connector in claude.ai (needs a Strava subscription): activities, heart rate zones,
 and per-run best efforts and heart rate. The page prompts you to connect Strava when it isn't connected.
 Settings and per-run details are saved in the artifact's database.
+
+## Sync the plan to Garmin through intervals.icu
+
+`tools/push-intervals.mjs` loads the whole plan into an intervals.icu calendar, and intervals.icu sends each
+workout to Garmin Connect and on to the watch. Runs and rides go up as the same Garmin workout files the
+dashboard downloads; lifts and swims go up as notes. Re-running it updates events in place (stable `external_id`s).
+
+Needs network access to `intervals.icu` and an `INTERVALS_API_KEY` environment variable (intervals.icu
+Settings > Developer). Export the dashboard settings first so the plan matches what the page shows:
+
+```
+# settings.json = the "settings/plan" document from the artifact's database
+node tools/push-intervals.mjs --settings settings.json --dry-run   # check what will be sent
+node tools/push-intervals.mjs --settings settings.json             # push from today to race day
+```
