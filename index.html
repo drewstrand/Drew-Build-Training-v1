@@ -210,7 +210,7 @@ const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 
 /* ===================== Settings ===================== */
 const DEF={raceName:"Grandma's Marathon",race:"2027-06-19",start:"2026-10-12",goal:"3:29:00",peak:"50",
-  src:"strava",benchDist:"10000",benchTime:"46:00",startVol:null};
+  src:"strava",winter:"dec-feb",benchDist:"10000",benchTime:"46:00",startVol:null};
 let S={...DEF};
 try{const s=JSON.parse(localStorage.getItem("mbuild2")||"null"); if(s) S={...DEF,...s};}catch(e){}
 
@@ -292,7 +292,7 @@ const weekStart=i=>add(planStart(),i*7);
 const weekOf=s=>Math.floor((toT(s)-toT(planStart()))/(7*DAY));
 const blk=i=>i-(NW()-BLOCK);
 const HYB_PH=[
-  {name:"Hybrid: Rebuild",col:"--h1",blurb:"Three runs, four lifts, two rides and a swim, all mostly easy. Lifting uses moderate weights, slow lowering and light Olympic-lift technique work to get tendons and joints ready."},
+  {name:"Hybrid: Rebuild",col:"--h1",blurb:"Three runs, three or four lifts, two rides and a swim, all mostly easy. Lifting uses moderate weights, slow lowering and light Olympic-lift technique work to get tendons and joints ready."},
   {name:"Hybrid: Strength",col:"--h2",blurb:"Heavy lifting at 4 to 6 reps with power cleans and snatches, sweet spot rides, hill reps and threshold swims. Heavy strength is the lifting most linked to better running economy."},
   {name:"Hybrid: Power",col:"--h3",blurb:"Heavy triples, full Olympic lifts and jumps, 4 x 4 VO2 rides and run tempos. This sets up the marathon build."}
 ];
@@ -322,6 +322,18 @@ function layout(total,q,l,med){
 
 /* Hybrid weeks: 3 runs, 4 lifts, 2 rides, 1 swim. Lower-body lifts go in the evening of the hard run or ride days,
    upper-body lifts go on the easier days, and nothing heavy for the legs the day before the long run. */
+/* ---------- Winter and holidays ---------- */
+const WINTER_MONTHS={"dec-feb":[12,1,2],"nov-mar":[11,12,1,2,3],"off":[]};
+const isWinter=ds=>(WINTER_MONTHS[S.winter]||WINTER_MONTHS["dec-feb"]).includes(Number(ds.slice(5,7)));
+const winterWeek=i=>isWinter(add(weekStart(i),5)); // judged by the long-run day
+function holidayOn(ds){
+  const [y,m,d]=ds.split("-").map(Number);
+  if(m===12&&d===25) return "Christmas";
+  if(m===1&&d===1) return "New Year's Day";
+  if(m===11){const first=toS(Date.UTC(y,10,1)), firstThu=1+((3-dow(first)+7)%7); if(d===firstThu+21) return "Thanksgiving";}
+  return null;
+}
+const TREAD="Treadmill at 1% incline if wind chill is below -15°F or the roads are icy.";
 const LIFTS={
   lowerA:[
     "Lower A · Mobility warm-up (90/90 hips, ankle rocks) · Olympic technique: hang muscle clean 4 x 3, light · Goblet squat 3 x 10 · Romanian deadlift 3 x 10 · Split squat 3 x 8 · Calf raises 3 x 15",
@@ -335,6 +347,10 @@ const LIFTS={
     "Upper A · Push-ups 3 x 12 · Dumbbell bench 3 x 10 · Half-kneeling press 3 x 10 · Rows 3 x 12 · Thoracic and shoulder mobility",
     "Upper A · Bench press 4 x 5 · Push press 4 x 4 · Dips or weighted push-ups 3 x 8 · Rows 3 x 8 · Core: ab wheel, Pallof press",
     "Upper A · Push jerk 5 x 2 · Bench press 3 x 3 · Med-ball chest pass 4 x 5 · Rows 3 x 8 · Shoulder mobility"],
+  upperFull:[
+    "Upper, push + pull · Push-ups 3 x 12 · Pull-ups (assisted if needed) 3 x 6–8 · Half-kneeling press 3 x 10 · One-arm row 3 x 10 · Farmer carries · 15 min mobility flow",
+    "Upper, push + pull · Bench press 4 x 5 · Weighted pull-ups 4 x 5 · Push press 3 x 4 · Barbell row 3 x 6 · Suitcase carries · Mobility flow",
+    "Upper, push + pull · Push jerk 5 x 2 · Weighted pull-ups 4 x 3 · Bench press 3 x 3 · Med-ball slams 3 x 5 · Turkish get-ups · Mobility flow"],
   upperB:[
     "Upper B · Pull-ups (assisted if needed) 3 x 6–8 · One-arm row 3 x 10 · Face pulls 3 x 15 · Farmer carries 4 x 40 m · 15 min full-body mobility flow",
     "Upper B · Weighted pull-ups 4 x 5 · Barbell row 4 x 6 · Overhead press 3 x 6 · Suitcase carries 4 x 30 m each side · Mobility flow",
@@ -360,15 +376,33 @@ function hybridWeek(i){
     :["Swim: technique drills (catch-up, fingertip drag, 6-kick switch), then 8 x 100 yd steady",
       "Swim: drills, then 10 x 100 yd at CSS pace, 15s rest",
       "Swim: drills, then 3 x 500 yd steady, 30s rest"][ph];
+  const winter=winterWeek(i), wk=i;
+  const hol=[0,1,2,3,4,5,6].map(d=>holidayOn(add(weekStart(i),d)));
+  // 4 lifts most weeks; 3 in the first two weeks (ease in), lighter weeks and holiday weeks
+  const three=i<2||deload||hol.some(Boolean);
+  const liftHol=[0,3,4].some(d=>hol[d]); // a holiday already removes one lift, so keep Upper A
   const out=Array.from({length:7},()=>({...REST,x:[]}));
-  out[0]=deload?{mi:r5(6*Math.min(k,1.2)),t:"5K time trial: 2 mi warm-up, 5K hard and even, 1 mi cool-down",z:"TT",key:1,x:[lift("lowerA",true)]}
-    :{mi:r5(vol*.3),t:runQ,z:ph===2?"T":"E",key:1,x:[lift("lowerA",true)]};
-  out[1]={mi:0,t:"Rest from running",z:"X",x:[X("swim",yd(2000+ph*400),swim),lift("upperA",false)]};
-  out[2]={mi:r5(vol*.28),t:"Easy run, zone 2",z:"E",x:[X("mob","30 min","Mobility: hips, ankles, thoracic spine. Lightest day of the week.")]};
-  out[3]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(60+ph*10),bikeQ),lift("lowerB",true)]};
-  out[4]={mi:0,t:"Rest from running",z:"X",x:[lift("upperB",false)]};
-  out[5]={mi:long,t:"Easy long run",z:"L",key:1,x:[]};
-  out[6]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(90+ph*15+w*5),ph===2?"Long ride, zone 2. Practice fueling: 60–90 g carbs per hour.":"Long ride, zone 2, conversational")]};
+  const tm=winter?" "+TREAD:"";
+  out[0]=deload?{mi:r5(6*Math.min(k,1.2)),t:"5K time trial: 2 mi warm-up, 5K hard and even, 1 mi cool-down."+(winter?" Treadmill at 1% incline is fine in the cold; Strava still logs the effort.":""),z:"TT",key:1,x:[lift("lowerA",true)]}
+    :{mi:r5(vol*.3),t:runQ+"."+tm,z:ph===2?"T":"E",key:1,x:[lift("lowerA",true)]};
+  out[1]={mi:0,t:"Rest from running",z:"X",x:[X("swim",yd(2000+ph*400),swim),...(three&&!liftHol?[]:[lift("upperA",false)])]};
+  out[2]={mi:r5(vol*.28),t:"Easy run, zone 2."+tm,z:"E",x:[X("mob","30 min","Mobility: hips, ankles, thoracic spine. Lightest day of the week.")]};
+  out[3]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(60+ph*10),(winter?"Indoor trainer. ":"")+bikeQ),lift("lowerB",true)]};
+  out[4]={mi:0,t:"Rest from running",z:"X",x:[lift(three&&!liftHol?"upperFull":"upperB",false)]};
+  if(winter){
+    const cap=r5(Math.min(long,7*Math.sqrt(k)));
+    out[5]={mi:cap,t:"Winter long run, 60–70 min max. Go midday when it's warmest, start into the wind so it's at your back on the way home. Treadmill if wind chill is below -15°F.",z:"L",key:1,x:[]};
+    out[6]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(120+ph*15+w*5),"Indoor long ride on the trainer, zone 2. This replaces the long-run time you skip outside."+(ph===2?" Practice fueling: 60–90 g carbs per hour.":""))]};
+  }else{
+    out[5]={mi:long,t:"Easy long run",z:"L",key:1,x:[]};
+    out[6]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(90+ph*15+w*5),ph===2?"Long ride, zone 2. Practice fueling: 60–90 g carbs per hour.":"Long ride, zone 2, conversational")]};
+  }
+  // holidays: take the day off, offer the fun option
+  hol.forEach((h,d)=>{ if(!h) return;
+    out[d]= h==="Thanksgiving"
+      ?{mi:0,t:"Rest from running",z:"X",x:[X("mob","Optional","Thanksgiving: run a local Turkey Trot for fun, or take an easy 45 min spin. No lifting today.")]}
+      :{mi:0,t:`${h}: rest day. An easy walk with family counts.`,z:"X",x:[]};
+  });
   return out;
 }
 
@@ -407,7 +441,8 @@ function buildWeek(i){
     return out;
   }
   const q=QW[b], l=LW[b];
-  return blockExtras(b,layout(peak()*VOL[b],{mi:r5(q[0]*k),t:q[1],z:q[2]},{mi:Math.min(22,r5(l[0]*Math.sqrt(k))),t:l[1],z:l[2]},b>=6));
+  const wl=winterWeek(i)?" Winter: treadmill, or split it into a morning and afternoon run if wind chill is below -15°F.":"";
+  return blockExtras(b,layout(peak()*VOL[b],{mi:r5(q[0]*k),t:q[1],z:q[2]},{mi:Math.min(22,r5(l[0]*Math.sqrt(k))),t:l[1]+"."+wl,z:l[2]},b>=6));
 }
 const weekMi=i=>buildWeek(i).reduce((a,d)=>a+d.mi,0);
 const parseMin=a=>{const m=String(a).match(/(\d+)(?:–(\d+))?\s*min/);return m?(Number(m[2]||m[1])):0;};
@@ -633,6 +668,15 @@ function weekDone(i){
 }
 const hrs=m=>m>=60?`${(m/60).toFixed(1)} h`:`${Math.round(m)} min`;
 
+const WINTER_CARD=`<section class="card">
+  <div class="eyebrow">Winter week</div><h3 style="margin-top:3px">Cold-weather rules</h3>
+  <ul class="cite">
+    <li><b>Wind chill 0°F or warmer:</b> run outside with layers. Cover your ears and hands, and use traction cleats on ice.</li>
+    <li><b>-1 to -15°F:</b> shorten the run or loop close to home. Cover all skin, and keep workouts easy since cold air irritates the airways when breathing hard.</li>
+    <li><b>Below -15°F:</b> treadmill. At about -19°F wind chill, exposed skin can get frostbite in 30 minutes.<span class="src">National Weather Service wind chill chart</span></li>
+    <li><b>Every cold run:</b> go midday, start into the wind, change out of wet layers right away, and drink even when you don't feel thirsty.<span class="src">Castellani et al. 2021, ACSM expert consensus on cold-weather exercise</span></li>
+  </ul>
+</section>`;
 function renderWeek(){
   if(WK==null) WK=curWeek();
   WK=clamp(WK,0,NW()-1);
@@ -657,7 +701,8 @@ function renderWeek(){
       ${ld.lift?tile("Lifts",`${ld.lift}`,`${dn.lift}`):""}
     </div>
     <div class="days">${rows}</div>
-  </section>`;
+  </section>
+  ${winterWeek(i)?WINTER_CARD:""}`;
   document.getElementById("wkPrev").onclick=()=>{WK=Math.max(0,WK-1);renderWeek();};
   document.getElementById("wkNext").onclick=()=>{WK=Math.min(NW()-1,WK+1);renderWeek();};
   document.getElementById("wkNow").onclick=()=>{WK=curWeek();renderWeek();};
@@ -761,6 +806,7 @@ const RESEARCH=`<section class="card">
     <li><b>The bike builds the engine while sparing your legs.</b> Cycling adds aerobic volume with far less impact than more running. 4 x 4 min intervals at 90 to 95% of max heart rate are among the best-supported ways to raise VO2max.<span class="src">Helgerud et al. 2007, Med Sci Sports Exerc</span></li>
     <li><b>One lift a week holds your strength.</b> During the marathon-specific phase, one heavy session a week kept strength and endurance gains in trained cyclists. That's why lifting drops to one session a week once marathon workouts get big.<span class="src">Rønnestad et al. 2010, Eur J Appl Physiol</span></li>
     <li><b>Three weeks on, one lighter.</b> Every fourth hybrid week cuts volume by about 30%. It ends with a 5K time trial, which Strava turns into a new best effort, so your paces stay current.<span class="src">Standard periodization practice in triathlon and running coaching</span></li>
+    <li><b>Winter is for the engine and the gym.</b> From December through February, long runs are capped at about an hour and the extra aerobic time moves to longer indoor rides. Lifting stays at four days a week, which suits the indoor season. Long runs come back with the marathon build, when the weather turns.<span class="src">Castellani et al. 2021, ACSM cold-weather consensus; NWS wind chill chart</span></li>
     <li><b>Fuel the long sessions.</b> Long rides practice taking in 60 to 90 g of carbs an hour, the range endurance guidelines recommend for efforts over 2 hours. On race day that's what keeps you off the wall.<span class="src">Thomas, Erdman &amp; Burke 2016, ACSM/AND/DC position stand</span></li>
   </ul>
 </section>`;
@@ -780,6 +826,7 @@ function renderPlan(){
       <div class="field"><label for="sPeak">Peak week (miles)</label><input id="sPeak" type="number" min="25" max="110" step="1" value="${esc(S.peak)}"><span class="hint">Every week scales from this.</span></div>
       <div class="field"><label for="sStart">Plan start</label><input id="sStart" type="date" value="${esc(S.start)}"><span class="hint">${n} weeks to race day.</span></div>
       <div class="field"><label for="sVol">Starting weekly miles</label><input id="sVol" type="number" min="0" max="110" step="1" value="${S.startVol!=null?esc(Math.round(S.startVol)):""}" placeholder="From Strava"><span class="hint">Set from your last 4 weeks on Strava.</span></div>
+      <div class="field"><label for="sWinter">Winter adjustments</label><select id="sWinter">${[["dec-feb","December – February"],["nov-mar","November – March"],["off","Off"]].map(([v,n])=>`<option value="${v}" ${S.winter===v?"selected":""}>${n}</option>`).join("")}</select><span class="hint">Shorter long runs, indoor rides.</span></div>
       <div class="field" style="align-self:end"><button class="btn primary" type="submit">Save plan</button> <span class="faint" id="saved" aria-live="polite"></span></div>
     </form>
   </section>
@@ -791,7 +838,7 @@ function renderPlan(){
     const date=v("sDate"), start=v("sStart"); if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{4}-\d{2}-\d{2}$/.test(start)) return;
     const vol=v("sVol");
     S={...S,raceName:v("sName")||"Marathon",race:date,start,goal:parseT(v("sGoal"))>0?v("sGoal"):S.goal,
-      peak:String(clamp(Number(v("sPeak"))||50,25,110)),startVol:vol===""?S.startVol:clamp(Number(vol)||0,0,110)};
+      peak:String(clamp(Number(v("sPeak"))||50,25,110)),winter:document.getElementById("sWinter").value,startVol:vol===""?S.startVol:clamp(Number(vol)||0,0,110)};
     const r=await saveSettings(); WK=null;
     renderAll(); const s=document.getElementById("saved"); if(s) s.textContent=r==="saved"?"Saved":"Saved on this device";
   };

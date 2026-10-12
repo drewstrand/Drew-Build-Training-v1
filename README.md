@@ -12,6 +12,10 @@ Set up for Grandma's Marathon (June 19, 2027), a sub-3:30 goal and a 50-mile pea
 - **Weeks 1–18, hybrid training**: 3 runs (Mon workout, Wed easy, Sat long), 4 lifts (2 lower on the hard run/ride days,
   2 upper on easier days, mixing strength, Olympic lifts and mobility), 2 rides and 1 swim a week, in three 6-week phases
   (Rebuild, Strength, Power), with a lighter week and a 5K time trial every fourth week.
+  Lifting drops to 3 days in the first two weeks, lighter weeks and holiday weeks.
+- **Winter (Dec–Feb by default)**: long runs capped at 60–70 min, rides move to the indoor trainer and get longer,
+  and each winter week shows cold-weather rules (NWS wind chill chart, ACSM 2021 cold-weather consensus).
+  Thanksgiving, Christmas and New Year's Day are rest days.
 - **Weeks 19–36, marathon build**: base, threshold, marathon specific and taper, with lifting dropping from twice a
   week to one maintenance session, plus easy swims and spins for recovery.
 
