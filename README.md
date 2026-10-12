@@ -7,8 +7,15 @@ A single-page marathon training dashboard (`index.html`), published as a claude.
 - **Paces**: VDOT-based training paces and race equivalents from your Strava best efforts (or a manual benchmark).
 - **Plan**: race settings (name, date, goal, peak mileage, plan start, starting volume) and the full plan by phase.
 
-Set up for Grandma's Marathon (June 19, 2027), a sub-3:30 goal and a 50-mile peak week: an 18-week foundation block,
-then an 18-week build (base, threshold, marathon specific, taper).
+Set up for Grandma's Marathon (June 19, 2027), a sub-3:30 goal and a 50-mile peak week:
+
+- **Weeks 1–18, hybrid training**: swim, bike, lifting and running in three 6-week phases (Rebuild, Strength, Power),
+  with a lighter week and a 5K time trial every fourth week.
+- **Weeks 19–36, marathon build**: base, threshold, marathon specific and taper, with lifting dropping from twice a
+  week to one maintenance session, plus easy swims and spins for recovery.
+
+The Plan tab lists the research behind the structure (intensity distribution, heavy and plyometric strength,
+concurrent-training spacing, VO2max intervals, strength maintenance, fueling).
 
 All run data comes from the Strava connector in claude.ai (needs a Strava subscription): activities, heart rate zones,
 and per-run best efforts and heart rate. The page prompts you to connect Strava when it isn't connected.

@@ -9,7 +9,7 @@
   --ink:#16202B; --ink2:#4A5866; --ink3:#7C8896;
   --lane:#1F5BD8; --lane-soft:#E3EBFB;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --found:#7A8FA3; --base:#5E9C7A; --thr:#D98A2B; --spec:#1F5BD8; --taper:#8A6CC9;
+  --h1:#7A8FA3; --h2:#4F8A8B; --h3:#3E6C8A; --base:#5E9C7A; --thr:#D98A2B; --spec:#1F5BD8; --taper:#8A6CC9;
   --good:#2E8A57; --warn:#C27A12; --bad:#C2412F;
   --track:#E1E6EC;
   --f-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
@@ -22,14 +22,14 @@
   --ink:#E8EDF2; --ink2:#AAB6C2; --ink3:#7A8794;
   --lane:#6E9BFF; --lane-soft:#1D2B47;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --found:#8FA3B8; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
+  --h1:#8FA3B8; --h2:#6FB0B1; --h3:#6E9CC0; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
   --good:#5CC48A; --warn:#E8A04A; --bad:#EF7666; --track:#26313C; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0E141B; --surface:#161E27; --surface2:#1C2631; --line:#2A3642;
   --ink:#E8EDF2; --ink2:#AAB6C2; --ink3:#7A8794;
   --lane:#6E9BFF; --lane-soft:#1D2B47;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --found:#8FA3B8; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
+  --h1:#8FA3B8; --h2:#6FB0B1; --h3:#6E9CC0; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
   --good:#5CC48A; --warn:#E8A04A; --bad:#EF7666; --track:#26313C; color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -112,7 +112,12 @@ p{margin:0}
 .done.miss{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
 .done.other{background:var(--surface2);color:var(--ink2)}
 .zone{display:inline-block;font-family:var(--f-mono);font-size:.68rem;padding:1px 6px;border-radius:5px;margin-right:6px;vertical-align:1px;color:#fff}
-.z-E,.z-L{background:var(--base)}.z-T{background:var(--thr)}.z-I{background:var(--bad)}.z-MP{background:var(--spec)}.z-R{background:var(--bib);color:var(--bib-ink)}.z-X{background:var(--ink3)}.z-TT{background:var(--bib);color:var(--bib-ink)}
+.z-E,.z-L{background:var(--base)}.z-T{background:var(--thr)}.z-I{background:var(--bad)}.z-MP{background:var(--spec)}.z-R{background:var(--bib);color:var(--bib-ink)}.z-X{background:var(--ink3)}.z-TT{background:var(--bib);color:var(--bib-ink)}.z-BIKE{background:#B5562A}.z-SWIM{background:#1D86A8}.z-LIFT{background:#5B4A8B}.z-MOB{background:var(--ink3)}
+.sess+.sess{margin-top:7px}
+.cite{display:grid;gap:10px;margin:10px 0 0;padding:0;list-style:none}
+.cite li{font-size:.88rem;color:var(--ink2)}
+.cite b{color:var(--ink)}
+.cite .src{display:block;font-size:.76rem;color:var(--ink3)}
 
 /* Chart */
 .chart{width:100%;height:auto;display:block}
@@ -284,41 +289,102 @@ const NW=()=>Math.round((toT(raceMon())-toT(planStart()))/(7*DAY))+1;
 const weekStart=i=>add(planStart(),i*7);
 const weekOf=s=>Math.floor((toT(s)-toT(planStart()))/(7*DAY));
 const blk=i=>i-(NW()-BLOCK);
+const HYB_PH=[
+  {name:"Hybrid: Rebuild",col:"--h1",blurb:"Easy aerobic work across all four sports. Lifting uses moderate weights and slow lowering to get tendons and joints ready for heavy work."},
+  {name:"Hybrid: Strength",col:"--h2",blurb:"Heavy lifting at 4 to 6 reps, sweet spot rides, hill reps and threshold swims. Heavy strength is the lifting most linked to better running economy."},
+  {name:"Hybrid: Power",col:"--h3",blurb:"Heavy triples plus jumps, 4 x 4 VO2 rides, run tempos and brick runs off the bike. This sets up the marathon build."}
+];
 function phases(){
   const off=NW()-BLOCK, P=[];
-  if(off>0) P.push({name:"Foundation",col:"--found",from:0,to:off-1,blurb:"Build easy mileage toward the start of the build. A 5K time trial every fourth week resets your paces from Strava."});
+  if(off>0){ const n=Math.ceil(off/3);
+    HYB_PH.forEach((p,k)=>{const from=k*n, to=Math.min(off-1,(k+1)*n-1); if(from<=to) P.push({...p,from,to});}); }
   BLOCK_PH.forEach(p=>{const to=p.to+off; if(to>=0) P.push({...p,from:Math.max(0,p.from+off),to});});
   return P;
 }
 const phaseOf=i=>phases().find(p=>i>=p.from&&i<=p.to)||phases()[0];
 const startVol=()=>clamp(Number(S.startVol)||peak()*.45,peak()*.3,peak()*.58);
+const REST={mi:0,t:"Rest day",z:"X",x:[]};
+const X=(sp,amt,t)=>({sp,amt,t});
 
 function layout(total,q,l,med){
-  const out=Array.from({length:7},()=>({mi:0,t:"Rest day",z:"X"}));
+  const out=Array.from({length:7},()=>({...REST,x:[]}));
   const flex=[[2,1,"Easy run"],[3,med?1.4:1,med?"Medium-long run, easy":"Easy run"],[4,.8,"Easy + 6 strides"],[6,.8,"Recovery run, very easy"]];
   const wsum=flex.reduce((a,f)=>a+f[1],0), unit=Math.max(0,total-q.mi-l.mi)/wsum;
-  out[0]={mi:0,t:"Rest, or 20 min easy cross-training",z:"X"};
-  out[1]={...q,key:1};
-  flex.forEach(([d,wt,t])=>{out[d]={mi:r5(unit*wt),t,z:"E"};});
-  out[5]={...l,key:1};
-  if(peak()<35) out[6]={mi:0,t:"Rest day",z:"X"};
+  out[0]={mi:0,t:"Rest from running",z:"X",x:[]};
+  out[1]={...q,key:1,x:[]};
+  flex.forEach(([d,wt,t])=>{out[d]={mi:r5(unit*wt),t,z:"E",x:[]};});
+  out[5]={...l,key:1,x:[]};
+  if(peak()<35) out[6]={...REST,x:[]};
   return out;
 }
+
+/* Hybrid weeks: hard days hard (run or bike quality AM, lifting PM), easy days easy, nothing heavy for the legs the day before the long run. */
+function hybridWeek(i){
+  const F=NW()-BLOCK, n=Math.ceil(F/3), ph=Math.min(2,Math.floor(i/n)), w=i-ph*n, frac=F>1?i/(F-1):1;
+  const deload=(i+1)%4===0, k=peak()/50, dl=deload?.7:1;
+  const vol=(startVol()+(peak()*.58-startVol())*frac)*(deload?.8:1);
+  const min=x=>`${Math.round(x*dl/5)*5} min`, yd=x=>`${(Math.round(x*dl/100)*100).toLocaleString()} yd`;
+  const long=r5(Math.min(vol*.42,12*Math.sqrt(k)));
+  const out=Array.from({length:7},()=>({...REST,x:[]}));
+  const tueQ=[
+    w%2?"Easy + 8 x 10s hill sprints, walk back":"Easy + 6 x 20s strides",
+    w%2?"Hills: 8 x 60s up at hard effort, jog down":"Fartlek: 8 x 1 min quick, 1 min easy",
+    w<2?"Tempo: 20 min at threshold":"Tempo: 3 x 10 min at threshold, 2 min jog"][ph];
+  const tueZ=ph===0?"E":ph===1?"E":"T";
+  const liftA=deload?"Strength, light: 2 sets of each lift, nothing close to failure. Mobility after."
+    :["Strength A, lower: goblet squat, Romanian deadlift, split squat, calf raises. 3 x 10, 3 seconds down. Core: dead bug, side plank.",
+      "Strength A, heavy lower: back squat or trap-bar deadlift 4 x 4–6, Bulgarian split squat 3 x 6, heavy calf raises 3 x 10. Core: Pallof press.",
+      "Strength A, heavy + power: squat or trap-bar deadlift 3 x 3, then box jumps 4 x 3 and pogo hops 3 x 20. Calf raises 3 x 10."][ph];
+  const liftB=deload?"Strength, light: full body, 2 sets. Focus on clean form."
+    :["Strength B, full body: step-ups, single-leg RDL, push-ups, rows, pull-ups. 3 x 10. Farmer carries.",
+      "Strength B: Romanian deadlift 4 x 5, step-ups 3 x 6, bench or push-ups, rows and pull-ups 4 x 6. Suitcase carries.",
+      "Strength B: Romanian deadlift 3 x 4, single-leg bounds 3 x 6 each side, split squat 3 x 5, push and pull 3 x 6."][ph];
+  const bikeQ=deload?"Bike, easy: zone 2, high cadence"
+    :[`Bike: zone 2 with 6 x 30s high-cadence spin-ups`,
+      w<3?"Bike sweet spot: 3 x 12 min at 88–93% FTP, 4 min easy":"Bike threshold: 2 x 20 min at 95% FTP, 5 min easy",
+      "Bike VO2: 4 x 4 min hard (90–95% max HR), 3 min easy"][ph];
+  const swimMon=["Swim technique: catch-up, fingertip drag and 6-kick switch drills, easy aerobic between","Swim technique + 8 x 50 yd fast, full recovery","Swim technique + pull buoy aerobic set"][ph];
+  const swimWed=deload?"Swim aerobic, relaxed":["Swim aerobic: 10 x 100 yd steady, 20s rest","Swim threshold: 10 x 100 yd at CSS pace, 15s rest","Swim endurance: 3 x 500 yd steady, 30s rest"][ph];
+
+  out[0]={mi:0,t:"Rest from running",z:"X",x:[X("swim",yd(1500+ph*250),swimMon),X("mob","15 min","Mobility: hips, ankles, thoracic spine")]};
+  out[1]=deload?{mi:r5(6*Math.min(k,1.2)),t:"5K time trial: 2 mi warm-up, 5K hard and even, 1 mi cool-down",z:"TT",key:1,x:[X("lift","40 min",liftA)]}
+    :{mi:r5(vol*.27),t:tueQ,z:tueZ,key:1,x:[X("lift",ph?"60 min":"50 min","PM, 6+ hours after the run. "+liftA)]};
+  out[2]={mi:r5(vol*.25),t:"Easy run",z:"E",x:[X("swim",yd(2000+ph*400),swimWed)]};
+  out[3]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(60+ph*10),bikeQ),X("lift",deload?"40 min":"50 min","PM. "+liftB)]};
+  out[4]={mi:0,t:"Rest from running",z:"X",x:[X("mob","20 min","Mobility and an easy 20 min spin or swim. Nothing heavy for the legs before the long run.")]};
+  out[5]={mi:long,t:"Easy long run",z:"L",key:1,x:[]};
+  out[6]=ph===2&&!deload?{mi:2,t:"Brick run straight off the bike, easy",z:"E",x:[X("bike",min(120+w*10),"Long ride, zone 2. Practice fueling: 60–90 g carbs per hour.")]}
+    :{mi:0,t:"Rest from running",z:"X",x:[X("bike",min(90+ph*15+w*5),"Long ride, zone 2, conversational")]};
+  return out;
+}
+
+/* Marathon block: strength 2x a week in base, 1x maintenance through the specific phase, tapering off before race week. */
+function blockExtras(b,days){
+  const add_=(d,s)=>{if(days[d]) days[d].x.push(s);};
+  if(b<=5){
+    add_(1,X("lift","45 min","PM, 6+ hours after the run. Heavy lower: squat or trap-bar deadlift 3 x 4–6, box jumps 3 x 3, calf raises."));
+    add_(3,X("lift","40 min","PM. Single-leg and upper: split squat 3 x 6, single-leg RDL, push and pull 3 x 6."));
+    add_(0,X("swim","1,500 yd","Easy swim, technique focus. Recovery only."));
+    add_(2,X("bike","30–45 min","Optional easy spin, recovery only."));
+  }else if(b<=14){
+    add_(1,X("lift","30 min","PM maintenance: squat or trap-bar deadlift 3 x 3 heavy, box jumps 3 x 3. One session a week holds strength."));
+    add_(0,X("swim","1,500 yd","Easy swim, recovery only."));
+    add_(2,X("bike","30 min","Optional easy spin, recovery only."));
+  }else if(b<=16){
+    add_(1,X("lift",b===15?"25 min":"15 min",b===15?"Light strength: 2 x 3 at a moderate weight, a few jumps.":"Activation only: bodyweight squats, glute bridges, calf raises."));
+    add_(0,X("swim","1,000 yd","Easy swim, loosen up."));
+  }
+  return days;
+}
+
 function buildWeek(i){
   const k=peak()/50, b=blk(i);
-  if(b<0){ // foundation
-    const F=NW()-BLOCK, frac=F>1?i/(F-1):1, cut=(i+1)%4===0;
-    let vol=startVol()+(peak()*.58-startVol())*frac; if(cut) vol*=.8;
-    const q=cut?{mi:r5(6*Math.min(k,1.2)),t:"5K time trial: 2 mi warm-up, 5K hard and even, 1 mi cool-down",z:"TT"}
-      :{mi:r5(vol*.17),t:i%2?"Easy + 8 x 10s hill sprints, walk back":"Easy + 6 x 20s strides",z:"E"};
-    const l={mi:r5(Math.min(LW[0][0]*Math.sqrt(k),vol*.3)*(cut?.85:1)),t:"Easy long run",z:"L"};
-    return layout(vol,q,l,false);
-  }
+  if(b<0) return hybridWeek(i);
   if(b===BLOCK-1){
-    const out=Array.from({length:7},()=>({mi:0,t:"Rest day",z:"X"}));
-    const ri=dow(S.race), put=(d,v)=>{if(d>=0&&d<7) out[d]=v;}, s=Math.min(k,1.2);
+    const out=Array.from({length:7},()=>({...REST,x:[]}));
+    const ri=dow(S.race), put=(d,v)=>{if(d>=0&&d<7) out[d]={x:[],...v};}, s=Math.min(k,1.2);
     put(ri,{mi:26.2,t:S.raceName||"Marathon",z:"R"});
-    put(ri-1,{mi:2,t:"Shakeout + 3 strides. Carb load.",z:"E"});
+    put(ri-1,{mi:2,t:"Shakeout + 3 strides. Carb load: 8–10 g per kg today.",z:"E"});
     put(ri-2,{mi:0,t:"Rest. Lay out your race kit.",z:"X"});
     put(ri-3,{mi:3,t:"Easy + 4 strides",z:"E"});
     put(ri-4,{mi:r5(4*s),t:"Easy run",z:"E"});
@@ -327,9 +393,16 @@ function buildWeek(i){
     return out;
   }
   const q=QW[b], l=LW[b];
-  return layout(peak()*VOL[b],{mi:r5(q[0]*k),t:q[1],z:q[2]},{mi:Math.min(22,r5(l[0]*Math.sqrt(k))),t:l[1],z:l[2]},b>=6);
+  return blockExtras(b,layout(peak()*VOL[b],{mi:r5(q[0]*k),t:q[1],z:q[2]},{mi:Math.min(22,r5(l[0]*Math.sqrt(k))),t:l[1],z:l[2]},b>=6));
 }
 const weekMi=i=>buildWeek(i).reduce((a,d)=>a+d.mi,0);
+const parseMin=a=>{const m=String(a).match(/(\d+)(?:–(\d+))?\s*min/);return m?(Number(m[2]||m[1])):0;};
+const parseYd=a=>{const m=String(a).replace(/,/g,"").match(/(\d+)\s*yd/);return m?Number(m[1]):0;};
+function weekLoad(i){
+  const t={bike:0,swim:0,lift:0};
+  buildWeek(i).forEach(d=>d.x.forEach(s=>{ if(s.sp==="bike"&&!/Optional/.test(s.t)) t.bike+=parseMin(s.amt); if(s.sp==="swim") t.swim+=parseYd(s.amt); if(s.sp==="lift") t.lift++; }));
+  return t;
+}
 
 /* ===================== Strava ===================== */
 const RUNS=new Set(["Run","TrailRun","VirtualRun"]);
@@ -366,7 +439,7 @@ async function sync(refresh){
     ACTS=all.map(a=>({id:String(a.id||""),name:a.name||"Activity",type:a.sport_type||a.type||"",date:String(a.start_local||a.start_date_local||"").slice(0,10),
       m:Number(a.summary&&a.summary.distance)||0,s:Number(a.summary&&a.summary.moving_time)||0,elev:Number(a.summary&&a.summary.elevation_gain)||0})).filter(a=>a.date);
     SYNC={state:"ok",at:stored||Date.now()};
-    if(S.startVol==null){ // freeze the foundation's starting volume from the 4 weeks before the plan
+    if(S.startVol==null){ // freeze the hybrid block's starting run volume from the 4 weeks before the plan
       const end=[planStart(),monday(TODAY)].sort()[0], from=add(end,-28);
       const mi=ACTS.filter(a=>RUNS.has(a.type)&&a.date>=from&&a.date<end).reduce((t,a)=>t+a.m/MI,0);
       S.startVol=Math.round(mi/4*10)/10; saveSettings();
@@ -420,7 +493,6 @@ function bests(){
   return {best,V,from:from_};
 }
 const runsOn=s=>ACTS.filter(a=>a.date===s&&RUNS.has(a.type));
-const otherOn=s=>ACTS.filter(a=>a.date===s&&!RUNS.has(a.type));
 const actualWeek=i=>{let t=0;for(let d=0;d<7;d++) t+=runsOn(add(weekStart(i),d)).reduce((x,a)=>x+a.m/MI,0);return t;};
 const haveData=()=>SYNC.state==="ok";
 
@@ -490,44 +562,72 @@ function renderBar(){
   document.getElementById("syncTxt").textContent=SYNC.state==="loading"?"Syncing":SYNC.state==="ok"?(ENRICH.status==="loading"?`Reading runs ${ENRICH.done}/${ENRICH.total}`:`Synced ${new Date(SYNC.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`):SYNC.state==="err"?"Sync issue":SYNC.state==="need"||SYNC.state==="denied"?"Connect Strava":"Strava";
 }
 
+const sportOf=t=>RUNS.has(t)?"run":/Ride/.test(t)?"bike":/Swim/.test(t)?"swim":/WeightTraining|Workout|Crossfit|HighIntensityIntervalTraining|RockClimbing/.test(t)?"lift":/Yoga|Pilates/.test(t)?"mob":"other";
+const SPT={bike:"BIKE",swim:"SWIM",lift:"LIFT",mob:"MOB"};
+const actsOn=(s,sp)=>ACTS.filter(a=>a.date===s&&sportOf(a.type)===sp);
 function doneChip(ds,d){
-  const runs=runsOn(ds), oth=otherOn(ds);
   let h="";
+  const runs=actsOn(ds,"run");
   if(runs.length){const mi=runs.reduce((a,r)=>a+r.m/MI,0), s=runs.reduce((a,r)=>a+r.s,0);
     const hrs=runs.map(r=>PERF[r.id]&&PERF[r.id].hr).filter(Boolean);
     h+=`<span class="done">Ran ${mi.toFixed(1)} mi · ${fmtP(s/60/mi)}/mi${hrs.length?` · ${Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length)} bpm`:""}</span> `;}
-  oth.forEach(a=>{h+=`<span class="done other">${esc(a.type.replace(/([a-z])([A-Z])/g,"$1 $2"))} ${Math.round(a.s/60)} min</span> `;});
-  if(!runs.length&&haveData()&&d.mi>0&&ds<TODAY) h+=`<span class="done miss">Missed</span>`;
+  actsOn(ds,"bike").forEach(a=>{h+=`<span class="done">Rode ${Math.round(a.s/60)} min · ${(a.m/MI).toFixed(0)} mi</span> `;});
+  actsOn(ds,"swim").forEach(a=>{h+=`<span class="done">Swam ${Math.round(a.m*1.0936).toLocaleString()} yd</span> `;});
+  actsOn(ds,"lift").forEach(a=>{h+=`<span class="done">Lifted ${Math.round(a.s/60)} min</span> `;});
+  ACTS.filter(a=>a.date===ds&&["mob","other"].includes(sportOf(a.type))).forEach(a=>{h+=`<span class="done other">${esc(a.type.replace(/([a-z])([A-Z])/g,"$1 $2"))} ${Math.round(a.s/60)} min</span> `;});
+  if(haveData()&&ds<TODAY){
+    if(d.mi>0&&!runs.length) h+=`<span class="done miss">Run missed</span> `;
+    ["bike","swim"].forEach(sp=>{ if(d.x.some(s=>s.sp===sp&&!/Optional|Recovery only/i.test(s.t))&&!actsOn(ds,sp).length) h+=`<span class="done miss">${sp==="bike"?"Ride":"Swim"} missed</span> `; });
+    if(d.x.some(s=>s.sp==="lift")&&!actsOn(ds,"lift").length) h+=`<span class="done other">Lift not on Strava</span> `;
+  }
   return h;
 }
 const targetLine=(d,z)=>{const hr=hrTarget(d.z), p=zoneTarget(d.z,z);return [p,hr].filter(Boolean).join(" · ");};
+function sessions(d,z){
+  const L=[];
+  if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${esc(d.t)} <span class="faint">${d.mi} mi</span></div><div class="p">${targetLine(d,z)}</div></div>`);
+  d.x.forEach(s=>L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${esc(s.t)} <span class="faint">${esc(s.amt)}</span></div></div>`));
+  if(!L.length) L.push(`<div class="sess"><div class="t">${zoneTag("X")}${esc(d.t)}</div></div>`);
+  return L.join("");
+}
+function headline(d){
+  if(d.z==="R") return `<span class="num">26.2</span> mi race`;
+  if(d.mi>0) return `<span class="num">${d.mi}</span> mi ${esc(d.z==="L"?"long run":d.z==="TT"?"time trial":ZONES[d.z].toLowerCase())}`;
+  const sp=[...new Set(d.x.map(s=>s.sp))].filter(s=>s!=="mob");
+  if(!sp.length) return d.x.length?"Recovery day":"Rest";
+  return sp.map(s=>({bike:"Bike",swim:"Swim",lift:"Lift"}[s])).join(" + ");
+}
 
 function renderToday(){
   const i=weekOf(TODAY);
-  if(i<0) return `<section class="card today"><div class="eyebrow">Today</div><div class="what">Before the plan</div><p class="muted">Week 1 begins ${fmtD(planStart(),{weekday:"long",month:"long",day:"numeric"})}. Easy running until then.</p></section>`;
+  if(i<0) return `<section class="card today"><div class="eyebrow">Today</div><div class="what">Before the plan</div><p class="muted">Week 1 begins ${fmtD(planStart(),{weekday:"long",month:"long",day:"numeric"})}.</p></section>`;
   if(i>=NW()) return `<section class="card today"><div class="eyebrow">Today</div><div class="what">Recover</div><p class="muted">The build is complete. Take a week or two easy before planning the next one.</p></section>`;
   const d=buildWeek(i)[dow(TODAY)], z=Z();
-  const word=d.mi?(d.z==="L"?"long run":d.z==="TT"?"time trial":d.z==="R"?"race":ZONES[d.z].toLowerCase()):"Rest";
   return `<section class="card today">
     <div class="spread"><div class="eyebrow">Today · ${fmtD(TODAY,{weekday:"long",month:"short",day:"numeric"})}</div>${phasePill(i)}</div>
-    <div class="what">${d.mi?`<span class="num">${d.mi}</span> mi `:""}${esc(word)}</div>
-    <div>${zoneTag(d.z)}${esc(d.t)}</div>
-    ${d.mi?`<div class="muted" style="font-size:.88rem">Target ${targetLine(d,z)}${["MP","T","I"].includes(d.z)?` on the work, easy ${zoneTarget("E",z)} otherwise`:""}</div>`:""}
+    <div class="what">${headline(d)}</div>
+    <div class="dwork">${sessions(d,z)}</div>
     <div>${doneChip(TODAY,d)}</div>
   </section>`;
 }
 
+function weekDone(i){
+  const t={run:0,bike:0,swim:0,lift:0};
+  for(let k=0;k<7;k++){const ds=add(weekStart(i),k);
+    ACTS.filter(a=>a.date===ds).forEach(a=>{const sp=sportOf(a.type); if(sp==="run") t.run+=a.m/MI; else if(sp==="bike") t.bike+=a.s/60; else if(sp==="swim") t.swim+=a.m*1.0936; else if(sp==="lift") t.lift++;});}
+  return t;
+}
+const hrs=m=>m>=60?`${(m/60).toFixed(1)} h`:`${Math.round(m)} min`;
+
 function renderWeek(){
   if(WK==null) WK=curWeek();
   WK=clamp(WK,0,NW()-1);
-  const i=WK, days=buildWeek(i), plan=days.reduce((a,d)=>a+d.mi,0), act=actualWeek(i), z=Z(), p=phaseOf(i);
-  const pct=plan?Math.min(100,act/plan*100):0;
+  const i=WK, days=buildWeek(i), plan=days.reduce((a,d)=>a+d.mi,0), z=Z(), p=phaseOf(i), ld=weekLoad(i), dn=weekDone(i), hd=haveData();
+  const tile=(l,planned,done)=>`<div class="stat"><div class="l">${l}</div><div class="v">${hd?`${done}<small>/ ${planned}</small>`:planned}</div></div>`;
   const rows=days.map((d,k)=>{const ds=add(weekStart(i),k);
     return `<div class="day${ds===TODAY?" is-today":""}">
       <div class="dname">${fmtD(ds,{weekday:"short"})}<small>${fmtD(ds)}</small></div>
-      <div class="dwork"><div class="t">${zoneTag(d.z)}${esc(d.t)}</div>
-        ${d.mi?`<div class="p">${targetLine(d,z)}</div>`:""}
-        <div>${doneChip(ds,d)}</div></div>
+      <div class="dwork">${sessions(d,z)}<div>${doneChip(ds,d)}</div></div>
       <div class="dmi">${d.mi?d.mi:"–"}<small>${d.mi?"mi":""}</small></div></div>`;}).join("");
   view.innerHTML=`${renderToday()}
   <section class="card">
@@ -535,8 +635,13 @@ function renderWeek(){
       <div><div class="eyebrow">Week ${i+1} of ${NW()} · from ${fmtD(weekStart(i))}</div><h2 style="margin-top:3px">${esc(p.name)}</h2></div>
       <div class="wk-nav"><button id="wkPrev" aria-label="Previous week" ${i===0?"disabled":""}>‹</button><button class="btn" id="wkNow">This week</button><button id="wkNext" aria-label="Next week" ${i===NW()-1?"disabled":""}>›</button></div>
     </div>
-    <div style="margin-top:12px" class="spread"><span class="muted" style="font-size:.88rem">${haveData()?`<b class="num" style="color:var(--ink)">${act.toFixed(1)}</b> of `:""}<b class="num" style="color:var(--ink)">${plan.toFixed(1)}</b> mi planned</span><span class="faint">${esc(p.blurb)}</span></div>
-    ${haveData()?`<div class="meter" style="margin-top:8px"><i style="width:${pct}%"></i></div>`:""}
+    <p class="faint" style="margin-top:8px">${esc(p.blurb)}${(blk(i)<0&&(i+1)%4===0)?" This is a lighter week: about 30% less volume, plus a 5K time trial.":""}</p>
+    <div class="stats" style="margin-top:10px">
+      ${tile("Run",`${plan.toFixed(0)} mi`,`${dn.run.toFixed(0)}`)}
+      ${ld.bike?tile("Bike",hrs(ld.bike),hrs(dn.bike)):""}
+      ${ld.swim?tile("Swim",`${ld.swim.toLocaleString()} yd`,Math.round(dn.swim).toLocaleString()):""}
+      ${ld.lift?tile("Lifts",`${ld.lift}`,`${dn.lift}`):""}
+    </div>
     <div class="days">${rows}</div>
   </section>`;
   document.getElementById("wkPrev").onclick=()=>{WK=Math.max(0,WK-1);renderWeek();};
@@ -561,11 +666,11 @@ function renderProgress(){
   }
   const plannedTo=Math.min(cw,n-1);
   const done=plans.slice(0,Math.max(0,plannedTo+1)).reduce((a,_,i)=>a+actualWeek(i),0), plannedSoFar=plans.slice(0,Math.max(0,plannedTo+1)).reduce((a,x)=>a+x,0);
-  const runs=ACTS.filter(a=>RUNS.has(a.type)).sort((a,b)=>b.date.localeCompare(a.date));
+  const runs=ACTS.filter(a=>RUNS.has(a.type)).sort((a,b)=>b.date.localeCompare(a.date)), recent=ACTS.slice().sort((a,b)=>b.date.localeCompare(a.date));
   const longest=runs.filter(a=>a.date>=add(TODAY,-90)).reduce((m,a)=>Math.max(m,a.m/MI),0);
   const l28=runs.filter(a=>a.date>add(TODAY,-28)), l28mi=l28.reduce((t,a)=>t+a.m/MI,0), l28s=l28.reduce((t,a)=>t+a.s,0);
   const hrs=l28.map(a=>PERF[a.id]&&PERF[a.id].hr).filter(Boolean);
-  const list=runs.slice(0,12).map(a=>{const p=PERF[a.id];return `<div class="run"><div style="min-width:0"><div class="n">${esc(a.name)}</div><div class="faint">${fmtD(a.date,{weekday:"short",month:"short",day:"numeric"})}${a.elev?` · ${Math.round(a.elev*3.281)} ft gain`:""}${p&&p.hr?` · ${Math.round(p.hr)} bpm`:""}</div></div><div class="m">${(a.m/MI).toFixed(1)} mi<br><span class="faint">${fmtP(a.s/60/(a.m/MI))}/mi</span></div></div>`;}).join("");
+  const list=recent.slice(0,14).map(a=>{const p=PERF[a.id], sp=sportOf(a.type);return `<div class="run"><div style="min-width:0"><div class="n">${SPT[sp]?`<span class="zone z-${SPT[sp]}">${SPT[sp]}</span>`:sp==="run"?zoneTag("E").replace(">E<",">RUN<"):""}${esc(a.name)}</div><div class="faint">${fmtD(a.date,{weekday:"short",month:"short",day:"numeric"})}${a.elev?` · ${Math.round(a.elev*3.281)} ft gain`:""}${p&&p.hr?` · ${Math.round(p.hr)} bpm`:""}</div></div><div class="m">${sp==="run"?`${(a.m/MI).toFixed(1)} mi<br><span class="faint">${fmtP(a.s/60/(a.m/MI))}/mi</span>`:sp==="swim"?`${Math.round(a.m*1.0936).toLocaleString()} yd<br><span class="faint">${Math.round(a.s/60)} min</span>`:`${Math.round(a.s/60)} min${a.m>0?`<br><span class="faint">${(a.m/MI).toFixed(1)} mi</span>`:""}`}</div></div>`;}).join("");
   view.innerHTML=`
   <section class="card">
     <div class="eyebrow">Weekly mileage</div><h2 style="margin-top:3px">Planned vs. run</h2>
@@ -578,10 +683,13 @@ function renderProgress(){
       <div class="stat"><div class="l">Last 28 days</div><div class="v">${l28mi.toFixed(0)}<small>mi</small></div></div>
       <div class="stat"><div class="l">Avg pace, 28 days</div><div class="v">${l28mi?fmtP(l28s/60/l28mi):"--"}<small>/mi</small></div></div>
       <div class="stat"><div class="l">Avg HR, 28 days</div><div class="v">${hrs.length?Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length):"--"}<small>bpm</small></div></div>
+      <div class="stat"><div class="l">Bike, 28 days</div><div class="v">${(ACTS.filter(a=>sportOf(a.type)==="bike"&&a.date>add(TODAY,-28)).reduce((t,a)=>t+a.s,0)/3600).toFixed(1)}<small>h</small></div></div>
+      <div class="stat"><div class="l">Swim, 28 days</div><div class="v">${Math.round(ACTS.filter(a=>sportOf(a.type)==="swim"&&a.date>add(TODAY,-28)).reduce((t,a)=>t+a.m*1.0936,0)).toLocaleString()}<small>yd</small></div></div>
+      <div class="stat"><div class="l">Lifts, 28 days</div><div class="v">${ACTS.filter(a=>sportOf(a.type)==="lift"&&a.date>add(TODAY,-28)).length}</div></div>
       <div class="stat"><div class="l">Longest, 90 days</div><div class="v">${longest.toFixed(1)}<small>mi</small></div></div>
       <div class="stat"><div class="l">Starting volume</div><div class="v">${S.startVol!=null?Number(S.startVol).toFixed(0):"--"}<small>mi/wk</small></div></div>
     </div></section>
-  <section class="card"><div class="eyebrow">Recent runs</div><div class="runs" style="margin-top:6px">${list||`<p class="muted">No runs on Strava in the last few months.</p>`}</div></section>`
+  <section class="card"><div class="eyebrow">Recent activity</div><div class="runs" style="margin-top:6px">${list||`<p class="muted">No activities on Strava in the last few months.</p>`}</div></section>`
   :`<section class="card"><div class="eyebrow">Strava</div><p class="muted" style="margin-top:6px">${SYNC.state==="loading"?"Reading your runs from Strava.":"Connect Strava to see your actual miles, pace and heart rate here."}</p></section>`}`;
 }
 
@@ -630,11 +738,23 @@ function renderPaces(){
 }
 function fmtBench(){return ({"5000":"5K","10000":"10K","21097.5":"half marathon","42195":"marathon"}[S.benchDist]||"benchmark")+" in "+S.benchTime;}
 
+const RESEARCH=`<section class="card">
+  <div class="eyebrow">Why it's built this way</div><h2 style="margin-top:3px">The research behind the plan</h2>
+  <ul class="cite">
+    <li><b>About 80% easy, 20% hard.</b> Elite endurance athletes in every sport spend most of their time at low intensity and keep a few sessions truly hard. Each week has two or three hard sessions; everything else is zone 2.<span class="src">Seiler 2010, Int J Sports Physiol Perform; Stöggl &amp; Sperlich 2014, Front Physiol</span></li>
+    <li><b>Lift heavy, then add jumps.</b> Heavy strength work (about 3 to 6 reps) and plyometrics improve running economy and late-race durability without adding bulk. The hybrid block moves from higher reps to heavy work to heavy plus jumps.<span class="src">Rønnestad &amp; Mujika 2014, Scand J Med Sci Sports; Blagrove et al. 2018, Sports Med; Barnes &amp; Kilding 2015, Sports Med</span></li>
+    <li><b>Hard days hard, easy days easy.</b> Lifting and endurance work can blunt each other, and running interferes more than cycling. Lifts sit on the same days as the run or bike workouts, at least 6 hours later, so easy days stay easy and nothing heavy hits the legs before the long run.<span class="src">Wilson et al. 2012, J Strength Cond Res; Robineau et al. 2016, J Strength Cond Res</span></li>
+    <li><b>The bike builds the engine while sparing your legs.</b> Cycling adds aerobic volume with far less impact than more running. 4 x 4 min intervals at 90 to 95% of max heart rate are among the best-supported ways to raise VO2max.<span class="src">Helgerud et al. 2007, Med Sci Sports Exerc</span></li>
+    <li><b>One lift a week holds your strength.</b> During the marathon-specific phase, one heavy session a week kept strength and endurance gains in trained cyclists. That's why lifting drops to one session a week once marathon workouts get big.<span class="src">Rønnestad et al. 2010, Eur J Appl Physiol</span></li>
+    <li><b>Three weeks on, one lighter.</b> Every fourth hybrid week cuts volume by about 30%. It ends with a 5K time trial, which Strava turns into a new best effort, so your paces stay current.<span class="src">Standard periodization practice in triathlon and running coaching</span></li>
+    <li><b>Fuel the long sessions.</b> Long rides practice taking in 60 to 90 g of carbs an hour, the range endurance guidelines recommend for efforts over 2 hours. On race day that's what keeps you off the wall.<span class="src">Thomas, Erdman &amp; Burke 2016, ACSM/AND/DC position stand</span></li>
+  </ul>
+</section>`;
 function renderPlan(){
   const cw=weekOf(TODAY), n=NW(), maxMi=Math.max(...Array.from({length:n},(_,i)=>weekMi(i)));
   const ph=phases().map(p=>{
     const rows=[];for(let i=p.from;i<=p.to;i++){const mi=weekMi(i), d=buildWeek(i), q=d[1], l=d[5];
-      rows.push(`<button class="wkrow${i===cw?" cur":""}" data-w="${i}" type="button"><span class="w">W${i+1}</span><span style="min-width:0"><span class="bar"><i style="width:${mi/maxMi*100}%;background:var(${p.col})"></i></span><span class="faint" style="display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i===n-1?esc(S.raceName)+" · "+fmtD(S.race):`${esc(q.t)} · ${l.mi} mi long`}</span></span><span class="mi">${mi.toFixed(0)} mi</span></button>`);}
+      rows.push(`<button class="wkrow${i===cw?" cur":""}" data-w="${i}" type="button"><span class="w">W${i+1}</span><span style="min-width:0"><span class="bar"><i style="width:${mi/maxMi*100}%;background:var(${p.col})"></i></span><span class="faint" style="display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i===n-1?esc(S.raceName)+" · "+fmtD(S.race):blk(i)<0?(()=>{const t=weekLoad(i);return `Bike ${hrs(t.bike)} · swim ${t.swim.toLocaleString()} yd · ${t.lift} lifts · ${l.mi} mi long`;})():`${esc(q.t)} · ${l.mi} mi long`}</span></span><span class="mi">${mi.toFixed(0)} mi</span></button>`);}
     return `<section class="card phase"><div class="spread"><h3>${p.name}</h3><span class="faint">Weeks ${p.from+1}–${p.to+1} · from ${fmtD(weekStart(p.from))}</span></div><p class="muted" style="font-size:.86rem">${p.blurb}</p><div style="margin-top:6px">${rows.join("")}</div></section>`;}).join("");
   view.innerHTML=`
   <section class="card">
@@ -649,7 +769,8 @@ function renderPlan(){
       <div class="field" style="align-self:end"><button class="btn primary" type="submit">Save plan</button> <span class="faint" id="saved" aria-live="polite"></span></div>
     </form>
   </section>
-  ${ph}`;
+  ${ph}
+  ${RESEARCH}`;
   view.querySelectorAll(".wkrow").forEach(b=>b.onclick=()=>{WK=Number(b.dataset.w);setTab("week");});
   document.getElementById("setForm").onsubmit=async e=>{e.preventDefault();
     const v=id=>document.getElementById(id).value.trim();
