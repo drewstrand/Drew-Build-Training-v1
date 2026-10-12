@@ -9,7 +9,7 @@
   --ink:#16202B; --ink2:#4A5866; --ink3:#7C8896;
   --lane:#1F5BD8; --lane-soft:#E3EBFB;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --base:#5E9C7A; --thr:#D98A2B; --spec:#1F5BD8; --taper:#8A6CC9;
+  --found:#7A8FA3; --base:#5E9C7A; --thr:#D98A2B; --spec:#1F5BD8; --taper:#8A6CC9;
   --good:#2E8A57; --warn:#C27A12; --bad:#C2412F;
   --track:#E1E6EC;
   --f-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
@@ -22,14 +22,14 @@
   --ink:#E8EDF2; --ink2:#AAB6C2; --ink3:#7A8794;
   --lane:#6E9BFF; --lane-soft:#1D2B47;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
+  --found:#8FA3B8; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
   --good:#5CC48A; --warn:#E8A04A; --bad:#EF7666; --track:#26313C; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0E141B; --surface:#161E27; --surface2:#1C2631; --line:#2A3642;
   --ink:#E8EDF2; --ink2:#AAB6C2; --ink3:#7A8794;
   --lane:#6E9BFF; --lane-soft:#1D2B47;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
+  --found:#8FA3B8; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
   --good:#5CC48A; --warn:#E8A04A; --bad:#EF7666; --track:#26313C; color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -62,7 +62,7 @@ p{margin:0}
 
 /* Tabs */
 .tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;margin-top:4px}
-.tabbar{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:2px}
+.tabbar{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:2px}
 .tabbar button{border:0;background:transparent;border-radius:9px;padding:8px 2px;font-size:.82rem;font-weight:600;color:var(--ink2)}
 .tabbar button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
 
@@ -112,7 +112,7 @@ p{margin:0}
 .done.miss{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad)}
 .done.other{background:var(--surface2);color:var(--ink2)}
 .zone{display:inline-block;font-family:var(--f-mono);font-size:.68rem;padding:1px 6px;border-radius:5px;margin-right:6px;vertical-align:1px;color:#fff}
-.z-E,.z-L{background:var(--base)}.z-T{background:var(--thr)}.z-I{background:var(--bad)}.z-MP{background:var(--spec)}.z-R{background:var(--bib);color:var(--bib-ink)}.z-X{background:var(--ink3)}
+.z-E,.z-L{background:var(--base)}.z-T{background:var(--thr)}.z-I{background:var(--bad)}.z-MP{background:var(--spec)}.z-R{background:var(--bib);color:var(--bib-ink)}.z-X{background:var(--ink3)}.z-TT{background:var(--bib);color:var(--bib-ink)}
 
 /* Chart */
 .chart{width:100%;height:auto;display:block}
@@ -136,18 +136,6 @@ p{margin:0}
 .run .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .run .m{text-align:right;font-family:var(--f-mono);font-size:.85rem}
 
-/* Weather */
-.wx-now{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
-.wx-now .tmp{font-family:var(--f-display);font-weight:800;font-size:4rem;line-height:.9}
-.verdict{display:grid;grid-template-columns:84px 1fr;gap:14px;align-items:center}
-.hours{display:grid;grid-auto-flow:column;grid-auto-columns:64px;gap:6px;overflow-x:auto;padding-bottom:4px;margin-top:10px}
-.hr{background:var(--surface2);border-radius:10px;padding:8px 4px;text-align:center;font-size:.78rem}
-.hr.best{outline:2px solid var(--good)}
-.hr .v{font-family:var(--f-display);font-weight:700;font-size:1.15rem}
-.wxday{display:grid;grid-template-columns:70px 1fr auto;gap:10px;padding:9px 0;border-top:1px solid var(--line);align-items:center}
-.wxday:first-child{border-top:0}
-.wxday .pl{font-size:.78rem;color:var(--ink3)}
-
 /* Plan */
 .phase{display:grid;gap:4px}
 .wkrow{display:grid;grid-template-columns:42px 1fr 64px;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;width:100%}
@@ -163,6 +151,13 @@ p{margin:0}
 .field input,.field select{width:100%;border:1px solid var(--line);background:var(--surface2);border-radius:9px;padding:8px 10px}
 .field .hint{font-size:.72rem;color:var(--ink3)}
 
+.connect{border:2px solid var(--lane);background:var(--lane-soft)}
+.connect ol{margin:8px 0 0;padding-left:20px;color:var(--ink2);font-size:.9rem}
+.connect a{color:var(--lane);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.seg{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:8px;padding:5px 12px;font-size:.82rem;font-weight:600;color:var(--ink2)}
+.seg button.on{background:var(--ink);color:var(--bg)}
 .foot{text-align:center;margin-top:24px;font-size:.75rem;color:var(--ink3)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:420px){.tabbar button{font-size:.74rem}.day{grid-template-columns:44px 1fr auto;gap:10px}}
@@ -171,7 +166,7 @@ p{margin:0}
 <div class="wrap">
   <header class="bib" id="bib">
     <div>
-      <div class="race" id="raceName">Marathon</div>
+      <div class="race" id="raceName">Grandma's Marathon</div>
       <div class="count" id="count">--<small>days</small></div>
       <div class="sub" id="bibSub">Loading your plan</div>
     </div>
@@ -183,18 +178,18 @@ p{margin:0}
       <button role="tab" id="tab-week" data-tab="week">Week</button>
       <button role="tab" id="tab-progress" data-tab="progress">Progress</button>
       <button role="tab" id="tab-paces" data-tab="paces">Paces</button>
-      <button role="tab" id="tab-weather" data-tab="weather">Weather</button>
       <button role="tab" id="tab-plan" data-tab="plan">Plan</button>
     </div>
   </nav>
 
+  <div id="connect"></div>
   <main class="stack" id="view" role="tabpanel"></main>
-  <div class="foot" id="foot">Activity data from your connected Strava account. Weather from AccuWeather.</div>
+  <div class="foot">Runs, best efforts and heart rate zones from your connected Strava account.</div>
 </div>
 
 <script>
-/* ===================== Settings ===================== */
-const DAY=864e5, MI=1609.344, NW=18;
+/* ===================== Dates ===================== */
+const DAY=864e5, MI=1609.344, BLOCK=18;
 const pad=n=>String(n).padStart(2,"0");
 const toT=s=>{const [y,m,d]=s.split("-").map(Number);return Date.UTC(y,m-1,d);};
 const toS=t=>new Date(t).toISOString().slice(0,10);
@@ -202,16 +197,15 @@ const add=(s,n)=>toS(toT(s)+n*DAY);
 const TODAY=(()=>{const n=new Date();return `${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`;})();
 const fmtD=(s,o={month:"short",day:"numeric"})=>new Date(toT(s)).toLocaleDateString("en-US",{...o,timeZone:"UTC"});
 const dow=s=>(new Date(toT(s)).getUTCDay()+6)%7; // Mon=0
+const monday=s=>add(s,-dow(s));
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 
-const DEF={
-  raceName:"Spring Marathon",
-  race:add(TODAY,7*14+ (6-dow(TODAY))), // a Sunday about 14 weeks out until the runner sets a real date
-  goal:"3:15:00", benchDist:"10000", benchTime:"44:30", peak:"50",
-  wxKey:"2627448", wxName:"Central Park, New York"
-};
+/* ===================== Settings ===================== */
+const DEF={raceName:"Grandma's Marathon",race:"2027-06-19",start:"2026-10-12",goal:"3:29:00",peak:"50",
+  src:"strava",benchDist:"10000",benchTime:"46:00",startVol:null};
 let S={...DEF};
-try{const s=JSON.parse(localStorage.getItem("mbuild")||"null"); if(s) S={...DEF,...s};}catch(e){}
+try{const s=JSON.parse(localStorage.getItem("mbuild2")||"null"); if(s) S={...DEF,...s};}catch(e){}
 
 /* ===================== Pace math (Daniels / Gilbert VDOT) ===================== */
 const vo2=v=>-4.6+0.182258*v+0.000104*v*v;
@@ -222,37 +216,47 @@ const raceT=(m,V)=>{let lo=m/450,hi=m/60;for(let k=0;k<60;k++){const mid=(lo+hi)
 const parseT=s=>{const p=String(s).trim().split(":").map(Number);if(!p.length||p.some(isNaN))return NaN;return p.length===3?p[0]*60+p[1]+p[2]/60:p.length===2?p[0]+p[1]/60:p[0];};
 const fmtP=min=>{if(!isFinite(min))return"--";let m=Math.floor(min),s=Math.round((min-m)*60);if(s===60){m++;s=0;}return`${m}:${pad(s)}`;};
 const fmtH=min=>{const h=Math.floor(min/60),r=min-h*60;let m=Math.floor(r),s=Math.round((r-m)*60);if(s===60){m++;s=0;}return h?`${h}:${pad(m)}:${pad(s)}`:`${m}:${pad(s)}`;};
-function Z(){
+const BD=[{m:5000,k:"5K"},{m:10000,k:"10K"},{m:21097.5,k:"Half marathon"}];
+function fitness(){
+  const b=bests();
+  if(S.src==="strava"&&b.V>0) return {V:b.V,from:b.from,strava:true};
   const t=parseT(S.benchTime), m=Number(S.benchDist);
-  const V=(t>0&&m>0)?vdot(m,t):45;
-  const mar=raceT(42195,V), hm=raceT(21097.5,V);
-  const g=parseT(S.goal), goalMar=g>0?g:mar;
-  const pv=v=>MI/v; // v in m/min → min per mile
-  return {V,mar,hm,goalMar,
-    predMP:mar/(42195/MI), MP:goalMar/(42195/MI), HM:hm/(21097.5/MI),
-    E:[pv(velAt(.66,V)),pv(velAt(.59,V))],
-    T:pv(velAt(.86,V)), I:pv(velAt(.975,V))};
+  return {V:(t>0&&m>0)?vdot(m,t):45,strava:false};
 }
-const ZONES={E:"Easy",L:"Long",MP:"Marathon pace",T:"Threshold",I:"Interval",R:"Race",X:"Rest"};
+function Z(){
+  const f=fitness(), V=f.V, pv=v=>MI/v;
+  const mar=raceT(42195,V), hm=raceT(21097.5,V), g=parseT(S.goal), goalMar=g>0?g:mar;
+  return {V,f,mar,hm,goalMar,MP:goalMar/(42195/MI),HM:hm/(21097.5/MI),
+    E:[pv(velAt(.66,V)),pv(velAt(.59,V))],T:pv(velAt(.86,V)),I:pv(velAt(.975,V))};
+}
+const ZONES={E:"Easy",L:"Long",MP:"Marathon pace",T:"Threshold",I:"Interval",TT:"Time trial",R:"Race",X:"Rest"};
 function zoneTarget(k,z){
   z=z||Z();
   if(k==="E"||k==="L") return `${fmtP(z.E[0])}–${fmtP(z.E[1])}/mi`;
   if(k==="MP"||k==="R") return `${fmtP(z.MP)}/mi`;
   if(k==="T") return `${fmtP(z.T)}/mi`;
   if(k==="I") return `${fmtP(z.I)}/mi`;
+  if(k==="TT") return "hard and even, all you can hold";
+  return "";
+}
+function hrTarget(k){
+  if(!HRZ) return "";
+  const z=n=>HRZ[n]||{}, mx=v=>v>0?v:null;
+  if(k==="E"||k==="L") return `HR under ${z(1).max}`;
+  if(k==="MP"||k==="R") return `HR ${z(2).min}–${mx(z(2).max)||""}`;
+  if(k==="T") return `HR ${z(3).min}–${mx(z(3).max)||""}`;
+  if(k==="I"||k==="TT") return `HR ${z(4).min}+`;
   return "";
 }
 
 /* ===================== Plan generator ===================== */
-const PHASES=[
+const BLOCK_PH=[
   {name:"Base",col:"--base",from:0,to:5,blurb:"Mostly easy running, strides and hill sprints. Build the legs before the workouts."},
   {name:"Threshold",col:"--thr",from:6,to:10,blurb:"Tuesday threshold is the key session. Long runs start finishing at marathon pace."},
   {name:"Marathon specific",col:"--spec",from:11,to:14,blurb:"Marathon pace volume peaks. Biggest week lands three weeks out."},
   {name:"Taper",col:"--taper",from:15,to:17,blurb:"Volume drops 40 to 60 percent. Keep some speed so the legs stay sharp."}
 ];
-const phaseOf=i=>PHASES.findIndex(p=>i>=p.from&&i<=p.to);
 const VOL=[.55,.6,.66,.55,.7,.75,.78,.84,.7,.88,.92,.94,.97,.8,1,.78,.6,.4];
-// [miles at a 50 mi peak, description, zone]
 const QW=[
  [6,"Easy + 6 x 20s strides","E"],[6,"Easy + 6 x 20s strides","E"],[6,"Easy + 8 x 10s hill sprints, walk back","E"],
  [5,"Easy + 6 x 20s strides","E"],[7,"Fartlek: 8 x 1 min quick, 1 min easy","E"],[7,"Easy + 8 x 10s hill sprints","E"],
@@ -270,327 +274,367 @@ const LW=[
  [14,"Long run with 6 mi at marathon pace","MP"],[10,"Easy long run","L"]
 ];
 const r5=x=>Math.max(3,Math.round(x*2)/2);
-const planStart=()=>add(add(S.race,-dow(S.race)),-(NW-1)*7);
+const peak=()=>clamp(Number(S.peak)||50,25,110);
+const raceMon=()=>monday(S.race);
+function planStart(){
+  let m=monday(S.start||TODAY); const n=Math.round((toT(raceMon())-toT(m))/(7*DAY))+1;
+  if(n>52) m=add(raceMon(),-51*7); if(n<6) m=add(raceMon(),-5*7); return m;
+}
+const NW=()=>Math.round((toT(raceMon())-toT(planStart()))/(7*DAY))+1;
 const weekStart=i=>add(planStart(),i*7);
 const weekOf=s=>Math.floor((toT(s)-toT(planStart()))/(7*DAY));
-const peak=()=>Math.min(110,Math.max(25,Number(S.peak)||50));
+const blk=i=>i-(NW()-BLOCK);
+function phases(){
+  const off=NW()-BLOCK, P=[];
+  if(off>0) P.push({name:"Foundation",col:"--found",from:0,to:off-1,blurb:"Build easy mileage toward the start of the build. A 5K time trial every fourth week resets your paces from Strava."});
+  BLOCK_PH.forEach(p=>{const to=p.to+off; if(to>=0) P.push({...p,from:Math.max(0,p.from+off),to});});
+  return P;
+}
+const phaseOf=i=>phases().find(p=>i>=p.from&&i<=p.to)||phases()[0];
+const startVol=()=>clamp(Number(S.startVol)||peak()*.45,peak()*.3,peak()*.58);
 
+function layout(total,q,l,med){
+  const out=Array.from({length:7},()=>({mi:0,t:"Rest day",z:"X"}));
+  const flex=[[2,1,"Easy run"],[3,med?1.4:1,med?"Medium-long run, easy":"Easy run"],[4,.8,"Easy + 6 strides"],[6,.8,"Recovery run, very easy"]];
+  const wsum=flex.reduce((a,f)=>a+f[1],0), unit=Math.max(0,total-q.mi-l.mi)/wsum;
+  out[0]={mi:0,t:"Rest, or 20 min easy cross-training",z:"X"};
+  out[1]={...q,key:1};
+  flex.forEach(([d,wt,t])=>{out[d]={mi:r5(unit*wt),t,z:"E"};});
+  out[5]={...l,key:1};
+  if(peak()<35) out[6]={mi:0,t:"Rest day",z:"X"};
+  return out;
+}
 function buildWeek(i){
-  const k=peak()/50, out=Array.from({length:7},()=>({mi:0,t:"Rest day",z:"X"}));
-  if(i===NW-1){
-    const ri=dow(S.race), put=(d,v)=>{if(d>=0&&d<7) out[d]=v;};
+  const k=peak()/50, b=blk(i);
+  if(b<0){ // foundation
+    const F=NW()-BLOCK, frac=F>1?i/(F-1):1, cut=(i+1)%4===0;
+    let vol=startVol()+(peak()*.58-startVol())*frac; if(cut) vol*=.8;
+    const q=cut?{mi:r5(6*Math.min(k,1.2)),t:"5K time trial: 2 mi warm-up, 5K hard and even, 1 mi cool-down",z:"TT"}
+      :{mi:r5(vol*.17),t:i%2?"Easy + 8 x 10s hill sprints, walk back":"Easy + 6 x 20s strides",z:"E"};
+    const l={mi:r5(Math.min(LW[0][0]*Math.sqrt(k),vol*.3)*(cut?.85:1)),t:"Easy long run",z:"L"};
+    return layout(vol,q,l,false);
+  }
+  if(b===BLOCK-1){
+    const out=Array.from({length:7},()=>({mi:0,t:"Rest day",z:"X"}));
+    const ri=dow(S.race), put=(d,v)=>{if(d>=0&&d<7) out[d]=v;}, s=Math.min(k,1.2);
     put(ri,{mi:26.2,t:S.raceName||"Marathon",z:"R"});
     put(ri-1,{mi:2,t:"Shakeout + 3 strides. Carb load.",z:"E"});
     put(ri-2,{mi:0,t:"Rest. Lay out your race kit.",z:"X"});
     put(ri-3,{mi:3,t:"Easy + 4 strides",z:"E"});
-    put(ri-4,{mi:r5(4*Math.min(k,1.2)),t:"Easy run",z:"E"});
-    put(ri-5,{mi:r5(6*Math.min(k,1.2)),t:"3 x 1 mi at marathon pace, 2 min jog",z:"MP"});
-    put(ri-6,{mi:r5(5*Math.min(k,1.2)),t:"Easy + 6 strides",z:"E"});
+    put(ri-4,{mi:r5(4*s),t:"Easy run",z:"E"});
+    put(ri-5,{mi:r5(6*s),t:"3 x 1 mi at marathon pace, 2 min jog",z:"MP"});
+    put(ri-6,{mi:r5(5*s),t:"Easy + 6 strides",z:"E"});
     return out;
   }
-  const total=peak()*VOL[i], med=phaseOf(i)>=1;
-  const q=QW[i], l=LW[i];
-  const qMi=r5(q[0]*k), lMi=Math.min(22,r5(l[0]*Math.sqrt(k)));
-  // Mon rest, Tue quality, Wed easy, Thu medium/easy, Fri easy, Sat long, Sun recovery
-  const flex=[[2,1,"Easy run"],[3,med?1.4:1,med?"Medium-long run, easy":"Easy run"],[4,.8,"Easy + 6 strides"],[6,.8,"Recovery run, very easy"]];
-  const wsum=flex.reduce((a,f)=>a+f[1],0), unit=Math.max(0,total-qMi-lMi)/wsum;
-  out[0]={mi:0,t:"Rest, or 20 min easy cross-training",z:"X"};
-  out[1]={mi:qMi,t:q[1],z:q[2],key:1};
-  flex.forEach(([d,wt,t])=>{out[d]={mi:r5(unit*wt),t,z:"E"};});
-  out[5]={mi:lMi,t:l[1],z:l[2],key:1};
-  if(peak()<35) out[6]={mi:0,t:"Rest day",z:"X"};
-  return out;
+  const q=QW[b], l=LW[b];
+  return layout(peak()*VOL[b],{mi:r5(q[0]*k),t:q[1],z:q[2]},{mi:Math.min(22,r5(l[0]*Math.sqrt(k))),t:l[1],z:l[2]},b>=6);
 }
 const weekMi=i=>buildWeek(i).reduce((a,d)=>a+d.mi,0);
 
 /* ===================== Strava ===================== */
 const RUNS=new Set(["Run","TrailRun","VirtualRun"]);
-let ACTS=[], SYNC={state:"idle",msg:"",at:null};
-const ERR={
-  needs_reauth:"Reconnect Strava in claude.ai Settings > Connectors, then tap Strava to refresh.",
-  server_not_connected:"Add Strava in claude.ai Settings > Connectors, then tap Strava to refresh.",
-  selection_required:"Choose which Strava account to use when prompted, then refresh.",
-  not_in_manifest:"Strava is turned off for this page. Reload the page to allow it.",
-  not_granted:"Strava access wasn't granted. Reload the page to allow it.",
-  blocked_by_policy:"Your organization blocks Strava here.",
-  approval_required:"Strava needs your approval. Tap Strava to try again.",
-  server_unavailable:"Strava didn't respond. Try again in a minute."
-};
-let MCP=null;
+let ACTS=[], SYNC={state:"idle",msg:"",at:null}, HRZ=null;
+const PERF={}; let ENRICH={status:"idle",done:0,total:0};
+let MCP=null, PERMS=null, DB=null;
 const getMcp=async()=>{ if(MCP) return MCP; try{ MCP=window.claude&&window.claude.use?await window.claude.use("mcp"):null; }catch(e){MCP=null;} return MCP; };
+const getPerms=async()=>{ if(PERMS) return PERMS; try{ PERMS=window.claude&&window.claude.use?await window.claude.use("permissions"):null; }catch(e){PERMS=null;} return PERMS; };
 const payload=r=>{let p=r&&r.payload; if(typeof p==="string"){try{p=JSON.parse(p);}catch(_){p={};}} return p||{};};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function callT(tool,input,opts){
+  const mcp=await getMcp();
+  try{ return await mcp.callTool("Strava",tool,input,opts); }
+  catch(e){ if(e&&e.retryable){ await sleep((e.retryAfterMs||1500)+Math.random()*700); return await mcp.callTool("Strava",tool,input,opts); } throw e; }
+}
+const AUTHZ=["needs_reauth","server_not_connected","blocked_by_policy","approval_required","not_in_manifest","selection_required","not_granted","capability_disabled"];
 
 async function sync(refresh){
   const mcp=await getMcp();
-  if(!mcp){SYNC={state:"off",msg:"Strava isn't available in this view. The plan works without it."};renderAll();return;}
-  SYNC={...SYNC,state:"loading"}; renderBar();
-  const since=add(planStart(),-56)+"T00:00:00";
+  if(!mcp){SYNC={state:"off"};renderAll();return;}
+  if(SYNC.state==="loading") return;
+  SYNC={...SYNC,state:"loading"}; renderAll();
+  const since=add([planStart(),monday(TODAY)].sort()[0],-84)+"T00:00:00";
   const opts={cache:refresh?{refresh:true,staleTime:60000}:{staleTime:300000}};
   try{
     let all=[],after=null,pages=0,stored=null;
     do{
       const input={first:100,range_start:since}; if(after) input.after=after;
-      let res;
-      try{res=await mcp.callTool("Strava","list_activities",input,opts);}
-      catch(e){ if(e&&e.retryable&&pages===0){await new Promise(r=>setTimeout(r,(e.retryAfterMs||1500)+Math.random()*800)); res=await mcp.callTool("Strava","list_activities",input,opts);} else throw e; }
-      const p=payload(res);
+      const res=await callT("list_activities",input,opts), p=payload(res);
       all=all.concat(p.activities||[]);
       if(res.cache&&res.cache.storedAt&&!stored) stored=res.cache.storedAt;
       after=p.has_next_page?p.end_cursor:null; pages++;
-    }while(after&&pages<8);
+    }while(after&&pages<15);
     ACTS=all.map(a=>({id:String(a.id||""),name:a.name||"Activity",type:a.sport_type||a.type||"",date:String(a.start_local||a.start_date_local||"").slice(0,10),
       m:Number(a.summary&&a.summary.distance)||0,s:Number(a.summary&&a.summary.moving_time)||0,elev:Number(a.summary&&a.summary.elevation_gain)||0})).filter(a=>a.date);
     SYNC={state:"ok",at:stored||Date.now()};
+    if(S.startVol==null){ // freeze the foundation's starting volume from the 4 weeks before the plan
+      const end=[planStart(),monday(TODAY)].sort()[0], from=add(end,-28);
+      const mi=ACTS.filter(a=>RUNS.has(a.type)&&a.date>=from&&a.date<end).reduce((t,a)=>t+a.m/MI,0);
+      S.startVol=Math.round(mi/4*10)/10; saveSettings();
+    }
+    renderAll();
+    fetchZones(); enrich();
   }catch(e){
     const code=(e&&e.code)||"upstream_error";
-    if(["needs_reauth","server_not_connected","blocked_by_policy","approval_required","not_in_manifest","selection_required","not_granted"].includes(code)) ACTS=[];
-    SYNC={state:"err",code,msg:ERR[code]||(code==="tool_error"?`Strava reported an error: ${e.message||"unknown"}`:`Strava sync failed (${code}). Tap Strava to try again.`),at:SYNC.at};
+    if(AUTHZ.includes(code)) ACTS=[];
+    SYNC={state:"err",code,msg:code==="tool_error"?`Strava reported an error: ${e.message||"unknown"}`:"",at:SYNC.at};
+    renderAll();
   }
+}
+async function fetchZones(){
+  try{ const p=payload(await callT("get_athlete_zones",{},{cache:{staleTime:300000}}));
+    const z=p.heart_rate_zones||(p.heart_rate&&p.heart_rate.zones);
+    if(Array.isArray(z)&&z.length>=5){HRZ=z.map(x=>({min:Number(x.min)||0,max:Number(x.max)}));renderAll();}
+  }catch(e){}
+}
+function effortDist(e){
+  const n=String(e.name||e.type_value||"").toLowerCase().replace(/[^a-z0-9]/g,""), d=String(e.display_text||"").toLowerCase();
+  if(n==="fastest5k"||n==="5k"||d==="5k") return 5000;
+  if(n==="fastest10k"||n==="10k"||d==="10k") return 10000;
+  if((n.includes("half")&&n.includes("marathon"))||/half.?marathon/.test(d)) return 21097.5;
+  return 0;
+}
+async function enrich(){
+  if(ENRICH.status==="loading") return;
+  const cut=[add(TODAY,-90),planStart()].sort()[0];
+  const todo=ACTS.filter(a=>RUNS.has(a.type)&&a.date>=cut&&a.m>=3000&&!PERF[a.id]).sort((x,y)=>y.date.localeCompare(x.date)).slice(0,45);
+  if(!todo.length){ENRICH={status:"ok",done:0,total:0};return;}
+  ENRICH={status:"loading",done:0,total:todo.length}; renderAll();
+  let i=0, fatal=null, since=0;
+  const worker=async()=>{ while(i<todo.length&&!fatal){ const a=todo[i++];
+    try{
+      const p=payload(await callT("get_activity_performance",{activity_id:a.id},{cache:{staleTime:300000}}));
+      const b={}; (p.best_efforts||[]).forEach(e=>{const m=effortDist(e), s=Number(e.value??e.elapsed_time??e.moving_time); if(m&&s>0&&(!b[m]||s<b[m])) b[m]=s;});
+      const doc={id:a.id,date:a.date,hr:Number(p.average_heartrate)||0,maxhr:Number(p.max_heartrate)||0,bests:b};
+      PERF[a.id]=doc;
+      if(DB){ try{ await DB.collection("runs").doc(a.id).set(doc); }catch(e){} }
+    }catch(e){ if(e&&AUTHZ.includes(e.code)) fatal=e; }
+    ENRICH.done++; if(++since>=6){since=0;renderAll();} } };
+  await Promise.all([worker(),worker(),worker()]);
+  ENRICH={status:fatal?"err":"ok",done:ENRICH.done,total:ENRICH.total};
   renderAll();
+}
+function bests(){
+  const from=add(TODAY,-90), best={};
+  Object.values(PERF).forEach(p=>{ if(!p||p.date<from) return; Object.entries(p.bests||{}).forEach(([m,s])=>{m=Number(m); if(!best[m]||s<best[m].s) best[m]={s,date:p.date,id:p.id};}); });
+  let V=0,from_=null; BD.forEach(b=>{const x=best[b.m]; if(!x) return; x.V=vdot(b.m,x.s/60); if(x.V>V){V=x.V;from_=b.m;}});
+  return {best,V,from:from_};
 }
 const runsOn=s=>ACTS.filter(a=>a.date===s&&RUNS.has(a.type));
 const otherOn=s=>ACTS.filter(a=>a.date===s&&!RUNS.has(a.type));
-const miOn=s=>runsOn(s).reduce((t,a)=>t+a.m/MI,0);
-const actualWeek=i=>{let t=0;for(let d=0;d<7;d++) t+=miOn(add(weekStart(i),d));return t;};
+const actualWeek=i=>{let t=0;for(let d=0;d<7;d++) t+=runsOn(add(weekStart(i),d)).reduce((x,a)=>x+a.m/MI,0);return t;};
 const haveData=()=>SYNC.state==="ok";
 
-/* ===================== Weather (AccuWeather connector) ===================== */
-const WX_SERVER="AccuWeather®";
-let WX={status:"idle"};
-const num=v=>{const n=parseFloat(String(v??"").replace(/[^0-9.\-]/g,""));return isFinite(n)?n:null;};
-async function fetchWeather(){
-  const mcp=await getMcp();
-  if(!mcp){WX={status:"off"}; if(TAB==="weather") renderWeather(); return;}
-  if(WX.status==="loading") return;
-  WX={...WX,status:"loading"}; if(TAB==="weather") renderWeather();
-  const q={locationKey:String(S.wxKey||DEF.wxKey),unit:"imperial",lang:"en"};
-  const get=async t=>payload(await mcp.callTool(WX_SERVER,t,{queryParams:q},{cache:{staleTime:300000}}));
-  try{
-    const [cur,hr,dy]=await Promise.all([get("widgets-current-claude"),get("widgets-hourly-claude"),get("widgets-daily-claude")]);
-    WX={status:"ok",at:Date.now(),cur:cur.currentConditions||{},aq:cur.currentAirQuality||null,alerts:[...(cur.alerts||[]),...(dy.alerts||[])],
-      hours:hr.hourlyForecast||[],days:dy.dailyForecast||[],loc:(cur.location&&cur.location.localizedName)||S.wxName};
-  }catch(e){
-    const code=e&&e.code;
-    WX={status:"err",code,msg:code==="server_not_connected"||code==="needs_reauth"?"Connect AccuWeather in claude.ai Settings > Connectors, then refresh.":code==="not_in_manifest"||code==="not_granted"?"AccuWeather is turned off for this page. Reload to allow it.":code==="tool_error"?"AccuWeather couldn't find that location key. Check it on the Plan tab.":"AccuWeather didn't respond. Try again in a minute."};
-  }
-  if(TAB==="weather") renderWeather();
-}
-function heatAdj(t,dp){
-  if(t==null||dp==null) return null;
-  const s=Math.round(t+dp);
-  const T=[[100,0,0,"Ideal"],[110,0,.5,"Great"],[120,.5,1,"Good"],[130,1,2,"Warm, small slowdown"],[140,2,3,"Warm, adjust paces"],[150,3,4.5,"Hot, adjust paces"],[160,4.5,6,"Hot, run by effort"],[170,6,8,"Very hot, easy running only"],[180,8,10,"Dangerous for hard efforts"]];
-  for(const r of T) if(s<=r[0]) return {s,lo:r[1],hi:r[2],label:r[3]};
-  return {s,lo:10,hi:12,label:"Skip hard running"};
-}
-
-/* ===================== Settings storage (artifact database, browser fallback) ===================== */
-let DB=null;
-async function loadSettings(){
+/* ===================== Storage (artifact database, browser fallback) ===================== */
+async function loadStore(){
   try{ DB=window.claude&&window.claude.use?await window.claude.use("db"):null; }catch(e){DB=null;}
   if(!DB) return;
-  try{ const d=await DB.doc("settings/plan").get(); if(d.exists){ S={...DEF,...d.data()}; try{localStorage.setItem("mbuild",JSON.stringify(S));}catch(e){} renderAll(); } }catch(e){}
+  try{ const d=await DB.doc("settings/plan").get(); if(d.exists){ S={...DEF,...d.data()}; try{localStorage.setItem("mbuild2",JSON.stringify(S));}catch(e){} } }catch(e){}
+  try{ const snap=await DB.collection("runs").orderBy("date","desc").limit(500).get(); snap.docs.forEach(d=>{const x=d.data(); if(x&&x.id) PERF[x.id]=x;}); }catch(e){}
+  renderAll();
 }
 async function saveSettings(){
-  try{localStorage.setItem("mbuild",JSON.stringify(S));}catch(e){}
+  try{localStorage.setItem("mbuild2",JSON.stringify(S));}catch(e){}
   if(DB){ try{ await DB.doc("settings/plan").set({...S}); return "saved"; }catch(e){ return "local"; } }
   return "local";
+}
+
+/* ===================== Strava connect prompt ===================== */
+const CONNECTORS_URL="https://claude.ai/settings/connectors";
+const addSteps=verb=>`<ol>
+  <li>Open <a href="${CONNECTORS_URL}" target="_blank" rel="noopener">claude.ai Settings › Connectors</a>.</li>
+  <li>${verb} <b>Strava</b> and sign in. The Strava connector needs a Strava subscription.</li>
+  <li>Come back here and tap <b>Check again</b>.</li></ol>`;
+function renderConnect(){
+  const el=document.getElementById("connect"), st=SYNC.state, code=SYNC.code;
+  let h="";
+  if(st==="need") h=`<h2>Connect Strava</h2><p class="muted" style="margin-top:6px">Your plan fills in from Strava: completed runs, weekly miles, best efforts for your paces, and heart rate zones. Claude only reads your data.</p>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="cnGo">Connect Strava</button></div>`;
+  else if(st==="denied") h=`<h2>Strava is off for this page</h2><p class="muted" style="margin-top:6px">You declined Strava access earlier. Turn it back on to pull in your runs.</p>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="cnManage">Turn on Strava</button><button class="btn" id="cnRetry">Check again</button></div>
+    <p class="faint" style="margin-top:8px" id="cnHint"></p>`;
+  else if(st==="off") h=`<h2>Strava isn't available here</h2><p class="muted" style="margin-top:6px">Open this page in claude.ai or the Claude app to connect Strava. The plan works without it.</p>`;
+  else if(st==="err"&&(code==="server_not_connected"||code==="server_not_found")) h=`<h2>Add Strava to Claude</h2><p class="muted" style="margin-top:6px">Strava isn't connected to your Claude account yet.</p>${addSteps("Add")}<div class="row" style="margin-top:12px"><button class="btn primary" id="cnRetry">Check again</button></div>`;
+  else if(st==="err"&&code==="needs_reauth") h=`<h2>Reconnect Strava</h2><p class="muted" style="margin-top:6px">Strava's sign-in has expired.</p>${addSteps("Reconnect")}<div class="row" style="margin-top:12px"><button class="btn primary" id="cnRetry">Check again</button></div>`;
+  else if(st==="err"&&(code==="not_in_manifest"||code==="not_granted")) h=`<h2>Allow Strava for this page</h2><p class="muted" style="margin-top:6px">Strava access was turned off for this page.</p><div class="row" style="margin-top:12px"><button class="btn primary" id="cnManage">Turn on Strava</button><button class="btn" id="cnRetry">Check again</button></div><p class="faint" style="margin-top:8px" id="cnHint"></p>`;
+  else if(st==="err"&&code==="selection_required") h=`<h2>Choose your Strava account</h2><p class="muted" style="margin-top:6px">You have more than one Strava connection. Pick one when Claude asks, then check again.</p><div class="row" style="margin-top:12px"><button class="btn primary" id="cnRetry">Check again</button></div>`;
+  else if(st==="err"&&code==="approval_required") h=`<h2>Approve Strava</h2><p class="muted" style="margin-top:6px">Strava needs your OK before this page can read it.</p><div class="row" style="margin-top:12px"><button class="btn primary" id="cnRetry">Approve and sync</button></div>`;
+  else if(st==="err"&&code==="blocked_by_policy") h=`<h2>Strava is blocked</h2><p class="muted" style="margin-top:6px">Your organization doesn't allow Strava here. The plan works without it.</p>`;
+  else if(st==="err") h=`<h2>Strava sync didn't finish</h2><p class="muted" style="margin-top:6px">${esc(SYNC.msg||(code==="server_unavailable"?"Strava didn't respond.":`Something went wrong (${code}).`))} Try again in a minute.</p><div class="row" style="margin-top:12px"><button class="btn primary" id="cnRetry">Try again</button></div>`;
+  el.innerHTML=h?`<section class="card connect" style="margin-bottom:12px">${h}</section>`:"";
+  const $=id=>document.getElementById(id);
+  if($("cnGo")) $("cnGo").onclick=async()=>{ const P=await getPerms(); let r="prompt";
+    if(P){ try{ const x=await P.request(["mcp:Strava"]); r=x["mcp:Strava"]||"prompt"; }catch(e){} }
+    if(r==="denied"){SYNC={state:"denied"};renderAll();} else sync(true); };
+  if($("cnRetry")) $("cnRetry").onclick=()=>{SYNC={...SYNC,state:"idle"};sync(true);};
+  if($("cnManage")) $("cnManage").onclick=async()=>{ const P=await getPerms();
+    try{ await P.manage(); }catch(e){ const h=$("cnHint"); if(h) h.textContent="Open the page's Permissions menu at the top of the artifact and turn Strava on."; return; }
+    const s=await P.state("mcp:Strava").catch(()=>"unavailable");
+    if(s!=="denied"){SYNC={state:"idle"};sync(true);} };
 }
 
 /* ===================== Rendering ===================== */
 let TAB="week", WK=null;
 try{const t=localStorage.getItem("mbuild-tab"); if(t) TAB=t;}catch(e){}
-const curWeek=()=>Math.min(NW-1,Math.max(0,weekOf(TODAY)));
+const curWeek=()=>clamp(weekOf(TODAY),0,NW()-1);
 const view=document.getElementById("view");
 const zoneTag=z=>`<span class="zone z-${z}">${z==="L"?"E":z}</span>`;
-const phasePill=i=>{const p=PHASES[phaseOf(i)];return `<span class="pill"><i style="background:var(${p.col})"></i>${esc(p.name)}</span>`;};
+const phasePill=i=>{const p=phaseOf(i);return `<span class="pill"><i style="background:var(${p.col})"></i>${esc(p.name)}</span>`;};
 
 function renderBar(){
   const days=Math.round((toT(S.race)-toT(TODAY))/DAY);
   document.getElementById("raceName").textContent=`${S.raceName} · ${fmtD(S.race,{month:"long",day:"numeric",year:"numeric"})}`;
-  const c=document.getElementById("count");
-  c.innerHTML=days>0?`${days}<small>days to go</small>`:days===0?`Race day`:`Done`;
-  const w=weekOf(TODAY);
-  document.getElementById("bibSub").textContent=w<0?`Plan starts ${fmtD(planStart())}. Goal ${S.goal}.`:w>=NW?`Recovery time. Goal was ${S.goal}.`:`Week ${w+1} of ${NW} · ${PHASES[phaseOf(w)].name} · Goal ${S.goal}`;
-  const b=document.getElementById("sync"); b.dataset.s=SYNC.state;
-  document.getElementById("syncTxt").textContent=SYNC.state==="loading"?"Syncing":SYNC.state==="ok"?`Synced ${new Date(SYNC.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`:SYNC.state==="off"?"Strava off":SYNC.state==="err"?"Sync issue":"Strava";
-}
-
-function syncNote(){
-  if(SYNC.state==="err") return `<div class="note"><b>Strava</b>${esc(SYNC.msg)}</div>`;
-  if(SYNC.state==="off") return `<div class="note"><b>Strava</b>${esc(SYNC.msg)}</div>`;
-  return "";
+  document.getElementById("count").innerHTML=days>0?`${days}<small>days to go</small>`:days===0?`Race day`:`Done`;
+  const w=weekOf(TODAY), n=NW();
+  document.getElementById("bibSub").textContent=w<0?`Plan starts ${fmtD(planStart())}. Goal ${S.goal}.`:w>=n?`Recovery time. Goal was ${S.goal}.`:`Week ${w+1} of ${n} · ${phaseOf(w).name} · Goal ${S.goal}`;
+  const b=document.getElementById("sync"); b.dataset.s=SYNC.state==="ok"||SYNC.state==="loading"||SYNC.state==="err"?SYNC.state:"idle";
+  document.getElementById("syncTxt").textContent=SYNC.state==="loading"?"Syncing":SYNC.state==="ok"?(ENRICH.status==="loading"?`Reading runs ${ENRICH.done}/${ENRICH.total}`:`Synced ${new Date(SYNC.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}`):SYNC.state==="err"?"Sync issue":SYNC.state==="need"||SYNC.state==="denied"?"Connect Strava":"Strava";
 }
 
 function doneChip(ds,d){
   const runs=runsOn(ds), oth=otherOn(ds);
   let h="";
   if(runs.length){const mi=runs.reduce((a,r)=>a+r.m/MI,0), s=runs.reduce((a,r)=>a+r.s,0);
-    h+=`<span class="done">Ran ${mi.toFixed(1)} mi · ${fmtP(s/60/mi)}/mi</span> `;}
+    const hrs=runs.map(r=>PERF[r.id]&&PERF[r.id].hr).filter(Boolean);
+    h+=`<span class="done">Ran ${mi.toFixed(1)} mi · ${fmtP(s/60/mi)}/mi${hrs.length?` · ${Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length)} bpm`:""}</span> `;}
   oth.forEach(a=>{h+=`<span class="done other">${esc(a.type.replace(/([a-z])([A-Z])/g,"$1 $2"))} ${Math.round(a.s/60)} min</span> `;});
   if(!runs.length&&haveData()&&d.mi>0&&ds<TODAY) h+=`<span class="done miss">Missed</span>`;
   return h;
 }
+const targetLine=(d,z)=>{const hr=hrTarget(d.z), p=zoneTarget(d.z,z);return [p,hr].filter(Boolean).join(" · ");};
 
 function renderToday(){
   const i=weekOf(TODAY);
   if(i<0) return `<section class="card today"><div class="eyebrow">Today</div><div class="what">Before the plan</div><p class="muted">Week 1 begins ${fmtD(planStart(),{weekday:"long",month:"long",day:"numeric"})}. Easy running until then.</p></section>`;
-  if(i>=NW) return `<section class="card today"><div class="eyebrow">Today</div><div class="what">Recover</div><p class="muted">The build is complete. Take a week or two easy before planning the next one.</p></section>`;
+  if(i>=NW()) return `<section class="card today"><div class="eyebrow">Today</div><div class="what">Recover</div><p class="muted">The build is complete. Take a week or two easy before planning the next one.</p></section>`;
   const d=buildWeek(i)[dow(TODAY)], z=Z();
+  const word=d.mi?(d.z==="L"?"long run":d.z==="TT"?"time trial":d.z==="R"?"race":ZONES[d.z].toLowerCase()):"Rest";
   return `<section class="card today">
     <div class="spread"><div class="eyebrow">Today · ${fmtD(TODAY,{weekday:"long",month:"short",day:"numeric"})}</div>${phasePill(i)}</div>
-    <div class="what">${d.mi?`<span class="num">${d.mi}</span> mi `:""}${esc(d.mi?ZONES[d.z]==="Long"?"long run":ZONES[d.z].toLowerCase():"Rest")}</div>
+    <div class="what">${d.mi?`<span class="num">${d.mi}</span> mi `:""}${esc(word)}</div>
     <div>${zoneTag(d.z)}${esc(d.t)}</div>
-    ${d.mi?`<div class="muted" style="font-size:.88rem">Target ${zoneTarget(d.z,z)}${d.z==="MP"||d.z==="T"||d.z==="I"?` on the work segments, easy ${zoneTarget("E",z)} otherwise`:""}</div>`:""}
+    ${d.mi?`<div class="muted" style="font-size:.88rem">Target ${targetLine(d,z)}${["MP","T","I"].includes(d.z)?` on the work, easy ${zoneTarget("E",z)} otherwise`:""}</div>`:""}
     <div>${doneChip(TODAY,d)}</div>
   </section>`;
 }
 
 function renderWeek(){
   if(WK==null) WK=curWeek();
-  const i=WK, days=buildWeek(i), plan=days.reduce((a,d)=>a+d.mi,0), act=actualWeek(i), z=Z();
-  const p=PHASES[phaseOf(i)];
+  WK=clamp(WK,0,NW()-1);
+  const i=WK, days=buildWeek(i), plan=days.reduce((a,d)=>a+d.mi,0), act=actualWeek(i), z=Z(), p=phaseOf(i);
   const pct=plan?Math.min(100,act/plan*100):0;
   const rows=days.map((d,k)=>{const ds=add(weekStart(i),k);
     return `<div class="day${ds===TODAY?" is-today":""}">
       <div class="dname">${fmtD(ds,{weekday:"short"})}<small>${fmtD(ds)}</small></div>
       <div class="dwork"><div class="t">${zoneTag(d.z)}${esc(d.t)}</div>
-        ${d.mi?`<div class="p">${zoneTarget(d.z,z)}</div>`:""}
+        ${d.mi?`<div class="p">${targetLine(d,z)}</div>`:""}
         <div>${doneChip(ds,d)}</div></div>
       <div class="dmi">${d.mi?d.mi:"–"}<small>${d.mi?"mi":""}</small></div></div>`;}).join("");
   view.innerHTML=`${renderToday()}
   <section class="card">
     <div class="spread">
-      <div><div class="eyebrow">Week ${i+1} of ${NW} · from ${fmtD(weekStart(i))}</div><h2 style="margin-top:3px">${esc(p.name)}</h2></div>
-      <div class="wk-nav"><button id="wkPrev" aria-label="Previous week" ${i===0?"disabled":""}>‹</button><button class="btn" id="wkNow">This week</button><button id="wkNext" aria-label="Next week" ${i===NW-1?"disabled":""}>›</button></div>
+      <div><div class="eyebrow">Week ${i+1} of ${NW()} · from ${fmtD(weekStart(i))}</div><h2 style="margin-top:3px">${esc(p.name)}</h2></div>
+      <div class="wk-nav"><button id="wkPrev" aria-label="Previous week" ${i===0?"disabled":""}>‹</button><button class="btn" id="wkNow">This week</button><button id="wkNext" aria-label="Next week" ${i===NW()-1?"disabled":""}>›</button></div>
     </div>
     <div style="margin-top:12px" class="spread"><span class="muted" style="font-size:.88rem">${haveData()?`<b class="num" style="color:var(--ink)">${act.toFixed(1)}</b> of `:""}<b class="num" style="color:var(--ink)">${plan.toFixed(1)}</b> mi planned</span><span class="faint">${esc(p.blurb)}</span></div>
     ${haveData()?`<div class="meter" style="margin-top:8px"><i style="width:${pct}%"></i></div>`:""}
     <div class="days">${rows}</div>
-  </section>${syncNote()}`;
+  </section>`;
   document.getElementById("wkPrev").onclick=()=>{WK=Math.max(0,WK-1);renderWeek();};
-  document.getElementById("wkNext").onclick=()=>{WK=Math.min(NW-1,WK+1);renderWeek();};
+  document.getElementById("wkNext").onclick=()=>{WK=Math.min(NW()-1,WK+1);renderWeek();};
   document.getElementById("wkNow").onclick=()=>{WK=curWeek();renderWeek();};
 }
 
 function renderProgress(){
-  const cw=weekOf(TODAY), plans=Array.from({length:NW},(_,i)=>weekMi(i)), acts=plans.map((_,i)=>i<=cw?actualWeek(i):null);
+  const n=NW(), cw=weekOf(TODAY), pre=8;
+  const plans=Array.from({length:n},(_,i)=>weekMi(i));
+  const acts=Array.from({length:n+pre},(_,j)=>{const i=j-pre;return i<=cw?actualWeek(i):null;});
   const max=Math.ceil(Math.max(...plans,...acts.filter(x=>x!=null),10)/10)*10;
-  const W=640,H=230,L=34,R=8,T=12,B=26, bw=(W-L-R)/NW, y=v=>T+(H-T-B)*(1-v/max);
+  const cols=n+pre, W=Math.max(640,cols*16),H=230,L=34,R=8,T=14,B=26, bw=(W-L-R)/cols, y=v=>T+(H-T-B)*(1-v/max);
   let g="";
-  for(let v=0;v<=max;v+=10){ g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+3}" text-anchor="end">${v}</text>`; }
-  plans.forEach((pm,i)=>{const x=L+i*bw, ph=PHASES[phaseOf(i)];
-    g+=`<rect x="${x+bw*.14}" y="${y(pm)}" width="${bw*.72}" height="${y(0)-y(pm)}" rx="3" fill="var(${ph.col})" fill-opacity="${i===cw?.38:.2}"><title>Week ${i+1}: ${pm.toFixed(1)} mi planned</title></rect>`;
-    const a=acts[i]; if(a!=null&&haveData()) g+=`<rect x="${x+bw*.3}" y="${y(a)}" width="${bw*.4}" height="${y(0)-y(a)}" rx="2" fill="var(--ink)"><title>Week ${i+1}: ${a.toFixed(1)} mi run</title></rect>`;
-    if(i%2===0||NW<=12) g+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${i+1}</text>`;
-  });
-  if(cw>=0&&cw<NW) g+=`<text x="${L+cw*bw+bw/2}" y="${T-2}" text-anchor="middle" style="fill:var(--lane);font-weight:600">now</text>`;
-  const done=acts.slice(0,Math.max(0,Math.min(cw,NW-1))+1).reduce((a,x)=>a+(x||0),0);
-  const plannedSoFar=plans.slice(0,Math.max(0,Math.min(cw,NW-1))+1).reduce((a,x)=>a+x,0);
-  const runs=ACTS.filter(a=>RUNS.has(a.type)&&a.date>=planStart()).sort((a,b)=>b.date.localeCompare(a.date));
-  const longest=runs.reduce((m,a)=>Math.max(m,a.m/MI),0);
-  const last28=ACTS.filter(a=>RUNS.has(a.type)&&a.date>add(TODAY,-28)), l28mi=last28.reduce((t,a)=>t+a.m/MI,0), l28s=last28.reduce((t,a)=>t+a.s,0);
-  const list=runs.slice(0,10).map(a=>`<div class="run"><div style="min-width:0"><div class="n">${esc(a.name)}</div><div class="faint">${fmtD(a.date,{weekday:"short",month:"short",day:"numeric"})}${a.elev?` · ${Math.round(a.elev*3.281)} ft gain`:""}</div></div><div class="m">${(a.m/MI).toFixed(1)} mi<br><span class="faint">${fmtP(a.s/60/(a.m/MI))}/mi</span></div></div>`).join("");
+  for(let v=0;v<=max;v+=10) g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${y(v)+3}" text-anchor="end">${v}</text>`;
+  g+=`<line x1="${L+pre*bw}" x2="${L+pre*bw}" y1="${T}" y2="${y(0)}" stroke="var(--ink3)" stroke-dasharray="3 3"/><text x="${L+pre*bw+4}" y="${T+8}">plan starts</text>`;
+  for(let j=0;j<cols;j++){const i=j-pre, x=L+j*bw;
+    if(i>=0){const pm=plans[i], ph=phaseOf(i);
+      g+=`<rect x="${x+bw*.12}" y="${y(pm)}" width="${bw*.76}" height="${y(0)-y(pm)}" rx="2" fill="var(${ph.col})" fill-opacity="${i===cw?.42:.22}"><title>Week ${i+1}: ${pm.toFixed(1)} mi planned</title></rect>`;}
+    const a=acts[j]; if(a!=null&&haveData()) g+=`<rect x="${x+bw*.3}" y="${y(a)}" width="${bw*.4}" height="${y(0)-y(a)}" rx="1.5" fill="var(--ink)"><title>${i<0?`${-i} wk before plan`:`Week ${i+1}`}: ${a.toFixed(1)} mi run</title></rect>`;
+    if(i>=0&&(i%4===0||i===n-1)) g+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle">${i+1}</text>`;
+  }
+  const plannedTo=Math.min(cw,n-1);
+  const done=plans.slice(0,Math.max(0,plannedTo+1)).reduce((a,_,i)=>a+actualWeek(i),0), plannedSoFar=plans.slice(0,Math.max(0,plannedTo+1)).reduce((a,x)=>a+x,0);
+  const runs=ACTS.filter(a=>RUNS.has(a.type)).sort((a,b)=>b.date.localeCompare(a.date));
+  const longest=runs.filter(a=>a.date>=add(TODAY,-90)).reduce((m,a)=>Math.max(m,a.m/MI),0);
+  const l28=runs.filter(a=>a.date>add(TODAY,-28)), l28mi=l28.reduce((t,a)=>t+a.m/MI,0), l28s=l28.reduce((t,a)=>t+a.s,0);
+  const hrs=l28.map(a=>PERF[a.id]&&PERF[a.id].hr).filter(Boolean);
+  const list=runs.slice(0,12).map(a=>{const p=PERF[a.id];return `<div class="run"><div style="min-width:0"><div class="n">${esc(a.name)}</div><div class="faint">${fmtD(a.date,{weekday:"short",month:"short",day:"numeric"})}${a.elev?` · ${Math.round(a.elev*3.281)} ft gain`:""}${p&&p.hr?` · ${Math.round(p.hr)} bpm`:""}</div></div><div class="m">${(a.m/MI).toFixed(1)} mi<br><span class="faint">${fmtP(a.s/60/(a.m/MI))}/mi</span></div></div>`;}).join("");
   view.innerHTML=`
   <section class="card">
     <div class="eyebrow">Weekly mileage</div><h2 style="margin-top:3px">Planned vs. run</h2>
-    <div class="scroll" style="margin-top:10px"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Weekly mileage, planned and run">${g}</svg></div>
-    <div class="legend">${PHASES.map(p=>`<span><i style="background:var(${p.col});opacity:.45"></i>${p.name}</span>`).join("")}${haveData()?`<span><i style="background:var(--ink);width:6px"></i>Run (Strava)</span>`:""}</div>
+    <div class="scroll" style="margin-top:10px"><svg class="chart" viewBox="0 0 ${W} ${H}" style="min-width:${Math.min(W,900)}px" role="img" aria-label="Weekly mileage, planned and run, including 8 weeks before the plan">${g}</svg></div>
+    <div class="legend">${phases().map(p=>`<span><i style="background:var(${p.col});opacity:.5"></i>${p.name}</span>`).join("")}${haveData()?`<span><i style="background:var(--ink);width:6px"></i>Run (Strava)</span>`:""}</div>
   </section>
-  ${haveData()?`<section class="card"><div class="eyebrow">Since the plan started</div>
+  ${haveData()?`<section class="card"><div class="eyebrow">From Strava</div>
     <div class="stats" style="margin-top:10px">
-      <div class="stat"><div class="l">Miles run</div><div class="v">${done.toFixed(0)}<small>/ ${plannedSoFar.toFixed(0)}</small></div></div>
-      <div class="stat"><div class="l">Longest run</div><div class="v">${longest.toFixed(1)}<small>mi</small></div></div>
+      <div class="stat"><div class="l">Plan miles run</div><div class="v">${done.toFixed(0)}<small>/ ${plannedSoFar.toFixed(0)}</small></div></div>
       <div class="stat"><div class="l">Last 28 days</div><div class="v">${l28mi.toFixed(0)}<small>mi</small></div></div>
       <div class="stat"><div class="l">Avg pace, 28 days</div><div class="v">${l28mi?fmtP(l28s/60/l28mi):"--"}<small>/mi</small></div></div>
+      <div class="stat"><div class="l">Avg HR, 28 days</div><div class="v">${hrs.length?Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length):"--"}<small>bpm</small></div></div>
+      <div class="stat"><div class="l">Longest, 90 days</div><div class="v">${longest.toFixed(1)}<small>mi</small></div></div>
+      <div class="stat"><div class="l">Starting volume</div><div class="v">${S.startVol!=null?Number(S.startVol).toFixed(0):"--"}<small>mi/wk</small></div></div>
     </div></section>
-  <section class="card"><div class="eyebrow">Recent runs</div><div class="runs" style="margin-top:6px">${list||`<p class="muted">No runs since the plan started yet.</p>`}</div></section>`
-  :`<section class="card"><div class="eyebrow">Strava</div><p class="muted" style="margin-top:6px">${SYNC.state==="loading"||SYNC.state==="idle"?"Reading your runs from Strava.":esc(SYNC.msg)}</p></section>`}`;
+  <section class="card"><div class="eyebrow">Recent runs</div><div class="runs" style="margin-top:6px">${list||`<p class="muted">No runs on Strava in the last few months.</p>`}</div></section>`
+  :`<section class="card"><div class="eyebrow">Strava</div><p class="muted" style="margin-top:6px">${SYNC.state==="loading"?"Reading your runs from Strava.":"Connect Strava to see your actual miles, pace and heart rate here."}</p></section>`}`;
 }
 
 function renderPaces(){
-  const z=Z(), races=[["5K",5000],["10K",10000],["Half marathon",21097.5],["Marathon",42195]];
-  const km=p=>fmtP(p/1.609344);
-  const gap=z.goalMar-z.mar;
+  const z=Z(), b=bests(), races=[["5K",5000],["10K",10000],["Half marathon",21097.5],["Marathon",42195]];
+  const km=p=>fmtP(p/1.609344), gap=z.goalMar-z.mar, strava=S.src==="strava";
+  const src=z.f.strava?`your Strava ${BD.find(x=>x.m===z.f.from).k} best of ${fmtH(b.best[z.f.from].s/60)} (${fmtD(b.best[z.f.from].date)})`:`your ${fmtBench()}`;
   const rows=[
     ["E","Easy and long runs",`${fmtP(z.E[0])}–${fmtP(z.E[1])}`,`${km(z.E[0])}–${km(z.E[1])}`,"Conversational. Most of your miles."],
     ["MP","Marathon pace (goal)",fmtP(z.MP),km(z.MP),`Goal ${S.goal}. Long-run segments and race day.`],
-    ["T","Threshold",fmtP(z.T),km(z.T),"Comfortably hard, about one hour race effort."],
+    ["T","Threshold",fmtP(z.T),km(z.T),"Comfortably hard, about one-hour race effort."],
     ["I","Interval",fmtP(z.I),km(z.I),"About 5K race effort, 3 to 5 minute reps."]
-  ].map(r=>`<tr><td>${zoneTag(r[0])}${r[1]}<div class="faint">${r[4]}</div></td><td class="num mono">${r[2]}</td><td class="num mono">${r[3]}</td></tr>`).join("");
+  ].map(r=>`<tr><td>${zoneTag(r[0])}${r[1]}<div class="faint">${r[4]}${hrTarget(r[0])?` · ${hrTarget(r[0])}`:""}</div></td><td class="num mono">${r[2]}</td><td class="num mono">${r[3]}</td></tr>`).join("");
+  const tiles=BD.map(x=>{const e=b.best[x.m];return `<div class="stat"><div class="l">${x.k}</div><div class="v">${e?fmtH(e.s/60):"--"}</div><div class="faint">${e?`${fmtD(e.date)} · VDOT ${e.V.toFixed(1)}`:"None in 90 days"}</div></div>`;}).join("");
+  const status=ENRICH.status==="loading"?`Reading best efforts from your runs (${ENRICH.done} of ${ENRICH.total}).`:!haveData()?"Connect Strava to use your recent best efforts.":b.V?"":"No 5K, 10K or half marathon best efforts in the last 90 days. Your next time trial will fill this in.";
   view.innerHTML=`
   <section class="card">
     <div class="eyebrow">Fitness · VDOT ${z.V.toFixed(1)}</div>
-    <h2 style="margin-top:3px">Your ${esc(fmtBench())} predicts a ${fmtH(z.mar)} marathon</h2>
-    <p class="muted" style="margin-top:8px">${Math.abs(gap)<1.5?`That matches your ${esc(S.goal)} goal. Train at goal pace with confidence.`:gap<0?`Your ${esc(S.goal)} goal is ${fmtH(-gap)} faster than current fitness. Retest in the threshold block, and be ready to adjust.`:`Your ${esc(S.goal)} goal is ${fmtH(gap)} slower than current fitness, which leaves room for heat, hills and a bad patch.`}</p>
+    <h2 style="margin-top:3px">You're on track for a ${fmtH(z.mar)} marathon</h2>
+    <p class="muted" style="margin-top:8px">Based on ${esc(src)}. ${Math.abs(gap)<1.5?`That matches your ${esc(S.goal)} goal.`:gap<0?`Your ${esc(S.goal)} goal is ${fmtH(-gap)} faster than that. The build is there to close the gap; time trials will show if it's closing.`:`Your ${esc(S.goal)} goal is ${fmtH(gap)} slower than that, which leaves room for heat, hills and a bad patch.`}</p>
   </section>
   <section class="card">
-    <div class="eyebrow">Training paces</div>
+    <div class="eyebrow">Training paces${HRZ?" and Strava heart rate zones":""}</div>
     <div class="scroll" style="margin-top:8px"><table class="tbl"><thead><tr><th>Zone</th><th class="num">/mi</th><th class="num">/km</th></tr></thead><tbody>${rows}</tbody></table></div>
   </section>
   <section class="card">
-    <div class="eyebrow">Equivalent race times</div>
-    <div class="stats" style="margin-top:10px">${races.map(([n,m])=>{const t=raceT(m,z.V);return `<div class="stat"><div class="l">${n}</div><div class="v">${fmtH(t)}</div><div class="faint">${fmtP(t/(m/MI))}/mi</div></div>`;}).join("")}</div>
+    <div class="spread"><div><div class="eyebrow">Pace source</div><h3 style="margin-top:3px">${strava?"Strava best efforts, last 90 days":"Manual benchmark"}</h3></div>
+      <div class="seg" role="group" aria-label="Pace source"><button type="button" id="srcS" class="${strava?"on":""}">Strava</button><button type="button" id="srcM" class="${strava?"":"on"}">Manual</button></div></div>
+    ${strava?`<div class="tiles" style="margin-top:12px">${tiles}</div>${status?`<p class="faint" style="margin-top:10px">${status}</p>`:""}`
+    :`<form class="form" id="benchForm" style="margin-top:12px">
+      <div class="field"><label for="pbDist">Recent race or time trial</label><select id="pbDist">${[["5000","5K"],["10000","10K"],["21097.5","Half marathon"],["42195","Marathon"]].map(([v,n])=>`<option value="${v}" ${S.benchDist===v?"selected":""}>${n}</option>`).join("")}</select></div>
+      <div class="field"><label for="pbTime">Finish time</label><input id="pbTime" value="${esc(S.benchTime)}" inputmode="numeric" placeholder="46:00 or 1:42:10"></div>
+      <div class="field" style="align-self:end"><button class="btn primary" type="submit">Update paces</button></div>
+    </form>`}
   </section>
   <section class="card">
-    <div class="eyebrow">Update your benchmark</div>
-    <form class="form" id="benchForm" style="margin-top:10px">
-      <div class="field"><label for="pbDist">Recent race or time trial</label><select id="pbDist">${[["5000","5K"],["10000","10K"],["21097.5","Half marathon"],["42195","Marathon"]].map(([v,n])=>`<option value="${v}" ${S.benchDist===v?"selected":""}>${n}</option>`).join("")}</select></div>
-      <div class="field"><label for="pbTime">Finish time</label><input id="pbTime" value="${esc(S.benchTime)}" inputmode="numeric" placeholder="44:30 or 1:32:10"></div>
-      <div class="field" style="align-self:end"><button class="btn primary" type="submit">Update paces</button></div>
-    </form>
+    <div class="eyebrow">Equivalent race times</div>
+    <div class="stats" style="margin-top:10px">${races.map(([nm,m])=>{const t=raceT(m,z.V);return `<div class="stat"><div class="l">${nm}</div><div class="v">${fmtH(t)}</div><div class="faint">${fmtP(t/(m/MI))}/mi</div></div>`;}).join("")}</div>
   </section>`;
-  document.getElementById("benchForm").onsubmit=async e=>{e.preventDefault();
+  document.getElementById("srcS").onclick=async()=>{S.src="strava";await saveSettings();renderAll();};
+  document.getElementById("srcM").onclick=async()=>{S.src="manual";await saveSettings();renderAll();};
+  const f=document.getElementById("benchForm");
+  if(f) f.onsubmit=async e=>{e.preventDefault();
     const t=document.getElementById("pbTime").value.trim(); if(!(parseT(t)>0)) return;
     S.benchDist=document.getElementById("pbDist").value; S.benchTime=t; await saveSettings(); renderAll();};
 }
 function fmtBench(){return ({"5000":"5K","10000":"10K","21097.5":"half marathon","42195":"marathon"}[S.benchDist]||"benchmark")+" in "+S.benchTime;}
 
-function renderWeather(){
-  const head=`<div class="spread"><div><div class="eyebrow">Weather</div><h2 style="margin-top:3px">${esc(WX.loc||S.wxName)}</h2></div><button class="btn" id="wxr">${WX.status==="loading"?"Updating":"Refresh"}</button></div>`;
-  if(WX.status==="idle"||(WX.status==="loading"&&!WX.cur)){view.innerHTML=`<section class="card">${head}<p class="muted" style="margin-top:8px">Getting conditions from AccuWeather.</p></section>`; bindWx(); if(WX.status==="idle") fetchWeather(); return;}
-  if(WX.status==="off"||(WX.status==="err"&&!WX.cur)){view.innerHTML=`<section class="card">${head}<p class="muted" style="margin-top:8px">${WX.status==="off"?"Weather needs the AccuWeather connector, which isn't available in this view.":esc(WX.msg)}</p></section>`; bindWx(); return;}
-  const c=WX.cur, ex=c.extended||{}, t=num(c.temperatureValue??c.temperature), rf=num(c.realFeelValue??c.realFeel), dp=num(ex.dewPoint);
-  const adj=heatAdj(t,dp), z=Z();
-  const i=weekOf(TODAY), d=i>=0&&i<NW?buildWeek(i)[dow(TODAY)]:null;
-  let todayLine="";
-  if(d&&d.mi){const base={T:z.T,I:z.I,MP:z.MP,R:z.MP}[d.z];
-    todayLine=base&&adj&&adj.hi>0?`Today's ${ZONES[d.z].toLowerCase()} target of ${fmtP(base)}/mi becomes about ${fmtP(base*(1+(adj.lo+adj.hi)/200))}/mi in these conditions. Hold the effort and let the pace give.`
-      :`Today: ${esc(d.t)}. ${adj&&adj.hi===0?"Conditions won't cost you anything.":"Run it by effort if it feels hard."}`;}
-  const R=34, C=2*Math.PI*R, frac=adj?Math.min(1,Math.max(0,(adj.s-90)/100)):0;
-  const col=!adj?"var(--ink3)":adj.s<=120?"var(--good)":adj.s<=150?"var(--warn)":"var(--bad)";
-  const dial=`<svg viewBox="0 0 84 84" width="84" height="84" aria-hidden="true"><circle cx="42" cy="42" r="${R}" fill="none" stroke="var(--track)" stroke-width="9"/><circle cx="42" cy="42" r="${R}" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round" transform="rotate(-90 42 42)" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-frac)}"/><text x="42" y="48" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)" font-family="var(--f-mono)">${adj?adj.s:"--"}</text></svg>`;
-  const hrs=(WX.hours||[]).slice(0,12);
-  let best=-1,bs=1e9; hrs.forEach((x,k)=>{const tt=num(x.temperatureValue??x.temperature), dd=num(x.extended&&x.extended.dewPoint), pr=num(x.precip)||0, hh=new Date(x.date).getHours(); if(tt==null||hh<5||hh>21) return; const sc=tt+(dd??tt-10)+pr*.8+(tt<35?(35-tt)*1.5:0); if(sc<bs){bs=sc;best=k;}});
-  const hours=hrs.map((x,k)=>{const pr=num(x.precip)||0;return `<div class="hr${k===best?" best":""}"><div class="faint">${esc(x.dateTime||"")}</div><div class="v">${esc(x.temperature??"")}</div><div class="faint">${pr>=20?pr+"% rain":"&nbsp;"}</div></div>`;}).join("");
-  const days=(WX.days||[]).slice(0,10);
-  const planFor=ds=>{const w=weekOf(ds); if(w<0||w>=NW) return ""; const dd=buildWeek(w)[dow(ds)]; return dd.mi?`${dd.mi} mi · ${dd.t}`:"Rest";};
-  const rows=days.map(x=>{const ds=String(x.date||"").slice(0,10), pr=Math.max(num(x.day&&x.day.precip)||0,num(x.night&&x.night.precip)||0);
-    return `<div class="wxday"><div><b>${ds===TODAY?"Today":esc(x.dayOfWeek||fmtD(ds,{weekday:"short"}))}</b><div class="faint">${esc(x.displayDate||fmtD(ds))}</div></div>
-      <div style="min-width:0"><div>${esc((x.day&&(x.day.phrase||x.day.iconPhrase))||"")}${pr>=20?` · ${pr}% rain`:""}</div><div class="pl">${esc(planFor(ds))}</div></div>
-      <div class="mono">${esc(x.night&&x.night.temperature)}° / ${esc(x.day&&x.day.temperature)}°</div></div>`;}).join("");
-  const alerts=(WX.alerts||[]).map(a=>`<div class="note" style="margin-top:10px"><b>${esc(a.title||a.headline||"Weather alert")}</b>${esc(a.description||a.text||"")}</div>`).join("");
-  view.innerHTML=`
-  <section class="card">${head}
-    <div class="wx-now" style="margin-top:10px"><div class="tmp">${t??"--"}°</div><div><div><b>${esc(c.phrase||"")}</b></div><div class="muted" style="font-size:.85rem">Feels like ${rf??"--"}° · dew point ${dp??"--"}°${ex.humidity?` · humidity ${esc(ex.humidity)}`:""}${ex.wind?` · wind ${esc(ex.wind)}`:""}</div></div></div>
-    ${alerts}
-    <div class="faint" style="margin-top:10px">AccuWeather. Updated ${new Date(WX.at).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})}.</div>
-  </section>
-  <section class="card">
-    <div class="eyebrow">Running conditions</div>
-    <div class="verdict" style="margin-top:8px">${dial}<div><h3>${adj?esc(adj.label):"No reading"}</h3><p class="muted" style="font-size:.86rem;margin-top:4px">Temperature plus dew point = ${adj?adj.s:"--"}. ${adj?(adj.hi===0?"No pace adjustment needed.":`Expect roughly ${adj.lo} to ${adj.hi}% slower at the same effort.`):""}</p></div></div>
-    ${todayLine?`<div class="note" style="margin-top:12px"><b>For your plan</b>${todayLine}</div>`:""}
-  </section>
-  ${hours?`<section class="card"><div class="eyebrow">Next 12 hours</div><h3 style="margin-top:3px">${best>=0?`Best window to run: ${esc(hrs[best].dateTime||"")}`:"Hourly"}</h3><div class="hours">${hours}</div></section>`:""}
-  ${rows?`<section class="card"><div class="eyebrow">10 days, with your plan</div><div style="margin-top:6px">${rows}</div></section>`:""}`;
-  bindWx();
-}
-function bindWx(){const b=document.getElementById("wxr"); if(b) b.onclick=()=>{WX={...WX,status:WX.cur?"stale":"idle"}; fetchWeather();};}
-
 function renderPlan(){
-  const cw=weekOf(TODAY), maxMi=Math.max(...Array.from({length:NW},(_,i)=>weekMi(i)));
-  const phases=PHASES.map(p=>{
+  const cw=weekOf(TODAY), n=NW(), maxMi=Math.max(...Array.from({length:n},(_,i)=>weekMi(i)));
+  const ph=phases().map(p=>{
     const rows=[];for(let i=p.from;i<=p.to;i++){const mi=weekMi(i), d=buildWeek(i), q=d[1], l=d[5];
-      rows.push(`<button class="wkrow${i===cw?" cur":""}" data-w="${i}" type="button"><span class="w">W${i+1}</span><span style="min-width:0"><span class="bar"><i style="width:${mi/maxMi*100}%;background:var(${p.col})"></i></span><span class="faint" style="display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i===NW-1?esc(S.raceName)+" "+fmtD(S.race):`${esc(q.t)} · ${l.mi} mi long`}</span></span><span class="mi">${mi.toFixed(0)} mi</span></button>`);}
+      rows.push(`<button class="wkrow${i===cw?" cur":""}" data-w="${i}" type="button"><span class="w">W${i+1}</span><span style="min-width:0"><span class="bar"><i style="width:${mi/maxMi*100}%;background:var(${p.col})"></i></span><span class="faint" style="display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i===n-1?esc(S.raceName)+" · "+fmtD(S.race):`${esc(q.t)} · ${l.mi} mi long`}</span></span><span class="mi">${mi.toFixed(0)} mi</span></button>`);}
     return `<section class="card phase"><div class="spread"><h3>${p.name}</h3><span class="faint">Weeks ${p.from+1}–${p.to+1} · from ${fmtD(weekStart(p.from))}</span></div><p class="muted" style="font-size:.86rem">${p.blurb}</p><div style="margin-top:6px">${rows.join("")}</div></section>`;}).join("");
   view.innerHTML=`
   <section class="card">
@@ -598,34 +642,49 @@ function renderPlan(){
     <form class="form" id="setForm" style="margin-top:12px">
       <div class="field"><label for="sName">Race</label><input id="sName" value="${esc(S.raceName)}"></div>
       <div class="field"><label for="sDate">Race date</label><input id="sDate" type="date" value="${esc(S.race)}"></div>
-      <div class="field"><label for="sGoal">Goal time</label><input id="sGoal" value="${esc(S.goal)}" placeholder="3:15:00"></div>
+      <div class="field"><label for="sGoal">Goal time</label><input id="sGoal" value="${esc(S.goal)}" placeholder="3:29:00"></div>
       <div class="field"><label for="sPeak">Peak week (miles)</label><input id="sPeak" type="number" min="25" max="110" step="1" value="${esc(S.peak)}"><span class="hint">Every week scales from this.</span></div>
-      <div class="field"><label for="sWx">AccuWeather location key</label><input id="sWx" value="${esc(S.wxKey)}" inputmode="numeric"><span class="hint">2627448 is Central Park, NYC.</span></div>
-      <div class="field"><label for="sWxName">Weather location name</label><input id="sWxName" value="${esc(S.wxName)}"></div>
+      <div class="field"><label for="sStart">Plan start</label><input id="sStart" type="date" value="${esc(S.start)}"><span class="hint">${n} weeks to race day.</span></div>
+      <div class="field"><label for="sVol">Starting weekly miles</label><input id="sVol" type="number" min="0" max="110" step="1" value="${S.startVol!=null?esc(Math.round(S.startVol)):""}" placeholder="From Strava"><span class="hint">Set from your last 4 weeks on Strava.</span></div>
       <div class="field" style="align-self:end"><button class="btn primary" type="submit">Save plan</button> <span class="faint" id="saved" aria-live="polite"></span></div>
     </form>
   </section>
-  ${phases}`;
+  ${ph}`;
   view.querySelectorAll(".wkrow").forEach(b=>b.onclick=()=>{WK=Number(b.dataset.w);setTab("week");});
   document.getElementById("setForm").onsubmit=async e=>{e.preventDefault();
     const v=id=>document.getElementById(id).value.trim();
-    const date=v("sDate"); if(!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-    const wxChanged=v("sWx")!==S.wxKey;
-    S={...S,raceName:v("sName")||"Marathon",race:date,goal:parseT(v("sGoal"))>0?v("sGoal"):S.goal,peak:String(Math.min(110,Math.max(25,Number(v("sPeak"))||50))),wxKey:v("sWx")||DEF.wxKey,wxName:v("sWxName")||"Weather"};
-    const r=await saveSettings(); WK=null; if(wxChanged) WX={status:"idle"};
-    renderBar(); renderPlan(); const s=document.getElementById("saved"); if(s) s.textContent=r==="saved"?"Saved":"Saved on this device";
-    if(SYNC.state==="ok") sync(false);
+    const date=v("sDate"), start=v("sStart"); if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^\d{4}-\d{2}-\d{2}$/.test(start)) return;
+    const vol=v("sVol");
+    S={...S,raceName:v("sName")||"Marathon",race:date,start,goal:parseT(v("sGoal"))>0?v("sGoal"):S.goal,
+      peak:String(clamp(Number(v("sPeak"))||50,25,110)),startVol:vol===""?S.startVol:clamp(Number(vol)||0,0,110)};
+    const r=await saveSettings(); WK=null;
+    renderAll(); const s=document.getElementById("saved"); if(s) s.textContent=r==="saved"?"Saved":"Saved on this device";
   };
 }
 
-const RENDER={week:renderWeek,progress:renderProgress,paces:renderPaces,weather:renderWeather,plan:renderPlan};
+const RENDER={week:renderWeek,progress:renderProgress,paces:renderPaces,plan:renderPlan};
 function setTab(t){TAB=RENDER[t]?t:"week"; try{localStorage.setItem("mbuild-tab",TAB);}catch(e){}
   document.querySelectorAll("#tabbar button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===TAB?"true":"false"));
   RENDER[TAB](); }
-function renderAll(){renderBar(); RENDER[TAB]&&RENDER[TAB]();}
+function renderAll(){
+  renderBar(); renderConnect();
+  // keep form edits on the Plan tab from being wiped by background syncs
+  if(TAB==="plan"&&view.contains(document.activeElement)&&document.activeElement.tagName==="INPUT") return;
+  RENDER[TAB]&&RENDER[TAB]();
+}
 document.querySelectorAll("#tabbar button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
-document.getElementById("sync").onclick=()=>sync(true);
-if(/^#(week|progress|paces|weather|plan)$/.test(location.hash)) TAB=location.hash.slice(1);
+document.getElementById("sync").onclick=()=>{ if(SYNC.state==="need"){const g=document.getElementById("cnGo"); if(g) g.click(); return;} SYNC={...SYNC,state:SYNC.state==="loading"?"loading":"idle"}; sync(true); };
+if(/^#(week|progress|paces|plan)$/.test(location.hash)) TAB=location.hash.slice(1);
+if(!RENDER[TAB]) TAB="week";
 renderBar(); setTab(TAB);
-(async()=>{ await loadSettings(); sync(false); })();
+(async()=>{
+  await loadStore();
+  const mcp=await getMcp();
+  if(!mcp){SYNC={state:"off"};renderAll();return;}
+  const P=await getPerms();
+  const st=P?await P.state("mcp:Strava").catch(()=>"unavailable"):"unavailable";
+  if(st==="denied"){SYNC={state:"denied"};renderAll();}
+  else if(st==="prompt"){SYNC={state:"need"};renderAll();}
+  else sync(false);
+})();
 </script>
