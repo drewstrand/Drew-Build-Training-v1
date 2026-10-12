@@ -153,6 +153,8 @@ p{margin:0}
 .tbl td.num,.tbl th.num{padding-left:12px}
 .scroll{overflow-x:auto}
 
+.spark{display:block;width:100%;height:70px}
+
 /* Training load */
 .load{position:relative;display:flex;align-items:flex-end;gap:6px;height:112px;margin:12px 0 22px}
 .lb{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;position:relative;z-index:1}
@@ -679,7 +681,7 @@ function weekFitFiles(i){
 const RUNS=new Set(["Run","TrailRun","VirtualRun"]);
 let ACTS=[], SYNC={state:"idle",msg:"",at:null}, HRZ=null, FTP=null; const STR={};
 const PERF={}; let ENRICH={status:"idle",done:0,total:0};
-let MCP=null, PERMS=null, DB=null;
+let MCP=null, PERMS=null, DB=null, WELL=null;
 const getMcp=async()=>{ if(MCP) return MCP; try{ MCP=window.claude&&window.claude.use?await window.claude.use("mcp"):null; }catch(e){MCP=null;} return MCP; };
 const getPerms=async()=>{ if(PERMS) return PERMS; try{ PERMS=window.claude&&window.claude.use?await window.claude.use("permissions"):null; }catch(e){PERMS=null;} return PERMS; };
 const payload=r=>{let p=r&&r.payload; if(typeof p==="string"){try{p=JSON.parse(p);}catch(_){p={};}} return p||{};};
@@ -787,6 +789,7 @@ async function loadStore(){
   try{ DB=window.claude&&window.claude.use?await window.claude.use("db"):null; }catch(e){DB=null;}
   if(!DB) return;
   try{ const d=await DB.doc("settings/plan").get(); if(d.exists){ S={...DEF,...d.data()}; try{localStorage.setItem("mbuild3",JSON.stringify(S));}catch(e){} } }catch(e){}
+  try{ const w=await DB.doc("wellness/daily").get(); if(w.exists) WELL=w.data(); }catch(e){}
   try{ const snap=await DB.collection("runs").orderBy("date","desc").limit(500).get(); snap.docs.forEach(d=>{const x=d.data(); if(x&&x.id) PERF[x.id]=x;}); }catch(e){}
   renderAll();
 }
@@ -965,6 +968,56 @@ function renderWeek(){
 
 }
 
+/* ---------- Recovery: Garmin HRV, resting HR and sleep (copied from intervals.icu each morning) ---------- */
+const meanOf=a=>a.length?a.reduce((t,x)=>t+x,0)/a.length:null;
+const sdOf=a=>{const m=meanOf(a);return a.length>1?Math.sqrt(a.reduce((t,x)=>t+(x-m)**2,0)/(a.length-1)):null;};
+function recoveryCard(){
+  const days=(WELL&&WELL.days)||[], hasHrv=days.filter(x=>x.hrv).length>=3, key=hasHrv?"hrv":"rhr";
+  const head=`<div class="eyebrow">Recovery · Garmin via intervals.icu</div><h2 style="margin-top:3px">How you're absorbing training</h2>`;
+  if(!days.some(x=>x.hrv||x.rhr)) return `<section class="card">${head}<p class="muted" style="margin-top:8px">HRV, resting heart rate and sleep show up here once your Forerunner has a few nights of data. Wear it to bed; it updates every morning.</p></section>`;
+  const recent=days.slice(-60).filter(x=>x[key]), vals=recent.map(x=>x[key]);
+  const base=meanOf(vals), sd=sdOf(vals)||0, lo=base-sd, hi=base+sd;
+  const last=recent[recent.length-1], wk=recent.slice(-7).map(x=>x[key]), wkAvg=meanOf(wk);
+  const better=v=>key==="hrv"?v>=lo:v<=hi; // high HRV good, low RHR good
+  const unit=key==="hrv"?"ms":"bpm", label=key==="hrv"?"HRV":"Resting HR";
+  const low2=recent.slice(-2).length===2&&recent.slice(-2).every(x=>!better(x[key]));
+  const status=recent.length<7?`<b>Building a baseline.</b> ${recent.length} of 7 nights so far.`
+    :low2?`<b style="color:var(--warn)">${key==="hrv"?"Below":"Above"} your normal range two days running.</b> Make today easy or swap it for rest, especially before a key session.`
+    :!better(last[key])?`<b style="color:var(--warn)">Outside your normal range today.</b> Fine for one day; watch tomorrow.`
+    :`<b style="color:var(--good)">In your normal range.</b> Train as planned.`;
+  // sparkline of the last 28 days with the normal band
+  const pts=recent.slice(-28), n=pts.length, W=300, H=70, mn=Math.min(lo,...pts.map(x=>x[key]))*0.97, mx=Math.max(hi,...pts.map(x=>x[key]))*1.03;
+  const X=k=>n>1?k/(n-1)*W:W/2, Y=v=>H-(v-mn)/(mx-mn||1)*H;
+  const line=pts.map((x,k)=>`${k?"L":"M"}${X(k).toFixed(1)} ${Y(x[key]).toFixed(1)}`).join(" ");
+  const spark=n>=2?`<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><rect x="0" y="${Y(hi)}" width="${W}" height="${Math.max(1,Y(lo)-Y(hi))}" fill="var(--good)" fill-opacity=".12"/><path d="${line}" fill="none" stroke="var(--lane)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`:"";
+  // weekly load vs the next week's recovery
+  const mon=monday(TODAY), pairs=[];
+  for(let k=1;k<=26;k++){ const a=add(mon,-7*(k+1)), b=add(a,7);
+    const load=ACTS.filter(x=>x.date>=a&&x.date<b).reduce((t,x)=>t+x.re,0);
+    const nxt=days.filter(x=>x.d>=b&&x.d<add(b,7)&&x[key]).map(x=>x[key]);
+    if(load>0&&nxt.length>=4&&base) pairs.push({load,dev:(meanOf(nxt)-base)/base*100}); }
+  let corr=`<p class="faint" style="margin-top:10px">Load vs recovery: ${pairs.length} of 6 weeks of data. Once there are 6, this shows how your ${label} responds the week after harder and easier weeks.</p>`;
+  if(pairs.length>=6){
+    const ml=meanOf(pairs.map(p=>p.load)), md=meanOf(pairs.map(p=>p.dev));
+    const r=pairs.reduce((t,p)=>t+(p.load-ml)*(p.dev-md),0)/Math.sqrt(pairs.reduce((t,p)=>t+(p.load-ml)**2,0)*pairs.reduce((t,p)=>t+(p.dev-md)**2,0)||1);
+    const hard=meanOf(pairs.filter(p=>p.load>ml).map(p=>p.dev)), easy=meanOf(pairs.filter(p=>p.load<=ml).map(p=>p.dev));
+    const f=v=>`${v>=0?"+":""}${v.toFixed(1)}%`;
+    corr=`<div class="note" style="margin-top:12px"><b>Load vs next-week ${label}</b>After your harder weeks, ${label} ran ${f(hard)} vs your baseline; after easier weeks, ${f(easy)}. Correlation ${r.toFixed(2)} over ${pairs.length} weeks${Math.abs(r)<0.3?", a weak link so far":Math.abs(r)<0.6?", a moderate link":", a strong link"}${pairs.length<12?" (still a small sample)":""}.</div>`;
+  }
+  const lw=days[days.length-1]||{}, form=lw.ctl&&lw.atl?lw.ctl-lw.atl:null, sl=meanOf(days.slice(-7).filter(x=>x.sleep).map(x=>x.sleep));
+  return `<section class="card">${head}
+    <p class="muted" style="font-size:.88rem;margin-top:6px">${status}</p>
+    <div class="stats" style="margin-top:10px">
+      <div class="stat"><div class="l">${label}, ${fmtD(last.d)}</div><div class="v">${Math.round(last[key])}<small>${unit}</small></div><div class="faint">normal ${Math.round(lo)}–${Math.round(hi)}</div></div>
+      <div class="stat"><div class="l">7-day average</div><div class="v">${Math.round(wkAvg)}<small>${unit}</small></div><div class="faint">60-day ${Math.round(base)}</div></div>
+      <div class="stat"><div class="l">Sleep, 7 days</div><div class="v">${sl?sl.toFixed(1):"--"}<small>h</small></div><div class="faint">${sl?"per night":"wear it to bed"}</div></div>
+      <div class="stat"><div class="l">Form</div><div class="v">${form!=null?(form>0?"+":"")+Math.round(form):"--"}</div><div class="faint">${form==null?"":form<-20?"heavy fatigue":form<-10?"productive fatigue":form>5?"fresh":"balanced"}</div></div>
+    </div>
+    ${spark?`<div style="margin-top:12px">${spark}<div class="faint" style="display:flex;justify-content:space-between"><span>${fmtD(pts[0].d)}</span><span>shaded = your normal range</span><span>${fmtD(pts[n-1].d)}</span></div></div>`:""}
+    ${corr}
+    <p class="faint" style="margin-top:8px">Updated ${WELL.updated?new Date(WELL.updated).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}):""}. Form is fitness minus fatigue from intervals.icu's training load.</p>
+  </section>`;
+}
 function loadCard(){
   const mon=monday(TODAY), W=[];
   for(let k=8;k>=0;k--){ const a=add(mon,-7*k), b=add(a,6); W.push({a,re:ACTS.filter(x=>x.date>=a&&x.date<=b).reduce((t,x)=>t+x.re,0)}); }
@@ -1026,6 +1079,7 @@ function renderProgress(){
       <div class="stat"><div class="l">Longest, 90 days</div><div class="v">${longest.toFixed(1)}<small>mi</small></div></div>
       <div class="stat"><div class="l">Starting volume</div><div class="v">${S.startVol!=null?Number(S.startVol).toFixed(0):"--"}<small>mi/wk</small></div></div>
     </div></section>
+  ${recoveryCard()}
   ${loadCard()}
   <section class="card"><div class="eyebrow">Recent activity</div><div class="runs" style="margin-top:6px">${list||`<p class="muted">No activities on Strava in the last few months.</p>`}</div></section>`
   :`<section class="card"><div class="eyebrow">Strava</div><p class="muted" style="margin-top:6px">${SYNC.state==="loading"?"Reading your runs from Strava.":"Connect Strava to see your actual miles, pace and heart rate here."}</p></section>`}`;

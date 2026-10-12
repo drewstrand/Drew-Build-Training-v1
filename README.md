@@ -56,3 +56,11 @@ Notes from the first push (Oct 12, 2026):
   FTP test, then push again; events update in place.
 - Until the dashboard reads Strava best efforts in Node, pass fitness as a manual benchmark in settings.json
   (`"src":"manual","benchDist":"21097.5","benchTime":"1:50:01"` matched the page on Oct 12).
+
+## Recovery data (Garmin HRV, resting HR, sleep)
+
+Garmin wellness reaches intervals.icu once the Garmin connection is set to download wellness. A daily routine
+(7:41 am Boston time) runs `tools/pull-wellness.mjs` and stores the result in the artifact database as
+`wellness/daily`; the Progress tab's Recovery card reads it. It shows today's HRV (or resting HR until HRV exists)
+against a 60-day normal range (mean ± 1 SD), 7-day sleep, intervals.icu form (fitness minus fatigue), and, after
+6 weeks of data, how HRV the week after harder vs easier weeks compares to baseline (weekly Strava Relative Effort).
