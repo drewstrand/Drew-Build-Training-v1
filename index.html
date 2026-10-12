@@ -47,14 +47,15 @@ h3{font-size:1.1rem;font-weight:700}
 p{margin:0}
 
 /* Bib header */
-.bib{margin-top:16px;background:var(--bib);color:var(--bib-ink);border-radius:18px;padding:16px 18px 18px;position:relative;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+.bib{margin-top:16px;background:var(--bib);color:var(--bib-ink);border-radius:18px;padding:16px 18px 18px;position:relative}
+.bib-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .bib::before,.bib::after{content:"";position:absolute;top:12px;width:9px;height:9px;border-radius:50%;background:var(--bg)}
 .bib::before{left:12px}.bib::after{right:12px}
-.bib .race{font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding-left:14px}
+.bib .race{font-size:.74rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding-left:14px;min-width:0}
 .bib .count{font-family:var(--f-display);font-weight:800;font-size:clamp(3.2rem,13vw,5rem);line-height:.9;margin-top:6px;font-variant-numeric:tabular-nums}
-.bib .count small{font-size:.32em;font-weight:700;letter-spacing:.06em;margin-left:6px;text-transform:uppercase}
+.bib .count small{font-size:.32em;font-weight:700;letter-spacing:.06em;margin-left:6px;text-transform:uppercase;white-space:nowrap}
 .bib .sub{font-size:.88rem;margin-top:6px;font-weight:500}
-.sync{margin-top:12px;display:inline-flex;align-items:center;gap:7px;border:1.5px solid rgba(26,22,8,.35);background:transparent;border-radius:999px;padding:5px 12px;font-size:.8rem;font-weight:600;color:var(--bib-ink);white-space:nowrap}
+.sync{flex:none;margin-right:10px;display:inline-flex;align-items:center;gap:7px;border:1.5px solid rgba(26,22,8,.35);background:transparent;border-radius:999px;padding:5px 12px;font-size:.8rem;font-weight:600;color:var(--bib-ink);white-space:nowrap}
 .sync .dot{width:8px;height:8px;border-radius:50%;background:rgba(26,22,8,.35)}
 .sync[data-s="ok"] .dot{background:#2E8A57}.sync[data-s="err"] .dot{background:#C2412F}
 .sync[data-s="loading"] .dot{background:#1F5BD8;animation:pulse 1s infinite}
@@ -67,7 +68,7 @@ p{margin:0}
 .tabbar button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
 
 /* Cards */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
 .stack{display:grid;gap:12px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .spread{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
@@ -95,8 +96,8 @@ p{margin:0}
 
 /* Week */
 .wk-nav{display:flex;align-items:center;gap:8px}
-.wk-nav .btn{white-space:nowrap}
-.wk-nav button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);font-size:1rem}
+.wk-nav .btn{white-space:nowrap;height:34px}
+.wk-nav button:not(.btn){width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);font-size:1rem}
 .days{display:grid;gap:0;margin-top:8px}
 .day{display:grid;grid-template-columns:52px 1fr auto;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
 .day:first-child{border-top:0}
@@ -105,7 +106,8 @@ p{margin:0}
 .dname{font-family:var(--f-display);font-weight:700;font-size:1.1rem;line-height:1}
 .dname small{display:block;font-family:var(--f-body);font-weight:500;font-size:.72rem;color:var(--ink3);margin-top:3px}
 .dwork{min-width:0}
-.dwork .t{font-weight:600}
+.dwork .t{font-weight:400;color:var(--ink2)}
+.dwork .t b{font-weight:600;color:var(--ink)}
 .dwork .p{font-size:.82rem;color:var(--ink2)}
 .dmi{font-family:var(--f-display);font-weight:700;font-size:1.3rem;text-align:right;font-variant-numeric:tabular-nums}
 .dmi small{display:block;font-family:var(--f-body);font-size:.7rem;color:var(--ink3);font-weight:500}
@@ -115,6 +117,7 @@ p{margin:0}
 .zone{display:inline-block;font-family:var(--f-mono);font-size:.68rem;padding:1px 6px;border-radius:5px;margin-right:6px;vertical-align:1px;color:#fff}
 .z-E,.z-L{background:var(--base)}.z-T{background:var(--thr)}.z-I{background:var(--bad)}.z-MP{background:var(--spec)}.z-R{background:var(--bib);color:var(--bib-ink)}.z-X{background:var(--ink3)}.z-TT{background:var(--bib);color:var(--bib-ink)}.z-BIKE{background:#B5562A}.z-SWIM{background:#1D86A8}.z-LIFT{background:#5B4A8B}.z-MOB{background:var(--ink3)}
 .sess+.sess{margin-top:7px}
+.amt{white-space:nowrap}
 .gbtn{border:1px solid var(--line);background:var(--surface2);border-radius:7px;padding:1px 8px;font-size:.72rem;font-weight:600;color:var(--lane);margin-left:4px;vertical-align:1px}
 textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-family:var(--f-mono);font-size:.78rem;border:1px solid var(--line);border-radius:8px;background:var(--surface2);padding:8px}
 .ex{margin:3px 0 0;padding-left:18px;font-size:.84rem;color:var(--ink2)}
@@ -136,7 +139,8 @@ textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-famil
 .tbl th{text-align:left;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:600;padding:6px 8px 6px 0;border-bottom:1px solid var(--line)}
 .tbl td{padding:9px 8px 9px 0;border-bottom:1px solid var(--line);vertical-align:top}
 .tbl tr:last-child td{border-bottom:0}
-.tbl td.num,.tbl th.num{text-align:right;padding-right:0}
+.tbl td.num,.tbl th.num{text-align:right;padding-right:0;white-space:nowrap}
+.tbl td.num+td.num,.tbl th.num+th.num{padding-left:10px}
 .scroll{overflow-x:auto}
 
 /* Runs */
@@ -151,13 +155,15 @@ textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-famil
 .wkrow{display:grid;grid-template-columns:42px 1fr 64px;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);background:none;border-left:0;border-right:0;border-bottom:0;text-align:left;width:100%}
 .wkrow:hover{background:var(--surface2)}
 .wkrow .w{font-family:var(--f-display);font-weight:700;font-size:1.05rem}
-.wkrow .bar{height:8px;border-radius:4px;background:var(--track);position:relative;overflow:hidden}
+.wkrow .bar{display:block;height:8px;border-radius:4px;background:var(--track);position:relative;overflow:hidden}
 .wkrow .bar i{position:absolute;inset:0 auto 0 0;border-radius:4px}
 .wkrow .mi{text-align:right;font-family:var(--f-mono);font-size:.85rem}
 .wkrow.cur{background:var(--lane-soft)}
 .form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
 .field{display:grid;gap:4px;min-width:0}
 .field label{font-size:.75rem;font-weight:600;color:var(--ink2)}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+.pair input{min-width:0;padding-inline:8px}
 .field input,.field select{width:100%;border:1px solid var(--line);background:var(--surface2);border-radius:9px;padding:8px 10px}
 .field .hint{font-size:.72rem;color:var(--ink3)}
 
@@ -175,12 +181,12 @@ textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-famil
 
 <div class="wrap">
   <header class="bib" id="bib">
-    <div>
+    <div class="bib-top">
       <div class="race" id="raceName">Grandma's Marathon</div>
-      <div class="count" id="count">--<small>days</small></div>
-      <div class="sub" id="bibSub">Loading your plan</div>
+      <button class="sync" id="sync" data-s="idle" aria-label="Refresh Strava"><span class="dot"></span><span id="syncTxt">Strava</span></button>
     </div>
-    <button class="sync" id="sync" data-s="idle" aria-label="Refresh Strava"><span class="dot"></span><span id="syncTxt">Strava</span></button>
+    <div class="count" id="count">--<small>days</small></div>
+    <div class="sub" id="bibSub">Loading your plan</div>
   </header>
 
   <nav class="tabs" aria-label="Sections">
@@ -412,7 +418,7 @@ function hybridWeek(i){
     :["Bike: zone 2 with 6 x 30s high-cadence spin-ups",
       w<3?"Sweet spot: 3 x 12 min at 88–93% FTP, 4 min easy":"Threshold: 2 x 20 min at 95% FTP, 5 min easy",
       "VO2: 4 x 4 min hard (90–95% max HR), 3 min easy"][ph];
-  const tm=winter?" Treadmill if it's icy or the wind chill is below 0°F.":dark?" It's dark after work: run before work, at lunch, or wear a headlamp and reflective vest.":"";
+  const tm=winter?" Treadmill if it's icy or the wind chill is below 0°F.":"";
   const out=Array.from({length:7},()=>({...REST,x:[]}));
   out[0]=deload&&ph>0?{mi:r5(6*Math.min(k,1.2)),t:"5K time trial: 2 mi warm-up, 5K hard and even, 1 mi cool-down. Strava logs the best effort and your paces update."+tm,z:"TT",key:1,x:[lift("lowerA","45 min")]}
     :{mi:r5(vol*.3),t:runQ+"."+tm,z:ph===2?"T":"E",key:1,x:[lift("lowerA","45 min")]};
@@ -424,7 +430,7 @@ function hybridWeek(i){
     out[5]={mi:r5(Math.min(vol*.4,7*Math.sqrt(k))),t:"Winter long run, 60–75 min max. Go late morning when it's warmest, start into the wind off the water so it's at your back coming home. Treadmill if it's icy or the wind chill is below 0°F.",z:"L",key:1,x:[]};
     out[6]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(90+ph*15+w*5),"Indoor long ride on the trainer, zone 2. This covers the aerobic time you're not getting from a long outdoor run."+(ph===2?" Practice fueling at your 75 g carbs per hour.":""))]};
   }else{
-    out[5]={mi:r5(Math.min(vol*.4,12*Math.sqrt(k))),t:"Easy long run"+(ph>=1?", rolling or hilly route":"")+"."+(dark?" Weekend daylight is your friend.":""),z:"L",key:1,x:[]};
+    out[5]={mi:r5(Math.min(vol*.4,12*Math.sqrt(k))),t:"Easy long run"+(ph>=1?", rolling or hilly route":"")+".",z:"L",key:1,x:[]};
     out[6]={mi:0,t:"Rest from running",z:"X",x:[X("bike",min(75+ph*15+w*5),(dark?"Outdoor if it's above about 35°F and dry, otherwise the trainer. ":"")+"Long ride, zone 2, conversational")]};
   }
   hol.forEach((h,d)=>{ if(!h) return;
@@ -477,11 +483,11 @@ function buildWeekBase(i){
 const tripOn=ds=>(S.trips||[]).find(t=>t&&t.from&&t.to&&ds>=t.from&&ds<=t.to);
 const tripWeek=i=>[0,1,2,3,4,5,6].some(d=>tripOn(add(weekStart(i),d)));
 function buildWeek(i){
-  const base=buildWeekBase(i), lost=[];
+  const base=buildWeekBase(i), lost=[], lostLift=[];
   const out=base.map((d,k)=>{
     const ds=add(weekStart(i),k), t=tripOn(ds), h=holidayOn(ds);
     if(!t) return d;
-    if(ds===t.from||ds===t.to){ if(d.mi>0&&d.z==="E") lost.push({k,d});
+    if(ds===t.from||ds===t.to){ if(d.mi>0&&d.z==="E") lost.push({k,d}); d.x.filter(x=>x.sp==="lift").forEach(x=>lostLift.push({k,x}));
       return {mi:0,t:`${h?h+": t":"T"}ravel day ${ds===t.from?"to":"home from"} ${t.where}. Walk the airport, drink extra water, 10 min of mobility at the gate.`,z:"X",x:[],trip:1,travel:1}; }
     if(h) return d;
     const x=d.x.filter(s=>s.sp!=="swim").map(s=>s.sp==="bike"?{...s,t:"At the gym: spin bike, or elliptical if there's no bike. "+s.t.replace(/^Indoor (long ride on the )?trainer\.? ?|^Outdoor if[^.]*\. /i,"")}:s.sp==="lift"?{...s,t:"At the gym. "+s.t}:s);
@@ -490,6 +496,8 @@ function buildWeek(i){
   // an easy run lost to a travel day moves to the next free day of the trip
   lost.forEach(({k,d})=>{ for(let j=k+1;j<7;j++){ const ds=add(weekStart(i),j), o=out[j];
     if(o.mi===0&&!o.travel&&!holidayOn(ds)&&tripOn(ds)&&!(out[j+1]&&out[j+1].z==="TT")){ out[j]={...o,mi:d.mi,t:`Easy run, moved from the travel day. Gym treadmill if the wind chill is below 0°F or it's icy.`,z:"E",x:o.x}; break; } } });
+  lostLift.forEach(({k,x})=>{ const lower=/Lower/.test(x.t); for(let j=k+1;j<7;j++){ const ds=add(weekStart(i),j), o=out[j];
+    if(!o.travel&&!holidayOn(ds)&&tripOn(ds)&&!o.x.some(y=>y.sp==="lift")&&!(lower&&out[j+1]&&out[j+1].key)){ out[j]={...o,x:[...o.x.filter(y=>y.sp!=="mob"),{...x,t:"At the gym, moved from the travel day. "+x.t.replace(/^PM, 6\+ hours after the morning session\. /,"")}]}; break; } } });
   return out;
 }
 const weekMi=i=>buildWeek(i).reduce((a,d)=>a+d.mi,0);
@@ -812,7 +820,7 @@ const phasePill=i=>{const p=phaseOf(i);return `<span class="pill"><i style="back
 
 function renderBar(){
   const days=Math.round((toT(S.race)-toT(TODAY))/DAY);
-  document.getElementById("raceName").textContent=`${S.raceName} · ${fmtD(S.race,{month:"long",day:"numeric",year:"numeric"})}`;
+  document.getElementById("raceName").textContent=`${S.raceName} · ${fmtD(S.race,{month:"short",day:"numeric",year:"numeric"})}`;
   document.getElementById("count").innerHTML=days>0?`${days}<small>days to go</small>`:days===0?`Race day`:`Done`;
   const w=weekOf(TODAY), n=NW();
   document.getElementById("bibSub").textContent=w<0?`Plan starts ${fmtD(planStart())}. Goal ${S.goal}.`:w>=n?`Recovery time. Goal was ${S.goal}.`:`Week ${w+1} of ${n} · ${phaseOf(w).name} · Goal ${S.goal}`;
@@ -847,12 +855,13 @@ function withWatts(t){
   return t.replace(/(\d+)–(\d+)% FTP/g,(m,a,b)=>`${m} (${Math.round(f*a/100)}–${Math.round(f*b/100)} W)`).replace(/(^|[^–\d])(\d+)% FTP/g,(m,pre,a)=>`${m} (${Math.round(f*a/100)} W)`);
 }
 let ICU=[];
+const lead=t=>{const m=String(t).match(/^(.+?[.:])(\s.*)?$/);return m?`<b>${esc(m[1])}</b>${esc(m[2]||"")}`:`<b>${esc(t)}</b>`;};
 function sessions(d,z){
   const L=[];
   const gb=txt=>{ICU.push(txt);return ` <button type="button" class="gbtn" data-icu="${ICU.length-1}" aria-label="Copy this workout for Garmin">Copy for Garmin</button>`;};
-  if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${esc(d.t)} <span class="faint">${d.mi} mi</span>${gb(icuRun(d))}</div><div class="p">${targetLine(d,z)}</div></div>`);
-  d.x.forEach(s=>{const parts=(s.sp==="bike"?withWatts(s.t):s.t).split(" · "); L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${esc(parts[0])} <span class="faint">${esc(s.amt)}</span>${s.sp==="bike"?gb(icuBike(s)):""}</div>${parts.length>1?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>`);});
-  if(!L.length) L.push(`<div class="sess"><div class="t">${zoneTag("X")}${esc(d.t)}</div></div>`);
+  if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${lead(d.t)}${gb(icuRun(d))}</div><div class="p">${targetLine(d,z)}</div></div>`);
+  d.x.forEach(s=>{const parts=(s.sp==="bike"?withWatts(s.t):s.t).split(" · "); L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${lead(parts[0])} <span class="faint amt">${esc(s.amt)}</span>${s.sp==="bike"?gb(icuBike(s)):""}</div>${parts.length>1?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>`);});
+  if(!L.length) L.push(`<div class="sess"><div class="t">${zoneTag("X")}${lead(d.t)}</div></div>`);
   return L.join("");
 }
 function headline(d){
@@ -919,7 +928,7 @@ function renderWeek(){
       <div><div class="eyebrow">Week ${i+1} of ${NW()} · from ${fmtD(weekStart(i))}</div><h2 style="margin-top:3px">${esc(p.name)}</h2></div>
       <div class="wk-nav"><button id="wkPrev" aria-label="Previous week" ${i===0?"disabled":""}>‹</button><button class="btn" id="wkNow">This week</button><button id="wkNext" aria-label="Next week" ${i===NW()-1?"disabled":""}>›</button></div>
     </div>
-    <p class="faint" style="margin-top:8px">${esc(p.blurb)}${(blk(i)<0&&(i+1)%4===0)?" This is a lighter week: about 30% less volume, plus a 5K time trial.":""}</p>
+    <p class="faint" style="margin-top:8px">${esc(p.blurb)}${isDeload(i)?" This is a lighter week, about 30% less volume"+(buildWeek(i).some(d=>d.z==="TT")?", with a 5K time trial.":"."):""}</p>
     <div class="stats" style="margin-top:10px">
       ${tile("Run",`${plan.toFixed(0)} mi`,`${dn.run.toFixed(0)}`)}
       ${ld.bike?tile("Bike",hrs(ld.bike),hrs(dn.bike)):""}
@@ -1000,8 +1009,8 @@ function renderPaces(){
   view.innerHTML=`
   <section class="card">
     <div class="eyebrow">Fitness · VDOT ${z.V.toFixed(1)}</div>
-    <h2 style="margin-top:3px">You're on track for a ${fmtH(z.mar)} marathon</h2>
-    <p class="muted" style="margin-top:8px">Based on ${esc(src)}. ${Math.abs(gap)<1.5?`That matches your ${esc(S.goal)} goal.`:gap<0?`Your ${esc(S.goal)} goal is ${fmtH(-gap)} faster than that. The build is there to close the gap; time trials will show if it's closing.`:`Your ${esc(S.goal)} goal is ${fmtH(gap)} slower than that, which leaves room for heat, hills and a bad patch.`}</p>
+    <h2 style="margin-top:3px">Current fitness: a ${fmtH(z.mar)} marathon</h2>
+    <p class="muted" style="margin-top:8px">Based on ${esc(src)}. ${Math.abs(gap)<1.5?`That matches your ${esc(S.goal)} goal.`:gap<0?`Your ${esc(S.goal)} goal is ${fmtH(-gap)} faster than that. The build is there to close that gap, and the time trials will show whether it's closing.`:`Your ${esc(S.goal)} goal is ${fmtH(gap)} slower than that, which leaves room for heat, hills and a bad patch.`}</p>
   </section>
   <section class="card">
     <div class="eyebrow">Training paces${HRZ?" and Strava heart rate zones":""}</div>
@@ -1075,8 +1084,8 @@ function renderPlan(){
       <div class="field"><label for="sStart">Plan start</label><input id="sStart" type="date" value="${esc(S.start)}"><span class="hint">${n} weeks to race day.</span></div>
       <div class="field"><label for="sVol">Starting weekly miles</label><input id="sVol" type="number" min="0" max="110" step="1" value="${S.startVol!=null?esc(Math.round(S.startVol)):""}" placeholder="From Strava"><span class="hint">Set from your last 4 weeks on Strava.</span></div>
       <div class="field"><label for="sWinter">Winter adjustments</label><select id="sWinter">${[["boston","Boston: mid-Dec – mid-Feb"],["dec-feb","December – February"],["nov-mar","Mid-Nov – mid-Mar"],["off","Off"]].map(([v,n])=>`<option value="${v}" ${S.winter===v?"selected":""}>${n}</option>`).join("")}</select><span class="hint">Shorter long runs, indoor rides.</span></div>
-      <div class="field"><label for="sT1">Trip 1 to Minnesota</label><div class="row" style="flex-wrap:nowrap"><input id="sT1" type="date" value="${esc((S.trips[0]||{}).from||"")}" aria-label="Trip 1 start"><input id="sT1b" type="date" value="${esc((S.trips[0]||{}).to||"")}" aria-label="Trip 1 end"></div><span class="hint">Thanksgiving. Leave blank if you're not going.</span></div>
-      <div class="field"><label for="sT2">Trip 2 to Minnesota</label><div class="row" style="flex-wrap:nowrap"><input id="sT2" type="date" value="${esc((S.trips[1]||{}).from||"")}" aria-label="Trip 2 start"><input id="sT2b" type="date" value="${esc((S.trips[1]||{}).to||"")}" aria-label="Trip 2 end"></div><span class="hint">Christmas and New Year's.</span></div>
+      <div class="field"><label for="sT1">Trip 1 to Minnesota</label><div class="pair"><input id="sT1" type="date" value="${esc((S.trips[0]||{}).from||"")}" aria-label="Trip 1 start"><input id="sT1b" type="date" value="${esc((S.trips[0]||{}).to||"")}" aria-label="Trip 1 end"></div><span class="hint">Thanksgiving. Leave blank if you're not going.</span></div>
+      <div class="field"><label for="sT2">Trip 2 to Minnesota</label><div class="pair"><input id="sT2" type="date" value="${esc((S.trips[1]||{}).from||"")}" aria-label="Trip 2 start"><input id="sT2b" type="date" value="${esc((S.trips[1]||{}).to||"")}" aria-label="Trip 2 end"></div><span class="hint">Christmas and New Year's.</span></div>
       <div class="field"><label for="sPool">Pool access from</label><input id="sPool" type="date" value="${esc(S.poolFrom||"")}"><span class="hint">Swims show from this date. Clear it if you don't have a pool yet.</span></div>
       <div class="field"><label for="sFtp">Bike FTP (watts)</label><input id="sFtp" type="number" min="50" max="500" value="${esc(S.ftp||"")}" placeholder="${FTP?FTP.w+" from Strava"+(FTP.est?" (estimate)":""):"From Strava"}"><span class="hint">Sets the watts on bike workouts. Test it in week 4.</span></div>
       <div class="field" style="align-self:end"><button class="btn primary" type="submit">Save plan</button> <span class="faint" id="saved" aria-live="polite"></span></div>
