@@ -1,6 +1,9 @@
 // Push the Marathon Build plan to an intervals.icu calendar, which then sends each workout to Garmin.
 //
-//   [INTERVALS_API_KEY=...] [INTERVALS_ATHLETE_ID=0] node tools/push-intervals.mjs [--from YYYY-MM-DD] [--weeks N] [--settings settings.json] [--dry-run]
+//   [INTERVALS_API_KEY=...] [INTERVALS_ATHLETE_ID=0] node tools/push-intervals.mjs [--from YYYY-MM-DD] [--weeks N] [--settings settings.json] [--sync-thresholds] [--dry-run]
+//
+// --sync-thresholds sets intervals.icu's Ride FTP and Run threshold pace to the dashboard's values first, because
+// intervals.icu stores workout targets as percentages of those.
 //
 // Runs and rides go up as Garmin workout files (.FIT) built by the dashboard's own encoder, so the steps and
 // targets match the Download week button exactly. Lifts and swims go up as notes on the right day.
@@ -26,7 +29,7 @@ vm.createContext(ctx);
 vm.runInContext(planCode + `
   S = {...DEF, ...${JSON.stringify(settings)}};
   var ftpW = () => Number(S.ftp) > 0 ? Number(S.ftp) : 0;
-  this.api = { S, NW, weekStart, weekOf, buildWeek, icuRun, icuBike, textToSteps, liftSteps, fitEncode, SPORT, fmtD, add, TODAY };
+  this.api = { S, Z, MI, ftpW, NW, weekStart, weekOf, buildWeek, icuRun, icuBike, textToSteps, liftSteps, fitEncode, SPORT, fmtD, add, TODAY };
 `, ctx);
 const P = ctx.api;
 
@@ -83,10 +86,23 @@ const key = process.env.INTERVALS_API_KEY;
 const athlete = process.env.INTERVALS_ATHLETE_ID || "0";
 const headers = { "Content-Type": "application/json" };
 if (key) headers.Authorization = "Basic " + Buffer.from(`API_KEY:${key}`).toString("base64");
+const api = (path, init = {}) => fetch(`https://intervals.icu/api/v1/athlete/${athlete}${path}`, { ...init, headers });
+if (args.includes("--sync-thresholds")) {
+  const z = P.Z(), thr = +(P.MI / (z.T * 60)).toFixed(4), ftp = P.ftpW();
+  const sports = await (await api("/sport-settings")).json();
+  for (const sp of sports) {
+    const t = sp.types || [], body = {};
+    if (t.includes("Run") && Math.abs((sp.threshold_pace || 0) - thr) > 0.005) body.threshold_pace = thr;
+    if (t.includes("Ride") && ftp && sp.ftp !== ftp) body.ftp = ftp;
+    if (!Object.keys(body).length) continue;
+    const r = await api(`/sport-settings/${sp.id}`, { method: "PUT", body: JSON.stringify(body) });
+    if (!r.ok) { console.error(`Couldn't update ${t[0]} thresholds: ${r.status}`); process.exit(1); }
+    console.log(`${t[0]} thresholds updated:`, JSON.stringify(body));
+  }
+}
 for (let k = 0; k < events.length; k += 50) {
   const batch = events.slice(k, k + 50);
-  const r = await fetch(`https://intervals.icu/api/v1/athlete/${athlete}/events/bulk?upsert=true`, {
-    method: "POST", headers, body: JSON.stringify(batch) });
+  const r = await api("/events/bulk?upsert=true", { method: "POST", body: JSON.stringify(batch) });
   const body = await r.text();
   if (!r.ok) { console.error(`intervals.icu refused batch ${k / 50 + 1}: ${r.status} ${body.slice(0, 400)}`); process.exit(1); }
   console.log(`batch ${k / 50 + 1}: ${batch.length} events ok`);
