@@ -9,7 +9,7 @@
   --ink:#16202B; --ink2:#4A5866; --ink3:#7C8896;
   --lane:#1F5BD8; --lane-soft:#E3EBFB;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --h1:#7A8FA3; --h2:#4F8A8B; --h3:#3E6C8A; --base:#5E9C7A; --thr:#D98A2B; --spec:#1F5BD8; --taper:#8A6CC9;
+  --found:#A88B5C; --h1:#7A8FA3; --h2:#4F8A8B; --h3:#3E6C8A; --base:#5E9C7A; --thr:#D98A2B; --spec:#1F5BD8; --taper:#8A6CC9;
   --good:#2E8A57; --warn:#C27A12; --bad:#C2412F;
   --track:#E1E6EC;
   --f-display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
@@ -22,14 +22,14 @@
   --ink:#E8EDF2; --ink2:#AAB6C2; --ink3:#7A8794;
   --lane:#6E9BFF; --lane-soft:#1D2B47;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --h1:#8FA3B8; --h2:#6FB0B1; --h3:#6E9CC0; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
+  --found:#C4A676; --h1:#8FA3B8; --h2:#6FB0B1; --h3:#6E9CC0; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
   --good:#5CC48A; --warn:#E8A04A; --bad:#EF7666; --track:#26313C; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0E141B; --surface:#161E27; --surface2:#1C2631; --line:#2A3642;
   --ink:#E8EDF2; --ink2:#AAB6C2; --ink3:#7A8794;
   --lane:#6E9BFF; --lane-soft:#1D2B47;
   --bib:#F2C230; --bib-ink:#1A1608;
-  --h1:#8FA3B8; --h2:#6FB0B1; --h3:#6E9CC0; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
+  --found:#C4A676; --h1:#8FA3B8; --h2:#6FB0B1; --h3:#6E9CC0; --base:#77B892; --thr:#E8A04A; --spec:#6E9BFF; --taper:#AB91E6;
   --good:#5CC48A; --warn:#E8A04A; --bad:#EF7666; --track:#26313C; color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -95,6 +95,7 @@ p{margin:0}
 
 /* Week */
 .wk-nav{display:flex;align-items:center;gap:8px}
+.wk-nav .btn{white-space:nowrap}
 .wk-nav button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);font-size:1rem}
 .days{display:grid;gap:0;margin-top:8px}
 .day{display:grid;grid-template-columns:52px 1fr auto;gap:12px;padding:12px 0;border-top:1px solid var(--line);align-items:start}
@@ -196,6 +197,7 @@ textarea.icu{display:block;width:100%;min-height:120px;margin-top:6px;font-famil
   <div class="foot">Runs, best efforts and heart rate zones from your connected Strava account.</div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 /* ===================== Dates ===================== */
 const DAY=864e5, MI=1609.344, BLOCK=18;
@@ -540,6 +542,111 @@ function icuBike(s){
   return `Endurance\n- ${mins}m 56-75%`;
 }
 
+/* ===================== Garmin workout files (.FIT) ===================== */
+// Minimal FIT encoder for workout files: file_id, workout and workout_step messages.
+// Copy the files to the watch's GARMIN/NewFiles folder; they show up under Training > Workouts.
+const FIT_CRC=[0x0000,0xCC01,0xD801,0x1400,0xF001,0x3C00,0x2800,0xE401,0xA001,0x6C00,0x7800,0xB401,0x5000,0x9C01,0x8801,0x4400];
+function fitCrc(bytes,crc=0){ for(const b of bytes){ let t=FIT_CRC[crc&0xF]; crc=(crc>>4)&0x0FFF; crc=crc^t^FIT_CRC[b&0xF]; t=FIT_CRC[crc&0xF]; crc=(crc>>4)&0x0FFF; crc=crc^t^FIT_CRC[(b>>4)&0xF]; } return crc; }
+const FT={enum:[0x00,1],u16:[0x84,2],u32:[0x86,4],u32z:[0x8C,4],str:[0x07,32]};
+const FIT_DEFS={
+  0:{local:0,fields:[[0,"enum"],[1,"u16"],[2,"u16"],[3,"u32z"],[4,"u32"]]},                // file_id
+  26:{local:1,fields:[[4,"enum"],[11,"enum"],[6,"u16"],[8,"str"]]},                      // workout
+  27:{local:2,fields:[[254,"u16"],[0,"str"],[1,"enum"],[2,"u32"],[3,"enum"],[4,"u32"],[5,"u32"],[6,"u32"],[7,"enum"],[10,"u16"],[11,"u16"]]} // workout_step
+};
+function fitEncode(name,sport,subSport,steps){
+  const out=[], push=(...b)=>out.push(...b);
+  const val=(type,v)=>{
+    const [,size]=FT[type];
+    if(type==="str"){ const e=new TextEncoder().encode(String(v||"")); const b=new Array(size).fill(0); for(let k=0;k<Math.min(e.length,size-1);k++) b[k]=e[k]; return b; }
+    const inv={enum:0xFF,u16:0xFFFF,u32:0xFFFFFFFF,u32z:0}[type];
+    let n=v==null?inv:Math.max(0,Math.round(v)); const b=[]; for(let k=0;k<size;k++){ b.push(n&0xFF); n=Math.floor(n/256); } return b;
+  };
+  const define=g=>{const d=FIT_DEFS[g]; push(0x40|d.local,0,0,g&0xFF,g>>8,d.fields.length); d.fields.forEach(([f,t])=>push(f,FT[t][1],FT[t][0]));};
+  const write=(g,vals)=>{const d=FIT_DEFS[g]; push(d.local); d.fields.forEach(([f,t])=>push(...val(t,vals[f])));};
+  const now=Math.floor(Date.now()/1000)-631065600;
+  define(0); write(0,{0:5,1:255,2:0,3:(now%4000000000)+1,4:now});
+  define(26); write(26,{4:sport,11:subSport,6:steps.length,8:name});
+  define(27); steps.forEach((s,k)=>write(27,{254:k,...s}));
+  const data=Uint8Array.from(out), hdr=[14,0x20,0x54,0x08,data.length&0xFF,(data.length>>8)&0xFF,(data.length>>16)&0xFF,(data.length>>>24)&0xFF,0x2E,0x46,0x49,0x54];
+  const hc=fitCrc(hdr); const head=[...hdr,hc&0xFF,hc>>8];
+  const all=new Uint8Array(head.length+data.length+2); all.set(head,0); all.set(data,head.length);
+  const c=fitCrc(all.subarray(0,head.length+data.length)); all[all.length-2]=c&0xFF; all[all.length-1]=c>>8;
+  return all;
+}
+// workout_step builders. Duration: time in ms (x1000), distance in cm (x100), reps; targets: speed in mm/s, power in W+1000.
+const ST={time:0,dist:1,open:5,repeat:6,reps:29}, TG={speed:0,open:2,power:4}, IN={active:0,rest:1,warmup:2,cooldown:3,recovery:4};
+const stepOf=(o)=>({0:o.name,1:o.dt,2:o.dv,3:o.tt??TG.open,4:o.tt===undefined||o.tt===TG.open?null:0,5:o.lo,6:o.hi,7:o.int??IN.active,10:o.cat,11:o.ex});
+
+/* Turn the intervals.icu-style text (one source of truth for both exports) into FIT steps. */
+function textToSteps(text,kind){
+  const z=Z(), thr=MI/(z.T*60), ftp=ftpW();
+  const dur=t=>{let m;
+    if((m=t.match(/^([\d.]+)mi$/))) return [ST.dist,Number(m[1])*MI*100];
+    if((m=t.match(/^([\d.]+)km$/))) return [ST.dist,Number(m[1])*100000];
+    if((m=t.match(/^(\d+)mtr$/))) return [ST.dist,Number(m[1])*100];
+    if((m=t.match(/^(?:(\d+)m)?(?:(\d+)s)?$/))&&(m[1]||m[2])) return [ST.time,((Number(m[1])||0)*60+(Number(m[2])||0))*1000];
+    return [ST.open,null];};
+  const tgt=t=>{const m=t.match(/(\d+)(?:-(\d+))?%/); if(!m) return {};
+    let a=Number(m[1]), b=Number(m[2]||0); if(!b){a-=3;b=a+6;}
+    if(kind==="run") return {tt:TG.speed,lo:thr*a/100*1000,hi:thr*b/100*1000};
+    if(ftp) return {tt:TG.power,lo:ftp*a/100+1000,hi:ftp*b/100+1000};
+    return {};};
+  const steps=[]; let block=null;
+  const flush=()=>{ if(!block) return; if(block.rep>1&&block.start<steps.length){ steps.push({name:`Repeat ${block.rep}x`,dt:ST.repeat,dv:block.start,tt:TG.open,int:IN.active,repN:block.rep}); } block=null; };
+  text.split("\n").forEach(line=>{
+    line=line.trim(); if(!line) return;
+    if(!line.startsWith("- ")){ flush(); const m=line.match(/(\d+)x$/); block={title:line.replace(/\s*\d+x$/,""),rep:m?Number(m[1]):1,start:steps.length}; return; }
+    const parts=line.slice(2).split(/\s+/), [dt,dv]=dur(parts[0]), tg=tgt(line);
+    const ttl=(block&&block.title)||"", inRep=block&&block.rep>1, idx=steps.length-(block?block.start:0);
+    const int=/^Warmup/i.test(ttl)?IN.warmup:/^Cooldown/i.test(ttl)?IN.cooldown:inRep&&idx===1?IN.recovery:IN.active;
+    steps.push({name:(inRep&&idx===1?"Recover":ttl||"Run").slice(0,31),dt,dv,...tg,int});
+  });
+  flush();
+  return steps.map(s=>{const o=stepOf(s); if(s.dt===ST.repeat){o[4]=s.repN;} return o;});
+}
+
+/* Lifts: one step per set with Garmin's own exercise codes, so the watch logs real exercise names. */
+const EX=[
+  [/goblet squat/i,28,37],[/back squat|squat or trap-bar/i,28,6],[/bulgarian split squat/i,17,18],[/split squat/i,28,28],
+  [/single-leg rdl|single-leg romanian/i,8,14],[/romanian deadlift/i,8,23],[/trap-bar deadlift/i,8,17],[/trap-bar jumps/i,20,2],
+  [/calf raises/i,1,18],[/hang (?:muscle|power) clean/i,18,0],[/power clean/i,18,2],[/hang power snatch/i,18,6],[/push jerk/i,18,15],
+  [/kettlebell swings/i,12,null],[/step-ups/i,28,66],[/walking lunges/i,17,78],[/nordic curls/i,15,null],[/box jumps/i,20,33],
+  [/pogo hops|single-leg bounds/i,20,null],[/med-ball slams/i,20,25],[/med-ball chest pass/i,20,null],[/weighted push-ups|dips or weighted push-ups/i,30,2],
+  [/push-ups/i,22,77],[/dumbbell bench/i,0,6],[/bench press|bench or push-ups/i,0,1],[/half-kneeling press/i,24,24],[/overhead press/i,24,14],
+  [/push press/i,24,3],[/landmine press/i,24,null],[/face pulls/i,23,5],[/barbell row/i,23,45],[/one-arm row|rows/i,23,13],
+  [/weighted chin-ups/i,21,41],[/chin-ups/i,21,39],[/weighted pull-ups/i,21,24],[/pull-ups|pull and push|push and pull/i,21,38],[/dips/i,30,2],
+  [/farmer carries/i,3,7],[/suitcase carries/i,3,null],[/turkish get-ups/i,5,89],[/ab wheel/i,5,18],[/pallof/i,5,null],[/dead bug/i,11,1],
+  [/side plank/i,19,66],[/copenhagen/i,19,null]
+];
+function liftSteps(text){
+  const steps=[]; const items=text.split(" · ").slice(1);
+  items.forEach(it=>{
+    const m=it.match(/^(.*?)\s(\d+)\s*x\s*(\d+)(?:–(\d+))?(\s*m\b)?/);
+    const nm=(m?m[1]:it).replace(/^(Core|Olympic technique):\s*/i,"").replace(/\s*\(.*?\)/g,"").trim();
+    const ex=EX.find(([re])=>re.test(nm));
+    if(!m){ steps.push(stepOf({name:nm.slice(0,31),dt:ST.open,int:/cool-down/i.test(nm)?IN.cooldown:/mobility|warm-up/i.test(nm)?IN.warmup:IN.active,cat:ex?ex[1]:null,ex:ex?ex[2]:null})); return; }
+    const sets=Number(m[2]), reps=Number(m[4]||m[3]), dist=!!m[5], heavy=/heavy|clean|snatch|jerk|squat|deadlift|bench/i.test(it), start=steps.length;
+    steps.push(stepOf({name:nm.slice(0,31),dt:dist?ST.open:ST.reps,dv:dist?null:reps,int:IN.active,cat:ex?ex[1]:null,ex:ex?ex[2]:null}));
+    steps.push(stepOf({name:"Rest",dt:ST.time,dv:(heavy?120:75)*1000,int:IN.rest}));
+    if(sets>1){ const r=stepOf({name:`${sets} sets`,dt:ST.repeat,dv:start}); r[4]=sets; steps.push(r); }
+  });
+  return steps;
+}
+const SPORT={run:[1,0],bike:[2,0],lift:[10,20]};
+function weekFitFiles(i){
+  const files=[], z=Z(), dn=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  buildWeek(i).forEach((d,k)=>{
+    const ds=add(weekStart(i),k), tag=`${ds}_${dn[k]}`;
+    const short=t=>t.replace(/^(PM, 6\+ hours after the morning session\. |At the gym\. |Indoor trainer\. |At the gym: spin bike, or elliptical if there's no bike\. )/,"").split(/[.:·(]/)[0].trim();
+    if(d.mi>0){ const nm=`${fmtD(ds)} ${short(d.t)}`.slice(0,31); files.push({name:`${tag}_Run.fit`,bytes:fitEncode(nm,...SPORT.run,textToSteps(icuRun(d),"run"))}); }
+    d.x.forEach((s,n)=>{
+      if(s.sp==="bike") files.push({name:`${tag}_Ride.fit`,bytes:fitEncode(`${fmtD(ds)} ${short(s.t)}`.slice(0,31),...SPORT.bike,textToSteps(icuBike(s),"bike"))});
+      if(s.sp==="lift"){ const st=liftSteps(s.t); if(st.length) files.push({name:`${tag}_Lift${n?"_"+n:""}.fit`,bytes:fitEncode(`${fmtD(ds)} ${short(s.t.split(" · ")[0])}`.slice(0,31),...SPORT.lift,st)}); }
+    });
+  });
+  return files;
+}
+
 /* ===================== Strava ===================== */
 const RUNS=new Set(["Run","TrailRun","VirtualRun"]);
 let ACTS=[], SYNC={state:"idle",msg:"",at:null}, HRZ=null, FTP=null; const STR={};
@@ -820,12 +927,18 @@ function renderWeek(){
       ${ld.lift?tile("Lifts",`${ld.lift}`,`${dn.lift}`):""}
     </div>
     <div class="days">${rows}</div>
+    <div class="spread" style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+      <div style="min-width:0"><b style="font-size:.9rem">Put this week on your Garmin</b><div class="faint" id="dlMsg" aria-live="polite">Runs and rides with pace and power targets, lifts with sets and reps.</div></div>
+      <div class="row"><button class="btn primary" id="dlWeek" type="button">Download week</button><button class="btn" id="dl4" type="button">Next 4 weeks</button></div>
+    </div>
   </section>
   ${tripWeek(i)?MN_CARD:""}${winterWeek(i)?WINTER_CARD:darkWeek(i)&&blk(i)<0?DARK_CARD:""}`;
   const go=n=>{WK=n;ICU=[];renderWeek();bindGarmin();};
   document.getElementById("wkPrev").onclick=()=>go(Math.max(0,WK-1));
   document.getElementById("wkNext").onclick=()=>go(Math.min(NW()-1,WK+1));
   document.getElementById("wkNow").onclick=()=>go(curWeek());
+  document.getElementById("dlWeek").onclick=e=>downloadWeeks(i,1,e.currentTarget,document.getElementById("dlMsg"));
+  document.getElementById("dl4").onclick=e=>downloadWeeks(i,4,e.currentTarget,document.getElementById("dlMsg"));
 }
 
 function renderProgress(){
@@ -937,12 +1050,12 @@ function garminCard(){
   return `<section class="card">
   <div class="eyebrow">Garmin</div><h2 style="margin-top:3px">Get workouts on your watch</h2>
   <ol class="cite" style="list-style:decimal;padding-left:20px">
-    <li><b>Set up intervals.icu once.</b> Make a free account at intervals.icu and connect Garmin and Strava. In the Garmin connection, turn on uploading planned workouts.</li>
-    <li><b>Set your targets there.</b> Run threshold pace <span class="mono">${fmtP(z.T)}/mi</span> (your Threshold pace on the Paces tab). Bike FTP <span class="mono">${ftpW()||"from your week 4 test"}${ftpW()?" W":""}</span>. Run workouts here use % of threshold pace, and rides use % of FTP.</li>
-    <li><b>Add each workout.</b> Tap <b>Copy for Garmin</b> next to a run or ride, open that day in the intervals.icu calendar, add a workout and paste the text into the description. intervals.icu builds the steps and sends the workout to your watch.</li>
-    <li><b>Log lifts as Strength.</b> On your Forerunner, start a Strength activity. It counts reps and sets. Afterward, fix the exercise names and add weights in the Garmin Connect app. Those sets sync to Strava, and they show under each lift here.</li>
+    <li><b>Download a week.</b> On the Week tab, tap <b>Download week</b> (or <b>Next 4 weeks</b>) and unzip the file. Each run, ride and lift is its own workout file.</li>
+    <li><b>Copy them to the watch.</b> Plug your Forerunner into a computer and copy the .fit files into the <span class="mono">GARMIN/NewFiles</span> folder. On a Mac, the watch shows up through OpenMTP or Android File Transfer, not Finder. Unplug, and the workouts appear under Training › Workouts.</li>
+    <li><b>Start the workout.</b> Runs guide you with pace ranges (threshold ${fmtP(z.T)}/mi), rides with watts (FTP ${ftpW()||"not set yet"}${ftpW()?" W":""}), and lifts step through each set with rest timers.</li>
+    <li><b>Lifts log themselves.</b> Lift files use Garmin's own exercise names, so a Strength activity started from the workout records real sets. Add the weights in the Garmin Connect app afterward, and they sync to Strava and show up here.</li>
   </ol>
-  <p class="faint" style="margin-top:10px">Lifts and swims don't need the copy step: log them with the right activity type on the watch.</p>
+  <p class="faint" style="margin-top:10px">Download again after a time trial or an FTP test, since targets come from your current paces and FTP. Copy for Garmin still works if you use intervals.icu.</p>
 </section>`;
 }
 function renderPlan(){
@@ -988,6 +1101,26 @@ const RENDER={week:renderWeek,progress:renderProgress,paces:renderPaces,plan:ren
 function setTab(t){TAB=RENDER[t]?t:"week"; try{localStorage.setItem("mbuild-tab",TAB);}catch(e){}
   document.querySelectorAll("#tabbar button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===TAB?"true":"false"));
   ICU=[]; RENDER[TAB](); bindGarmin(); }
+let DL=null;
+const getDl=async()=>{ if(DL!==null) return DL; try{ DL=window.claude&&window.claude.use?await window.claude.use("downloads"):null; }catch(e){DL=null;} return DL; };
+async function downloadWeeks(from,count,btn,status){
+  const dl=await getDl(), say=t=>{ if(status) status.textContent=t; };
+  if(!dl){ say("Downloads aren't available in this view. Open the dashboard in claude.ai or the Claude app."); return; }
+  if(!window.JSZip){ say("The zip tool didn't load. Reload the page and try again."); return; }
+  btn.disabled=true; say("Building workout files");
+  try{
+    const zip=new JSZip(); let n=0;
+    for(let i=from;i<Math.min(NW(),from+count);i++) weekFitFiles(i).forEach(f=>{zip.file(f.name,f.bytes);n++;});
+    if(!n){ say("No runs, rides or lifts in those weeks."); return; }
+    const data=await zip.generateAsync({type:"uint8array"});
+    const last=Math.min(NW(),from+count)-1;
+    const r=await dl.save({filename:`Garmin workouts ${count>1?`weeks ${from+1}-${last+1}`:`week ${from+1}`}.zip`,data,request:`${n} Garmin workout files for ${count>1?`weeks ${from+1} to ${last+1}`:`week ${from+1}`}`});
+    say(`Saved ${n} workouts. Unzip and copy the .fit files to GARMIN/NewFiles on your watch.`);
+  }catch(e){
+    const c=e&&e.code;
+    say(c==="declined"?"Download canceled.":c==="rejected_extension"||c==="extension_not_enabled"?"This view doesn't allow .zip downloads.":c==="too_large"?"That's too many workouts at once. Try one week.":c==="rate_limited"?"Too many downloads in a row. Try again in a minute.":"The download didn't work. Try again.");
+  }finally{ btn.disabled=false; }
+}
 function bindGarmin(){
   view.querySelectorAll(".gbtn").forEach(b=>b.onclick=async()=>{
     const txt=ICU[Number(b.dataset.icu)]||"";

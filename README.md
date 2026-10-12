@@ -18,8 +18,11 @@ Set up for Grandma's Marathon (June 19, 2027), a sub-3:30 goal and a 50-mile pea
   ACSM 2021 cold-weather consensus). Holidays are rest days.
 - **Trips home to Minnesota** (Thanksgiving Nov 25–29, Christmas Dec 23–Jan 1, editable): travel days are rest days,
   an easy run lost to travel moves to the next free day, rides move to a gym spin bike, no swims, colder rules.
-- **Garmin**: every run and ride has a "Copy for Garmin" button that copies intervals.icu workout text
-  (% of threshold pace for runs, % of FTP for rides). Pasted into intervals.icu, it syncs to the watch.
+- **Garmin**: the Week tab downloads a zip of Garmin workout files (.FIT) for a week or the next 4 weeks.
+  Copy them to the watch's GARMIN/NewFiles folder. Runs carry pace ranges, rides carry watts from FTP,
+  and lifts step through each set with rest timers using Garmin's exercise codes. The encoder is validated
+  against Garmin's FIT SDK decoder (all 264 plan workouts decode with no errors). "Copy for Garmin" still
+  copies intervals.icu workout text for anyone using intervals.icu.
   Lifts logged as Garmin Strength activities show their sets and weights from Strava.
 - **Weeks 19–36, marathon build**: base, threshold, marathon specific and taper, with lifting dropping from twice a
   week to one maintenance session, plus easy swims and spins for recovery.
