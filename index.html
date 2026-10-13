@@ -242,7 +242,7 @@ const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
 
 /* ===================== Settings ===================== */
 const DEF={raceName:"Grandma's Marathon",race:"2027-06-19",start:"2026-10-12",goal:"3:29:00",peak:"50",
-  src:"strava",winter:"boston",poolFrom:"2026-10-19",ftp:"",trips:[{from:"2026-11-25",to:"2026-11-29",where:"Minnesota"},{from:"2026-12-23",to:"2027-01-01",where:"Minnesota"}],benchDist:"10000",benchTime:"46:00",startVol:null};
+  src:"strava",winter:"boston",poolFrom:"2026-10-19",ftp:"",swaps:[],trips:[{from:"2026-11-25",to:"2026-11-29",where:"Minnesota"},{from:"2026-12-23",to:"2027-01-01",where:"Minnesota"}],benchDist:"10000",benchTime:"46:00",startVol:null};
 let S={...DEF};
 try{const s=JSON.parse(localStorage.getItem("mbuild3")||"null"); if(s) S={...DEF,...s};}catch(e){}
 
@@ -504,7 +504,7 @@ function buildWeekBase(i){
 /* Trips home to Minnesota: travel days become rest days, no pool, the gym stands in for the trainer, colder rules. */
 const tripOn=ds=>(S.trips||[]).find(t=>t&&t.from&&t.to&&ds>=t.from&&ds<=t.to);
 const tripWeek=i=>[0,1,2,3,4,5,6].some(d=>tripOn(add(weekStart(i),d)));
-function buildWeek(i){
+function buildWeekTrips(i){
   const base=buildWeekBase(i), lost=[], lostLift=[];
   const out=base.map((d,k)=>{
     const ds=add(weekStart(i),k), t=tripOn(ds), h=holidayOn(ds);
@@ -520,6 +520,13 @@ function buildWeek(i){
     if(o.mi===0&&!o.travel&&!holidayOn(ds)&&tripOn(ds)&&!(out[j+1]&&out[j+1].z==="TT")){ out[j]={...o,mi:d.mi,t:`Easy run, moved from the travel day. Gym treadmill if the wind chill is below 0°F or it's icy.`,z:"E",x:o.x}; break; } } });
   lostLift.forEach(({k,x})=>{ const lower=/Lower/.test(x.t); for(let j=k+1;j<7;j++){ const ds=add(weekStart(i),j), o=out[j];
     if(!o.travel&&!holidayOn(ds)&&tripOn(ds)&&!o.x.some(y=>y.sp==="lift")&&!(lower&&out[j+1]&&out[j+1].key)){ out[j]={...o,x:[...o.x.filter(y=>y.sp!=="mob"),{...x,t:"At the gym, moved from the travel day. "+x.t.replace(/^PM, 6\+ hours after the morning session\. /,"")}]}; break; } } });
+  return out;
+}
+/* Day swaps the runner made (settings.swaps: [{a:"YYYY-MM-DD", b:"YYYY-MM-DD"}], same week). */
+function buildWeek(i){
+  const out=buildWeekTrips(i), ws=weekStart(i);
+  (S.swaps||[]).forEach(({a,b})=>{ const ka=Math.round((toT(a)-toT(ws))/DAY), kb=Math.round((toT(b)-toT(ws))/DAY);
+    if(ka>=0&&ka<7&&kb>=0&&kb<7&&ka!==kb){ const t=out[ka]; out[ka]={...out[kb],swapped:b}; out[kb]={...t,swapped:a}; } });
   return out;
 }
 const weekMi=i=>buildWeek(i).reduce((a,d)=>a+d.mi,0);
@@ -943,7 +950,7 @@ function renderWeek(){
   const rows=days.map((d,k)=>{const ds=add(weekStart(i),k);
     return `<div class="day${ds===TODAY?" is-today":""}">
       <div class="dname">${fmtD(ds,{weekday:"short"})}<small>${fmtD(ds)}</small></div>
-      <div class="dwork">${sessions(d,z)}<div>${doneChip(ds,d)}</div></div>
+      <div class="dwork">${sessions(d,z)}${d.swapped?`<div class="faint" style="margin-top:3px">Swapped with ${fmtD(d.swapped,{weekday:"short"})}</div>`:""}<div>${doneChip(ds,d)}</div></div>
       <div class="dmi">${d.mi?d.mi:"–"}<small>${d.mi?"mi":""}</small></div></div>`;}).join("");
   view.innerHTML=`${renderToday()}
   <section class="card">

@@ -2,6 +2,8 @@
 //
 //   [INTERVALS_API_KEY=...] [INTERVALS_ATHLETE_ID=0] node tools/push-intervals.mjs [--from YYYY-MM-DD] [--weeks N] [--settings settings.json] [--sync-thresholds] [--dry-run]
 //
+// --prune deletes events this plan created earlier (external_id "marathon-build:...") that fall inside the pushed
+// date range but are no longer in the plan, e.g. after a day swap or a new race date.
 // --sync-thresholds sets intervals.icu's Ride FTP and Run threshold pace to the dashboard's values first, because
 // intervals.icu stores workout targets as percentages of those.
 //
@@ -106,5 +108,14 @@ for (let k = 0; k < events.length; k += 50) {
   const body = await r.text();
   if (!r.ok) { console.error(`intervals.icu refused batch ${k / 50 + 1}: ${r.status} ${body.slice(0, 400)}`); process.exit(1); }
   console.log(`batch ${k / 50 + 1}: ${batch.length} events ok`);
+}
+if (args.includes("--prune") && events.length) {
+  const dates = events.map(e => e.start_date_local.slice(0, 10)).sort(), keep = new Set(events.map(e => e.external_id));
+  const have = await (await api(`/events?oldest=${from}&newest=${P.add(P.weekStart(Math.min(P.NW(), first + weeks) - 1), 6)}`)).json();
+  for (const e of have) {
+    if (!String(e.external_id || "").startsWith("marathon-build:") || keep.has(e.external_id)) continue;
+    const r = await api(`/events/${e.id}`, { method: "DELETE" });
+    console.log(`${r.ok ? "removed" : "couldn't remove"} stale ${e.start_date_local.slice(0, 10)} ${e.name}`);
+  }
 }
 console.log("Done. intervals.icu sends upcoming workouts to Garmin Connect, and your watch picks them up on its next sync.");
