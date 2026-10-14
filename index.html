@@ -128,16 +128,7 @@ p{margin:0}
 .zone{display:inline-block;font-family:var(--f-mono);font-size:.68rem;padding:1px 6px;border-radius:5px;margin-right:6px;vertical-align:1px;color:#fff}
 .zone{border-radius:6px}
 .z-E,.z-L{background:var(--h2)}.z-T{background:var(--thr)}.z-I{background:var(--zi)}.z-MP{background:var(--spec)}.z-R,.z-TT{background:var(--foam);color:#0B2E29}.z-X{background:var(--ink3)}.z-BIKE{background:var(--z-bike)}.z-SWIM{background:var(--z-swim)}.z-LIFT{background:var(--z-lift)}.z-MOB{background:var(--z-mob)}
-.sess{display:grid;grid-template-columns:20px 1fr;gap:8px;align-items:start}
-.sess+.sess{margin-top:9px}
-.sb{min-width:0}
-.mk{width:18px;height:18px;border-radius:50%;margin-top:2px;display:grid;place-items:center;font-size:.7rem;font-weight:700;line-height:1;border:1.5px solid var(--line);color:transparent}
-.mk-done{background:var(--good);border-color:var(--good);color:#fff}
-.mk-miss{border-color:var(--bad);color:var(--bad)}
-.mk-rest{border-style:dashed}
-.ss-done .t{color:var(--ink3)}.ss-done .t b{color:var(--ink2)}
-.act{color:var(--good);font-weight:600;font-family:var(--f-mono);font-size:.78rem}
-.xtra{margin-top:6px;font-size:.78rem;color:var(--ink3)}
+.sess+.sess{margin-top:7px}
 .amt{white-space:nowrap}
 .ex{margin:3px 0 0;padding-left:18px;font-size:.84rem;color:var(--ink2)}
 .ex li{margin:1px 0}
@@ -872,31 +863,23 @@ function renderBar(){
 const sportOf=t=>RUNS.has(t)?"run":/Ride/.test(t)?"bike":/Swim/.test(t)?"swim":/WeightTraining|Workout|Crossfit|HighIntensityIntervalTraining|RockClimbing/.test(t)?"lift":/Yoga|Pilates/.test(t)?"mob":"other";
 const SPT={bike:"BIKE",swim:"SWIM",lift:"LIFT",mob:"MOB"};
 const actsOn=(s,sp)=>ACTS.filter(a=>a.date===s&&sportOf(a.type)===sp);
-/* Status per planned session: done ✓, missed ✕, open ○. Optional sessions never count as missed. */
-const optional=s=>/Optional|optional|Recovery only/.test((s.t||"")+" "+(s.amt||""));
-function sessStatus(ds,sp,opt){
-  if(!haveData()) return "open";
-  if(actsOn(ds,sp).length) return "done";
-  return ds<TODAY&&!opt?"miss":"open";
+function doneChip(ds,d){
+  let h="";
+  const runs=actsOn(ds,"run");
+  if(runs.length){const mi=runs.reduce((a,r)=>a+r.m/MI,0), s=runs.reduce((a,r)=>a+r.s,0);
+    const hrs=runs.map(r=>PERF[r.id]&&PERF[r.id].hr).filter(Boolean);
+    h+=`<span class="done">Ran ${mi.toFixed(1)} mi · ${fmtP(s/60/mi)}/mi${hrs.length?` · ${Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length)} bpm`:""}</span> `;}
+  actsOn(ds,"bike").forEach(a=>{h+=`<span class="done">Rode ${Math.round(a.s/60)} min · ${(a.m/MI).toFixed(0)} mi</span> `;});
+  actsOn(ds,"swim").forEach(a=>{h+=`<span class="done">Swam ${Math.round(a.m*1.0936).toLocaleString()} yd</span> `;});
+  actsOn(ds,"lift").forEach(a=>{const sm=strSummary(a.id); h+=`<span class="done">Lifted ${Math.round(a.s/60)} min${sm?"":STR[a.id]?" · no sets logged":""}</span> `+(sm?`<div class="faint" style="margin-top:3px">${esc(sm)}</div>`:"");});
+  ACTS.filter(a=>a.date===ds&&["mob","other"].includes(sportOf(a.type))).forEach(a=>{h+=`<span class="done other">${esc(a.type.replace(/([a-z])([A-Z])/g,"$1 $2"))} ${Math.round(a.s/60)} min</span> `;});
+  if(haveData()&&ds<TODAY){
+    if(d.mi>0&&!runs.length) h+=`<span class="done miss">Run missed</span> `;
+    ["bike","swim"].forEach(sp=>{ if(d.x.some(s=>s.sp===sp&&!/Optional|Recovery only/i.test(s.t))&&!actsOn(ds,sp).length) h+=`<span class="done miss">${sp==="bike"?"Ride":"Swim"} missed</span> `; });
+    if(d.x.some(s=>s.sp==="lift")&&!actsOn(ds,"lift").length) h+=`<span class="done other">Lift not on Strava</span> `;
+  }
+  return h;
 }
-function actualRun(ds){const r=actsOn(ds,"run"); if(!r.length) return ""; const mi=r.reduce((a,x)=>a+x.m/MI,0), sec=r.reduce((a,x)=>a+x.s,0);
-  const hr=r.map(x=>PERF[x.id]&&PERF[x.id].hr).filter(Boolean); return `${mi.toFixed(1)} mi · ${fmtP(sec/60/mi)}/mi${hr.length?` · ${Math.round(meanOf(hr))} bpm`:""}`;}
-function actualOther(ds,sp){const a=actsOn(ds,sp); if(!a.length) return ""; const min=Math.round(a.reduce((t,x)=>t+x.s,0)/60);
-  if(sp==="swim") return `${Math.round(a.reduce((t,x)=>t+x.m,0)*1.0936).toLocaleString()} yd · ${min} min`;
-  if(sp==="bike") return `${min} min · ${(a.reduce((t,x)=>t+x.m,0)/MI).toFixed(0)} mi`;
-  if(sp==="lift"){const sm=a.map(x=>strSummary(x.id)).filter(Boolean).join(" · "); return `${min} min${sm?" · "+sm:""}`;}
-  return `${min} min`;}
-const mark=st=>`<span class="mk mk-${st}" role="img" aria-label="${st==="done"?"Done":st==="miss"?"Missed":"Not done yet"}">${st==="done"?"✓":st==="miss"?"✕":""}</span>`;
-function extraActs(ds,d){
-  const planned=new Set([...(d.mi>0?["run"]:[]),...d.x.map(s=>s.sp)]);
-  const extra=ACTS.filter(a=>a.date===ds&&!planned.has(sportOf(a.type)));
-  return extra.length?`<div class="xtra">+ ${extra.map(a=>`${esc(a.type.replace(/([a-z])([A-Z])/g,"$1 $2"))} ${Math.round(a.s/60)} min`).join(", ")}</div>`:"";
-}
-function dayTally(ds,d){ // counts planned, non-optional sessions
-  const items=[...(d.mi>0?[{sp:"run",opt:false}]:[]),...d.x.filter(s=>s.sp!=="mob").map(s=>({sp:s.sp,opt:optional(s)}))].filter(x=>!x.opt);
-  return {n:items.length,done:items.filter(x=>sessStatus(ds,x.sp,false)==="done").length,miss:items.filter(x=>sessStatus(ds,x.sp,false)==="miss").length};
-}
-function doneChip(ds,d){ return extraActs(ds,d); }
 const targetLine=(d,z)=>{const hr=hrTarget(d.z), p=zoneTarget(d.z,z);return [p,hr].filter(Boolean).join(" · ");};
 const ftpW=()=>Number(S.ftp)>0?Number(S.ftp):FTP?FTP.w:0;
 function withWatts(t){
@@ -904,14 +887,11 @@ function withWatts(t){
   return t.replace(/(\d+)–(\d+)% FTP/g,(m,a,b)=>`${m} (${Math.round(f*a/100)}–${Math.round(f*b/100)} W)`).replace(/(^|[^–\d])(\d+)% FTP/g,(m,pre,a)=>`${m} (${Math.round(f*a/100)} W)`);
 }
 const lead=t=>{const m=String(t).match(/^(.+?[.:])(\s.*)?$/);return m?`<b>${esc(m[1])}</b>${esc(m[2]||"")}`:`<b>${esc(t)}</b>`;};
-function sessions(d,z,ds){
+function sessions(d,z){
   const L=[];
-  if(d.mi>0){const st=sessStatus(ds,"run",false), act=st==="done"?actualRun(ds):"";
-    L.push(`<div class="sess ss-${st}">${mark(st)}<div class="sb"><div class="t">${zoneTag(d.z)}${lead(d.t)}</div><div class="p">${act?`<span class="act">${act}</span>`:targetLine(d,z)}</div></div></div>`);}
-  d.x.forEach(s=>{const parts=(s.sp==="bike"?withWatts(s.t):s.t).split(" · "), opt=optional(s)||s.sp==="mob";
-    const st=s.sp==="mob"?(actsOn(ds,"mob").length?"done":"open"):sessStatus(ds,s.sp,opt), act=st==="done"?actualOther(ds,s.sp):"";
-    L.push(`<div class="sess ss-${st}">${mark(st)}<div class="sb"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${lead(parts[0])} <span class="faint amt">${esc(s.amt)}</span></div>${act?`<div class="p"><span class="act">${esc(act)}</span></div>`:""}${parts.length>1&&st!=="done"?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div></div>`);});
-  if(!L.length) L.push(`<div class="sess"><span class="mk mk-rest"></span><div class="sb"><div class="t">${lead(d.t)}</div></div></div>`);
+  if(d.mi>0) L.push(`<div class="sess"><div class="t">${zoneTag(d.z)}${lead(d.t)}</div><div class="p">${targetLine(d,z)}</div></div>`);
+  d.x.forEach(s=>{const parts=(s.sp==="bike"?withWatts(s.t):s.t).split(" · "); L.push(`<div class="sess"><div class="t"><span class="zone z-${SPT[s.sp]}">${SPT[s.sp]}</span>${lead(parts[0])} <span class="faint amt">${esc(s.amt)}</span></div>${parts.length>1?`<ul class="ex">${parts.slice(1).map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</div>`);});
+  if(!L.length) L.push(`<div class="sess"><div class="t">${zoneTag("X")}${lead(d.t)}</div></div>`);
   return L.join("");
 }
 function headline(d){
@@ -930,7 +910,8 @@ function renderToday(){
   return `<section class="card today">
     <div class="spread"><div class="eyebrow">Today · ${fmtD(TODAY,{weekday:"long",month:"short",day:"numeric"})}</div>${phasePill(i)}</div>
     <div class="what">${headline(d)}</div>
-    <div class="dwork">${sessions(d,z,TODAY)}${doneChip(TODAY,d)}</div>
+    <div class="dwork">${sessions(d,z)}</div>
+    <div>${doneChip(TODAY,d)}</div>
   </section>`;
 }
 
@@ -966,11 +947,10 @@ function renderWeek(){
   WK=clamp(WK,0,NW()-1);
   const i=WK, days=buildWeek(i), plan=days.reduce((a,d)=>a+d.mi,0), z=Z(), p=phaseOf(i), ld=weekLoad(i), dn=weekDone(i), hd=haveData();
   const tile=(l,planned,done)=>`<div class="stat"><div class="l">${l}</div><div class="v">${hd?`${done}<small>/ ${planned}</small>`:planned}</div></div>`;
-  let tn=0,td=0; days.forEach((d,k)=>{const t=dayTally(add(weekStart(i),k),d); tn+=t.n; td+=t.done;});
   const rows=days.map((d,k)=>{const ds=add(weekStart(i),k);
     return `<div class="day${ds===TODAY?" is-today":""}">
       <div class="dname">${fmtD(ds,{weekday:"short"})}<small>${fmtD(ds)}</small></div>
-      <div class="dwork">${sessions(d,z,ds)}${d.swapped?`<div class="faint" style="margin-top:3px">Swapped with ${fmtD(d.swapped,{weekday:"short"})}</div>`:""}<div>${doneChip(ds,d)}</div></div>
+      <div class="dwork">${sessions(d,z)}${d.swapped?`<div class="faint" style="margin-top:3px">Swapped with ${fmtD(d.swapped,{weekday:"short"})}</div>`:""}<div>${doneChip(ds,d)}</div></div>
       <div class="dmi">${d.mi?d.mi:"–"}<small>${d.mi?"mi":""}</small></div></div>`;}).join("");
   view.innerHTML=`${renderToday()}
   <section class="card">
@@ -980,7 +960,6 @@ function renderWeek(){
     </div>
     <p class="faint" style="margin-top:8px">${esc(p.blurb)}${isDeload(i)?" This is a lighter week, about 30% less volume"+(buildWeek(i).some(d=>d.z==="TT")?", with a 5K time trial.":"."):""}</p>
     <div class="stats" style="margin-top:10px">
-      <div class="stat"><div class="l">Sessions done</div><div class="v">${td}<small>/ ${tn}</small></div><div class="meter" style="margin-top:6px;height:6px"><i style="width:${tn?td/tn*100:0}%"></i></div></div>
       ${tile("Run",`${plan.toFixed(0)} mi`,`${dn.run.toFixed(0)}`)}
       ${ld.bike?tile("Bike",hrs(ld.bike),hrs(dn.bike)):""}
       ${ld.swim?tile("Swim",hrs(ld.swim),hrs(dn.swim)):""}
